@@ -25,7 +25,6 @@ const TEXT = {
     addAnother: "Add another story",
     invite: "Invite family (soon)",
     storySaved: "Story saved.",
-    // NEW: Label for the preview
     storyShared: "Story shared",
     firstStorySaved: "Your first story has been saved.",
     firstStorySavedPerson: (name: string) => `Your first story about ${name} has been saved.`,
@@ -82,7 +81,6 @@ const TEXT = {
     addAnother: "Agregar otra historia",
     invite: "Invitar familia (pronto)",
     storySaved: "Historia guardada.",
-    // NEW: Label for the preview
     storyShared: "Historia compartida",
     firstStorySaved: "Tu primera historia ha sido guardada.",
     firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} ha sido guardada.`,
@@ -945,6 +943,15 @@ export default function Page() {
             {step === "SAVED" && (
               <div className="space-y-6">
                 <div className="text-center space-y-2">
+                  {/* --- Success Icon --- */}
+                  <div className="flex justify-center mb-4">
+                    <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                         <polyline points="20 6 9 17 4 12"></polyline>
+                       </svg>
+                    </div>
+                  </div>
+
                   <h2 className="text-2xl font-semibold">
                     {savedCount === 1 
                       ? t.firstStorySavedPerson(displayName) 
@@ -952,32 +959,30 @@ export default function Page() {
                   </h2>
                 </div>
 
-                {/* --- NEW: Story Preview --- */}
+                {/* --- NEW: Story Preview (Quote Card) --- */}
                 {lastSaved && (
-                  <div className="bg-neutral-50 border rounded-xl p-4 text-center space-y-2">
-                    <div className="text-xs uppercase tracking-wide text-neutral-400">
-                      {t.storyShared}
+                  <div className="relative bg-white border border-neutral-200 shadow-sm rounded-xl p-6 text-center">
+                    <div className="text-4xl text-neutral-200 absolute top-2 left-4 font-serif leading-none">“</div>
+                    <div className="text-lg text-neutral-800 font-serif italic px-2">
+                      {lastSaved.text}
                     </div>
-                    <div className="text-neutral-800 italic">
-                      "{lastSaved.text}"
-                    </div>
+                     <div className="text-4xl text-neutral-200 absolute bottom-[-10px] right-4 font-serif leading-none">”</div>
                   </div>
                 )}
 
-                <div className="space-y-3">
+                <div className="space-y-3 pt-2">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
                   
-                  {/* Disabled and Greyed Out */}
-                  <SecondaryButton 
-                    disabled={true} 
-                    className="bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed"
-                  >
-                    {t.invite}
-                  </SecondaryButton>
-
                   <SecondaryButton onClick={() => setStep("HOME")}>
                     {t.viewAllStories(displayName)}
                   </SecondaryButton>
+                </div>
+
+                {/* Invite Link at bottom */}
+                <div className="text-center">
+                   <button className="text-xs text-neutral-400 hover:text-neutral-600 cursor-not-allowed">
+                     {t.invite}
+                   </button>
                 </div>
               </div>
             )}
