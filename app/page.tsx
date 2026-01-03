@@ -20,6 +20,7 @@ const TEXT = {
     writeSubtitle: "Don't overthink it. A few sentences is perfect.",
     writePlaceholder: "Start writing here...",
     saveStory: "Save this memory",
+    updateStory: "Update memory",
     viewStories: "Read stories",
     viewAllStories: (name: string) => `Read all stories about ${name}`,
     addAnother: "Write another",
@@ -48,6 +49,7 @@ const TEXT = {
     inviteLink: "Invite family (Coming Soon)",
     backupDownloaded: "Backup file downloaded.",
     confirmDelete: "Are you sure you want to delete this memory?",
+    copied: "Copied to clipboard",
     // Questions
     q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
@@ -76,6 +78,7 @@ const TEXT = {
     writeSubtitle: "Tómate tu tiempo. Unas pocas frases es perfecto.",
     writePlaceholder: "Empieza a escribir aquí...",
     saveStory: "Guardar recuerdo",
+    updateStory: "Actualizar recuerdo",
     viewStories: "Leer historias",
     viewAllStories: (name: string) => `Leer todo sobre ${name}`,
     addAnother: "Escribir otra",
@@ -104,6 +107,7 @@ const TEXT = {
     inviteLink: "Invitar familia (Pronto)",
     backupDownloaded: "Archivo de respaldo descargado.",
     confirmDelete: "¿Estás seguro de que quieres borrar este recuerdo?",
+    copied: "Copiado al portapapeles",
     // Questions
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
@@ -389,7 +393,15 @@ function ArrowButton({ direction, onClick, disabled }: { direction: "left" | "ri
   );
 }
 
-function StoryCarousel({ items, lang, onDelete }: { items: MemoryItem[]; lang: Lang; onDelete: (id: string) => void }) {
+interface StoryCarouselProps {
+    items: MemoryItem[];
+    lang: Lang;
+    onDelete: (id: string) => void;
+    onEdit: (item: MemoryItem) => void;
+    onCopy: (text: string) => void;
+}
+
+function StoryCarousel({ items, lang, onDelete, onEdit, onCopy }: StoryCarouselProps) {
   const [index, setIndex] = useState(0);
   const t = TEXT[lang];
 
@@ -421,24 +433,51 @@ function StoryCarousel({ items, lang, onDelete }: { items: MemoryItem[]; lang: L
         {/* --- GROUP 1: CONTEXT (Gray Background) --- */}
         <div className="bg-stone-100 w-full p-6 flex flex-col items-center space-y-3 border-b border-stone-200 relative">
              
-             {/* Delete Button (Absolute Right) */}
-             <button 
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if(confirm(t.confirmDelete)) {
-                        onDelete(current.id);
-                    }
-                }}
-                className="absolute top-6 right-6 text-stone-300 hover:text-red-400 transition-colors"
-                title="Delete memory"
-             >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-             </button>
+             {/* ACTION BAR (Absolute Right) */}
+             <div className="absolute top-4 right-4 flex gap-3 text-stone-400">
+                {/* Copy Button */}
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onCopy(current.text); }}
+                    className="hover:text-stone-600 transition-colors p-1"
+                    title="Copy to clipboard"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
 
-             <div className="text-xs font-bold text-stone-400 tracking-widest uppercase">
+                {/* Edit Button */}
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onEdit(current); }}
+                    className="hover:text-stone-600 transition-colors p-1"
+                    title="Edit memory"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </button>
+
+                {/* Delete Button */}
+                <button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if(confirm(t.confirmDelete)) {
+                            onDelete(current.id);
+                        }
+                    }}
+                    className="hover:text-red-400 transition-colors p-1"
+                    title="Delete memory"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+             </div>
+
+             <div className="text-xs font-bold text-stone-400 tracking-widest uppercase mt-2">
                 {formatWhen(current.createdAt, lang)}
             </div>
             
@@ -508,6 +547,10 @@ export default function Page() {
 
   const [lastSaved, setLastSaved] = useState<LastSaved | null>(null);
   const [toast, setToast] = useState<string>("");
+
+  // --- EDITING STATE ---
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingPrompt, setEditingPrompt] = useState<string>("");
 
   useEffect(() => {
     const loadedLang = loadString(LS.lang);
@@ -588,6 +631,11 @@ export default function Page() {
   );
 
   const displayQuestion = useMemo(() => {
+    // If we are editing, SHOW THE ORIGINAL PROMPT
+    if (editingId && editingPrompt) {
+        return { type: "plain" as const, text: editingPrompt };
+    }
+
     if (allStarterUsed) return { type: "free" as const, text: t.qFree };
 
     const q = currentQuestion;
@@ -610,12 +658,13 @@ export default function Page() {
     }
 
     return { type: "plain" as const, text: q };
-  }, [allStarterUsed, currentQuestion, displayName, t]);
+  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt]);
 
   const promptToSave = useMemo(() => {
+    if (editingId && editingPrompt) return editingPrompt;
     if (allStarterUsed) return "";
     return displayQuestion.text;
-  }, [allStarterUsed, displayQuestion.text]);
+  }, [allStarterUsed, displayQuestion.text, editingId, editingPrompt]);
 
   const usedCount = usedSet.size;
   const starterTotal = QUESTIONS.length;
@@ -672,12 +721,15 @@ export default function Page() {
     if (!activePersonId) return;
     const key = `${LS.draftPrefix}${activePersonId}`;
     const saved = loadString(key);
-    if (saved && !normalize(storyDraft)) setStoryDraft(saved);
-  }, [activePersonId]);
+    // Don't overwrite draft if editing
+    if (saved && !normalize(storyDraft) && !editingId) setStoryDraft(saved);
+  }, [activePersonId, editingId]);
 
   useEffect(() => {
     if (!activePersonId) return;
     if (typeof window === "undefined") return;
+    // Don't auto-save to draft key while editing an existing memory
+    if (editingId) return;
 
     const key = `${LS.draftPrefix}${activePersonId}`;
     if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
@@ -691,7 +743,7 @@ export default function Page() {
     return () => {
       if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
     };
-  }, [storyDraft, activePersonId]);
+  }, [storyDraft, activePersonId, editingId]);
 
   function goPrevQuestion() {
     if (allStarterUsed) return;
@@ -714,6 +766,8 @@ export default function Page() {
     setActivePersonId("");
     setNameDraft("");
     setStoryDraft("");
+    setEditingId(null);
+    setEditingPrompt("");
     setStep("WELCOME");
   }
 
@@ -727,6 +781,19 @@ export default function Page() {
     );
   }
 
+  function startEditing(item: MemoryItem) {
+      setEditingId(item.id);
+      setEditingPrompt(item.prompt);
+      setStoryDraft(item.text);
+      setStep("WRITE");
+  }
+
+  function copyToClipboard(text: string) {
+      navigator.clipboard.writeText(text).then(() => {
+          showToast(t.copied);
+      });
+  }
+
   function resetApp() {
     if (!canUseStorage()) {
       setPeople([]);
@@ -735,6 +802,8 @@ export default function Page() {
       setStoryDraft("");
       setLastSaved(null);
       setToast("");
+      setEditingId(null);
+      setEditingPrompt("");
       setStep("WELCOME");
       return;
     }
@@ -763,6 +832,8 @@ export default function Page() {
     setStoryDraft("");
     setLastSaved(null);
     setToast("");
+    setEditingId(null);
+    setEditingPrompt("");
     setStep("WELCOME");
     setUsedVersion((v) => v + 1);
     setBadgeVersion((v) => v + 1);
@@ -828,6 +899,37 @@ export default function Page() {
     const text = normalize(storyDraft);
     if (!text) return;
 
+    // --- UPDATE EXISTING MEMORY ---
+    if (editingId && activePerson) {
+        setPeople((prev) => 
+            prev.map((p) => {
+                if (p.id !== activePerson.id) return p;
+                return {
+                    ...p,
+                    memories: p.memories.map((m) => 
+                        m.id === editingId ? { ...m, text: text } : m
+                    )
+                };
+            })
+        );
+
+        setLastSaved({
+            personName: activePerson.name,
+            prompt: editingPrompt,
+            text: text,
+            createdAt: Date.now(),
+            personId: activePerson.id,
+        });
+
+        // Reset editing state
+        setEditingId(null);
+        setEditingPrompt("");
+        setStoryDraft("");
+        setStep("SAVED");
+        return;
+    }
+
+    // --- CREATE NEW MEMORY (Existing Logic) ---
     if (activePerson) {
       const willCompleteStarter = !allStarterUsed && usedSet.size === QUESTIONS.length - 1;
 
@@ -864,6 +966,7 @@ export default function Page() {
       return;
     }
 
+    // --- CREATE NEW PERSON ---
     const cleaned = normalize(nameDraft);
     if (!cleaned) return;
 
@@ -981,7 +1084,7 @@ export default function Page() {
               >
                 <div className="text-center space-y-2 mb-8">
                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
-                      {t.starterProgress(starterProgressIndex, starterTotal)}
+                      {editingId ? "EDITING" : t.starterProgress(starterProgressIndex, starterTotal)}
                    </div>
                    <h2 className="text-2xl font-serif font-medium leading-relaxed text-stone-800">
                       {renderWithBoldName(displayQuestion.text)}
@@ -998,24 +1101,35 @@ export default function Page() {
                       className="relative w-full h-full resize-none bg-transparent p-6 text-lg font-serif leading-relaxed text-stone-700 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10"
                     />
                     
-                    {/* Navigation Arrows floating OUTSIDE */}
-                    <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20">
-                        <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
-                    </div>
-                    <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20">
-                        <ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} />
-                    </div>
+                    {/* Navigation Arrows floating OUTSIDE - Hide if Editing */}
+                    {!editingId && (
+                        <>
+                            <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20">
+                                <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
+                            </div>
+                            <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20">
+                                <ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} />
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <div className="space-y-4">
                   <PrimaryButton disabled={!canSave} onClick={saveStory}>
-                    {t.saveStory}
+                    {editingId ? t.updateStory : t.saveStory}
                   </PrimaryButton>
                   
                   {people.length > 0 && (
                       <div className="text-center">
-                        <button onClick={() => setStep("HOME")} className="text-sm text-stone-400 hover:text-stone-600">
-                            {t.viewStories}
+                        <button onClick={() => {
+                            if(editingId) {
+                                setEditingId(null);
+                                setEditingPrompt("");
+                                setStoryDraft("");
+                            }
+                            setStep("HOME")
+                        }} className="text-sm text-stone-400 hover:text-stone-600">
+                            {editingId ? "Cancel editing" : t.viewStories}
                         </button>
                       </div>
                   )}
@@ -1109,6 +1223,8 @@ export default function Page() {
                         items={[...activeMemories].reverse()} 
                         lang={lang} 
                         onDelete={deleteMemory}
+                        onEdit={startEditing}
+                        onCopy={copyToClipboard}
                     />
                   )}
                 </div>
