@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE";
+type Step = "WELCOME" | "INTRO" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE";
 type Lang = "en" | "es";
 
 // --- TRANSLATIONS ---
@@ -14,8 +14,14 @@ const TEXT = {
     whoFor: "Who are we writing about?",
     placeholder: "Grandma Elvia",
     justName: "Just a name to start a chapter.",
-    continue: "Start Writing",
+    continue: "Continue",
     chooseExisting: "Or choose an existing person",
+    // INTRO SCREEN
+    introTitle: "A sanctuary for memories",
+    introBody: (name: string) => 
+      `VitaMyStory is where we ensure |||${name}'s||| legacy never fades.\n\nThere is no rush here. Take your time. Capture one story at a time and share them with your family.`,
+    startWriting: "Start Writing",
+    // WRITE SCREEN
     writeTitle: "Share a memory",
     writeSubtitle: "Don't overthink it. A few sentences is perfect.",
     writePlaceholder: "Start writing here...",
@@ -49,7 +55,6 @@ const TEXT = {
     inviteLink: "Invite family (Coming Soon)",
     backupDownloaded: "Backup file downloaded.",
     confirmDelete: "Are you sure you want to delete this memory?",
-    copied: "Copied to clipboard",
     // Questions
     q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
@@ -72,8 +77,14 @@ const TEXT = {
     whoFor: "¿Sobre quién escribiremos?",
     placeholder: "Abuela Elvia",
     justName: "Solo un nombre para empezar un capítulo.",
-    continue: "Comenzar",
+    continue: "Continuar",
     chooseExisting: "O elige a alguien más",
+    // INTRO SCREEN
+    introTitle: "Un santuario para recuerdos",
+    introBody: (name: string) => 
+      `VitaMyStory es el lugar donde aseguramos que el legado de |||${name}||| nunca se apague.\n\nNo hay prisa. Tómate tu tiempo. Captura una historia a la vez y compártela con tu familia.`,
+    startWriting: "Comenzar a escribir",
+    // WRITE SCREEN
     writeTitle: "Comparte un recuerdo",
     writeSubtitle: "Tómate tu tiempo. Unas pocas frases es perfecto.",
     writePlaceholder: "Empieza a escribir aquí...",
@@ -107,7 +118,6 @@ const TEXT = {
     inviteLink: "Invitar familia (Pronto)",
     backupDownloaded: "Archivo de respaldo descargado.",
     confirmDelete: "¿Estás seguro de que quieres borrar este recuerdo?",
-    copied: "Copiado al portapapeles",
     // Questions
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
@@ -308,6 +318,9 @@ function renderWithBoldName(text: string) {
   if (!text) return null;
   const parts = text.split("|||");
   if (parts.length === 1) return parts[0];
+  // Re-assemble if there are multiple splits or formatting
+  if(parts.length < 3) return text;
+  
   return (
     <>
       {parts[0]}
@@ -398,10 +411,9 @@ interface StoryCarouselProps {
     lang: Lang;
     onDelete: (id: string) => void;
     onEdit: (item: MemoryItem) => void;
-    onCopy: (text: string) => void;
 }
 
-function StoryCarousel({ items, lang, onDelete, onEdit, onCopy }: StoryCarouselProps) {
+function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
   const [index, setIndex] = useState(0);
   const t = TEXT[lang];
 
@@ -435,18 +447,7 @@ function StoryCarousel({ items, lang, onDelete, onEdit, onCopy }: StoryCarouselP
              
              {/* ACTION BAR (Absolute Right) */}
              <div className="absolute top-4 right-4 flex gap-3 text-stone-400">
-                {/* Copy Button */}
-                <button 
-                    onClick={(e) => { e.stopPropagation(); onCopy(current.text); }}
-                    className="hover:text-stone-600 transition-colors p-1"
-                    title="Copy to clipboard"
-                >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                </button>
-
+                
                 {/* Edit Button */}
                 <button 
                     onClick={(e) => { e.stopPropagation(); onEdit(current); }}
@@ -788,12 +789,6 @@ export default function Page() {
       setStep("WRITE");
   }
 
-  function copyToClipboard(text: string) {
-      navigator.clipboard.writeText(text).then(() => {
-          showToast(t.copied);
-      });
-  }
-
   function resetApp() {
     if (!canUseStorage()) {
       setPeople([]);
@@ -1064,7 +1059,7 @@ export default function Page() {
                 </div>
 
                 <div className="pt-4 space-y-3">
-                  <PrimaryButton disabled={!normalize(nameDraft)} onClick={() => setStep("WRITE")}>
+                  <PrimaryButton disabled={!normalize(nameDraft)} onClick={() => setStep("INTRO")}>
                     {t.continue}
                   </PrimaryButton>
 
@@ -1075,6 +1070,25 @@ export default function Page() {
                   ) : null}
                 </div>
               </div>
+            )}
+
+            {step === "INTRO" && (
+                <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="space-y-6 px-4">
+                        <div className="text-5xl animate-pulse">🕯️</div>
+                        <h2 className="text-2xl font-serif text-stone-900 leading-tight">
+                            {t.introTitle}
+                        </h2>
+                        <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line">
+                            {renderWithBoldName(t.introBody(nameDraft))}
+                        </p>
+                    </div>
+                    <div className="pt-4">
+                        <PrimaryButton onClick={() => setStep("WRITE")}>
+                            {t.startWriting}
+                        </PrimaryButton>
+                    </div>
+                </div>
             )}
 
             {step === "WRITE" && (
@@ -1224,7 +1238,6 @@ export default function Page() {
                         lang={lang} 
                         onDelete={deleteMemory}
                         onEdit={startEditing}
-                        onCopy={copyToClipboard}
                     />
                   )}
                 </div>
