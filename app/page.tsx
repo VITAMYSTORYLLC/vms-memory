@@ -21,7 +21,8 @@ const TEXT = {
     writePlaceholder: "It doesn't have to be long...",
     saveStory: "Save story",
     viewStories: "View stories",
-    viewAllStories: "View all stories",
+    // CHANGED: Now accepts a name
+    viewAllStories: (name: string) => `View all ${name} stories`,
     addAnother: "Add another story",
     invite: "Invite family (soon)",
     storySaved: "Story saved.",
@@ -42,12 +43,12 @@ const TEXT = {
     noPeople: "No one yet. Add a name to start.",
     back: "Back",
     added: "added",
-    // New Translations for Export/Demo
+    // Export/Demo
     demoBanner: "Demo Version: Data is saved only on this device. Please export your stories before clearing your cache.",
     saveBackup: "⬇ Save Backup",
     inviteLink: "(Invite family coming soon)",
     backupDownloaded: "Stories downloaded!",
-    // Questions (Updated with ||| delimiters for bolding)
+    // Questions (||| delimits bold)
     q1: "What’s the first memory or story that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
     q3: "What’s something they were known for?",
@@ -76,7 +77,8 @@ const TEXT = {
     writePlaceholder: "No tiene que ser largo...",
     saveStory: "Guardar historia",
     viewStories: "Ver historias",
-    viewAllStories: "Ver todas las historias",
+    // CHANGED: Now accepts a name
+    viewAllStories: (name: string) => `Ver todas las historias de ${name}`,
     addAnother: "Agregar otra historia",
     invite: "Invitar familia (pronto)",
     storySaved: "Historia guardada.",
@@ -97,12 +99,12 @@ const TEXT = {
     noPeople: "Nadie aún. Agrega un nombre para empezar.",
     back: "Atrás",
     added: "agregado",
-    // New Translations for Export/Demo
+    // Export/Demo
     demoBanner: "Versión Demo: Datos guardados solo en este dispositivo. Exporta tus historias antes de borrar caché.",
     saveBackup: "⬇ Guardar Respaldo",
     inviteLink: "(Invitar familia pronto)",
     backupDownloaded: "¡Historias descargadas!",
-    // Questions (Updated with ||| delimiters for bolding)
+    // Questions
     q1: "¿Cuál es el primer recuerdo o historia que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
     q3: "¿Por qué cosa eran conocidos?",
@@ -419,7 +421,6 @@ export default function Page() {
   const [lastSaved, setLastSaved] = useState<LastSaved | null>(null);
   const [toast, setToast] = useState<string>("");
   
-  // New state for hover tooltip
   const [hoverBackup, setHoverBackup] = useState(false);
 
   useEffect(() => {
@@ -805,8 +806,6 @@ export default function Page() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-900">
       <div className="w-full max-w-md">
-        
-        {/* --- Demo Banner Removed from Top --- */}
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden relative">
           
@@ -953,8 +952,18 @@ export default function Page() {
 
                 <div className="space-y-3">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
-                  <SecondaryButton onClick={inviteOthersComingSoon}>{t.invite}</SecondaryButton>
-                  <SecondaryButton onClick={() => setStep("HOME")}>{t.viewAllStories}</SecondaryButton>
+                  
+                  {/* CHANGED: Disabled and Greyed Out */}
+                  <SecondaryButton 
+                    disabled={true} 
+                    className="bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed"
+                  >
+                    {t.invite}
+                  </SecondaryButton>
+
+                  <SecondaryButton onClick={() => setStep("HOME")}>
+                    {t.viewAllStories(displayName)}
+                  </SecondaryButton>
                 </div>
               </div>
             )}
