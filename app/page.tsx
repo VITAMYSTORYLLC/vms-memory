@@ -413,25 +413,25 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     <div className="relative">
       <div 
         {...swipeHandlers}
-        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[320px] flex flex-col items-center justify-center p-8 relative touch-pan-y"
+        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[320px] flex flex-col items-center justify-start p-8 pt-12 relative touch-pan-y"
       >
         {/* Date at Top */}
         <div className="absolute top-6 text-xs font-bold text-stone-300 tracking-widest uppercase">
             {formatWhen(current.createdAt, lang)}
         </div>
 
-        {/* Content Centered Vertically */}
-        <div className="flex-1 flex flex-col justify-center items-center space-y-4 w-full">
+        {/* Content Aligned to Top (Start) */}
+        <div className="w-full flex flex-col items-center text-center space-y-3">
           
           {/* Question Text (Small, Italic, Context) */}
           {current.prompt ? (
-            <div className="text-sm text-stone-400 italic font-medium text-center px-2 leading-relaxed">
+            <div className="text-sm text-stone-400 italic font-medium leading-relaxed">
               {renderWithBoldName(current.prompt)}
             </div>
           ) : null}
 
-          {/* Story Text (Big, Bold, Hero) */}
-          <div className="text-3xl md:text-4xl text-stone-800 leading-tight text-center font-serif px-2">
+          {/* Story Text (Big, Bold, Hero - RESIZED to 2xl) */}
+          <div className="text-2xl md:text-3xl text-stone-800 leading-tight font-serif px-2">
             {current.text}
           </div>
         </div>
@@ -1011,7 +1011,7 @@ export default function Page() {
                 <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
                     <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
                     <p className="text-lg font-serif italic text-stone-700 leading-relaxed">
-                        {lastSaved?.text}
+                        {lastSaved.text}
                     </p>
                     <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
                 </div>
@@ -1048,15 +1048,19 @@ export default function Page() {
 
             {step === "HOME" && (
               <div 
+                {...storySwipeHandlers} // SWIPE HANDLER MOVED TO CONTAINER
                 className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y"
               >
                 <div className="space-y-1 mb-8 text-left">
                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400 pl-1">
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                   </div>
-                  <h1 className="text-4xl sm:text-5xl font-['Caveat',cursive] text-stone-900">
+                  
+                  {/* REDUCED SIZE: text-3xl sm:text-4xl */}
+                  <h1 className="text-3xl sm:text-4xl font-['Caveat',cursive] text-stone-900">
                     {safeName}
                   </h1>
+                  
                   {people.length > 1 && (
                      <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 underline decoration-stone-200 hover:text-stone-600 pl-1">
                         {t.change}
