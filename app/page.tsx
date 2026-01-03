@@ -21,11 +21,12 @@ const TEXT = {
     writePlaceholder: "It doesn't have to be long...",
     saveStory: "Save story",
     viewStories: "View stories",
-    // CHANGED: Now accepts a name
     viewAllStories: (name: string) => `View all ${name} stories`,
     addAnother: "Add another story",
     invite: "Invite family (soon)",
     storySaved: "Story saved.",
+    // NEW: Label for the preview
+    storyShared: "Story shared",
     firstStorySaved: "Your first story has been saved.",
     firstStorySavedPerson: (name: string) => `Your first story about ${name} has been saved.`,
     storyKeeperTitle: "Story Keeper",
@@ -48,7 +49,7 @@ const TEXT = {
     saveBackup: "⬇ Save Backup",
     inviteLink: "(Invite family coming soon)",
     backupDownloaded: "Stories downloaded!",
-    // Questions (||| delimits bold)
+    // Questions
     q1: "What’s the first memory or story that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
     q3: "What’s something they were known for?",
@@ -77,11 +78,12 @@ const TEXT = {
     writePlaceholder: "No tiene que ser largo...",
     saveStory: "Guardar historia",
     viewStories: "Ver historias",
-    // CHANGED: Now accepts a name
     viewAllStories: (name: string) => `Ver todas las historias de ${name}`,
     addAnother: "Agregar otra historia",
     invite: "Invitar familia (pronto)",
     storySaved: "Historia guardada.",
+    // NEW: Label for the preview
+    storyShared: "Historia compartida",
     firstStorySaved: "Tu primera historia ha sido guardada.",
     firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} ha sido guardada.`,
     storyKeeperTitle: "Guardián de Historias",
@@ -950,10 +952,22 @@ export default function Page() {
                   </h2>
                 </div>
 
+                {/* --- NEW: Story Preview --- */}
+                {lastSaved && (
+                  <div className="bg-neutral-50 border rounded-xl p-4 text-center space-y-2">
+                    <div className="text-xs uppercase tracking-wide text-neutral-400">
+                      {t.storyShared}
+                    </div>
+                    <div className="text-neutral-800 italic">
+                      "{lastSaved.text}"
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
                   
-                  {/* CHANGED: Disabled and Greyed Out */}
+                  {/* Disabled and Greyed Out */}
                   <SecondaryButton 
                     disabled={true} 
                     className="bg-neutral-100 text-neutral-400 border-neutral-200 cursor-not-allowed"
