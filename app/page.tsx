@@ -47,6 +47,7 @@ const TEXT = {
     saveBackup: "⬇ Export Backup",
     inviteLink: "Invite family (Coming Soon)",
     backupDownloaded: "Backup file downloaded.",
+    confirmDelete: "Are you sure you want to delete this memory?",
     // Questions
     q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
@@ -102,6 +103,7 @@ const TEXT = {
     saveBackup: "⬇ Exportar Respaldo",
     inviteLink: "Invitar familia (Pronto)",
     backupDownloaded: "Archivo de respaldo descargado.",
+    confirmDelete: "¿Estás seguro de que quieres borrar este recuerdo?",
     // Questions
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
@@ -387,8 +389,9 @@ function ArrowButton({ direction, onClick, disabled }: { direction: "left" | "ri
   );
 }
 
-function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
+function StoryCarousel({ items, lang, onDelete }: { items: MemoryItem[]; lang: Lang; onDelete: (id: string) => void }) {
   const [index, setIndex] = useState(0);
+  const t = TEXT[lang];
 
   function prev() {
     setIndex((i) => (i === 0 ? items.length - 1 : i - 1));
@@ -413,18 +416,35 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     <div className="relative">
       <div 
         {...swipeHandlers}
-        // MODIFIED: White background, border, overflow-hidden for rounded corners
         className="bg-white border border-stone-200 shadow-sm rounded-xl min-h-[380px] flex flex-col relative touch-pan-y overflow-hidden"
       >
         {/* --- GROUP 1: CONTEXT (Gray Background) --- */}
-        <div className="bg-stone-100 w-full p-6 flex flex-col items-center space-y-3 border-b border-stone-200">
+        <div className="bg-stone-100 w-full p-6 flex flex-col items-center space-y-3 border-b border-stone-200 relative">
+             
+             {/* Delete Button (Absolute Right) */}
+             <button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if(confirm(t.confirmDelete)) {
+                        onDelete(current.id);
+                    }
+                }}
+                className="absolute top-6 right-6 text-stone-300 hover:text-red-400 transition-colors"
+                title="Delete memory"
+             >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+             </button>
+
              <div className="text-xs font-bold text-stone-400 tracking-widest uppercase">
                 {formatWhen(current.createdAt, lang)}
             </div>
             
             {/* Question */}
             {current.prompt ? (
-                <div className="text-sm text-stone-500 italic font-medium text-center px-2 leading-relaxed">
+                <div className="text-sm text-stone-500 italic font-medium text-center px-6 leading-relaxed">
                   {renderWithBoldName(current.prompt)}
                 </div>
             ) : null}
@@ -437,7 +457,7 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
           </div>
         </div>
 
-        {/* Pagination Dots at Bottom - Absolute to sit over white background */}
+        {/* Pagination Dots at Bottom */}
         {items.length > 1 && (
           <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
             {items.map((_, i) => (
@@ -695,6 +715,16 @@ export default function Page() {
     setNameDraft("");
     setStoryDraft("");
     setStep("WELCOME");
+  }
+
+  function deleteMemory(memoryId: string) {
+    if (!activePersonId) return;
+    setPeople((prev) =>
+      prev.map((p) => {
+        if (p.id !== activePersonId) return p;
+        return { ...p, memories: p.memories.filter((m) => m.id !== memoryId) };
+      })
+    );
   }
 
   function resetApp() {
@@ -1075,7 +1105,11 @@ export default function Page() {
                       <p className="text-stone-400 font-serif italic">{t.emptyHome}</p>
                     </div>
                   ) : (
-                    <StoryCarousel items={[...activeMemories].reverse()} lang={lang} />
+                    <StoryCarousel 
+                        items={[...activeMemories].reverse()} 
+                        lang={lang} 
+                        onDelete={deleteMemory}
+                    />
                   )}
                 </div>
 
