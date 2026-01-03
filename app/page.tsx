@@ -487,8 +487,6 @@ export default function Page() {
 
   const [lastSaved, setLastSaved] = useState<LastSaved | null>(null);
   const [toast, setToast] = useState<string>("");
-  
-  // Unused state removed to keep code clean
 
   useEffect(() => {
     const loadedLang = loadString(LS.lang);
@@ -686,6 +684,21 @@ export default function Page() {
 
   // Swipe handlers for Question
   const questionSwipeHandlers = useSwipe(goNextQuestion, goPrevQuestion);
+
+  // Swipe handlers for Stories
+  // NOTE: I am restoring this variable which I accidentally deleted in the previous response
+  function nextStory() {
+      // Logic handled inside carousel but we need a handler for container if desired.
+      // Actually, for the container we want to navigate questions or people? 
+      // For now let's just keep the handlers empty or basic if we want top-level swipe.
+      // But standard interaction is swipe on carousel.
+  }
+  // To avoid errors, I will use a simple ref or no-op since carousel handles its own swipe.
+  // HOWEVER, for consistency with the code structure, I will add generic handlers
+  // or simply attach the question handlers if we want to move between *people*?
+  // Let's stick to simple: The container swipe in HOME isn't strictly needed if Carousel has it.
+  // BUT the previous working version had it. I will restore empty handlers to prevent crash if referenced.
+  const storySwipeHandlers = useSwipe(() => {}, () => {}); 
 
   function startNewPerson() {
     suppressAutoSelectRef.current = true;
@@ -1011,6 +1024,7 @@ export default function Page() {
                 <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
                     <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
                     <p className="text-lg font-serif italic text-stone-700 leading-relaxed">
+                        {/* THE FIX IS HERE: OPTIONAL CHAINING */}
                         {lastSaved?.text}
                     </p>
                     <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
@@ -1048,6 +1062,7 @@ export default function Page() {
 
             {step === "HOME" && (
               <div 
+                {...storySwipeHandlers}
                 className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y"
               >
                 <div className="space-y-2 mb-6 text-center">
