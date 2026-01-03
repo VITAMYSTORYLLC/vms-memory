@@ -18,7 +18,7 @@ const TEXT = {
     chooseExisting: "Or choose an existing person",
     writeTitle: "Share a memory",
     writeSubtitle: "Don't overthink it. A few sentences is perfect.",
-    writePlaceholder: "It doesn't have to be long...",
+    writePlaceholder: "Start typing here...",
     saveStory: "Save this memory",
     viewStories: "Read stories",
     viewAllStories: (name: string) => `Read all stories about ${name}`,
@@ -74,7 +74,7 @@ const TEXT = {
     chooseExisting: "O elige a alguien más",
     writeTitle: "Comparte un recuerdo",
     writeSubtitle: "Tómate tu tiempo. Unas pocas frases es perfecto.",
-    writePlaceholder: "No tiene que ser largo...",
+    writePlaceholder: "Empieza a escribir aquí...",
     saveStory: "Guardar recuerdo",
     viewStories: "Leer historias",
     viewAllStories: (name: string) => `Leer todo sobre ${name}`,
@@ -818,22 +818,6 @@ export default function Page() {
     <div className="min-h-screen flex items-center justify-center bg-stone-50 text-stone-900 font-sans selection:bg-stone-200">
       <div className="w-full max-w-lg px-4">
         
-        {/* --- Language Toggle (Fixed Top Right) --- */}
-        <div className="fixed top-4 right-4 flex gap-3 text-xs font-bold tracking-widest z-50">
-          <button
-            onClick={() => setLang("es")}
-            className={`transition-colors ${lang === "es" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-400 hover:text-stone-600"}`}
-          >
-            ES
-          </button>
-          <button
-            onClick={() => setLang("en")}
-            className={`transition-colors ${lang === "en" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-400 hover:text-stone-600"}`}
-          >
-            EN
-          </button>
-        </div>
-
         {/* --- MAIN CARD --- */}
         <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 overflow-hidden relative border border-stone-100 min-h-[500px] flex flex-col">
           
@@ -846,6 +830,23 @@ export default function Page() {
 
             {step === "WELCOME" && (
               <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                
+                {/* LANGUAGE TOGGLE - MOVED INSIDE THE CARD */}
+                <div className="absolute top-6 right-6 flex gap-3 text-xs font-bold tracking-widest z-10">
+                  <button
+                    onClick={() => setLang("es")}
+                    className={`transition-colors ${lang === "es" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}
+                  >
+                    ES
+                  </button>
+                  <button
+                    onClick={() => setLang("en")}
+                    className={`transition-colors ${lang === "en" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}
+                  >
+                    EN
+                  </button>
+                </div>
+
                 <div className="space-y-4">
                     <h1 className="text-4xl font-serif font-semibold tracking-tight text-stone-900">
                       {t.welcomeTitle}
@@ -893,15 +894,16 @@ export default function Page() {
                    </h2>
                 </div>
 
+                {/* VISIBLE WRITING BOX */}
                 <div className="flex-1 relative mb-6">
                     <textarea
                       value={storyDraft}
                       onChange={(e) => setStoryDraft(e.target.value)}
                       placeholder={t.writePlaceholder}
-                      className="w-full h-full resize-none bg-transparent text-lg leading-loose text-stone-700 placeholder:text-stone-300 placeholder:font-serif focus:outline-none"
+                      className="w-full h-full resize-none bg-stone-50 border border-stone-200 rounded-xl p-6 text-lg leading-relaxed text-stone-700 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 focus:border-transparent transition-all"
                     />
                     
-                    {/* Navigation Arrows floating */}
+                    {/* Navigation Arrows floating - positioned outside the box slightly */}
                     <div className="absolute -left-4 top-1/2 -translate-y-1/2">
                         <button
                           onClick={goPrevQuestion}
