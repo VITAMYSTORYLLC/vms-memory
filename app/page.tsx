@@ -18,7 +18,6 @@ const TEXT = {
     chooseExisting: "Choose existing person",
     writeTitle: "Share the stories here",
     writeSubtitle: "Take your time. A few sentences is perfect.",
-    // CHANGED: New placeholder to avoid repetition
     writePlaceholder: "It doesn't have to be long...",
     saveStory: "Save story",
     viewStories: "View stories",
@@ -74,7 +73,6 @@ const TEXT = {
     chooseExisting: "Elegir persona existente",
     writeTitle: "Comparte las historias aquí",
     writeSubtitle: "Tómate tu tiempo. Unas pocas frases es perfecto.",
-    // CHANGED: New placeholder to avoid repetition
     writePlaceholder: "No tiene que ser largo...",
     saveStory: "Guardar historia",
     viewStories: "Ver historias",
@@ -302,7 +300,6 @@ function addBadge(personId: string, badgeId: string) {
 // --- HELPER: Renders text where "|||" delimits bold content ---
 function renderWithBoldName(text: string) {
   if (!text) return null;
-  // Splits "What did |||Name||| do?" into ["What did ", "Name", " do?"]
   const parts = text.split("|||");
   if (parts.length === 1) return parts[0];
   return (
@@ -385,7 +382,6 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
 
       {current.prompt ? (
         <div className="rounded-xl bg-neutral-50 p-3 text-xs text-neutral-600 italic text-center">
-          {/* Use the bold renderer here too, in case we saved prompts with delimiters */}
           {renderWithBoldName(current.prompt)}
         </div>
       ) : null}
@@ -422,6 +418,9 @@ export default function Page() {
 
   const [lastSaved, setLastSaved] = useState<LastSaved | null>(null);
   const [toast, setToast] = useState<string>("");
+  
+  // New state for hover tooltip
+  const [hoverBackup, setHoverBackup] = useState(false);
 
   useEffect(() => {
     const loadedLang = loadString(LS.lang);
@@ -670,7 +669,6 @@ export default function Page() {
     showToast(t.invite);
   }
 
-  // --- NEW: Download Function ---
   function downloadBackup() {
     if (people.length === 0) return;
     
@@ -808,13 +806,7 @@ export default function Page() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-900">
       <div className="w-full max-w-md">
         
-        {/* --- Demo Banner --- */}
-        <div className="mb-4 bg-yellow-50 border border-yellow-100 rounded-xl p-3 flex items-start gap-3">
-          <div className="text-xl">🚧</div>
-          <div className="text-sm text-yellow-800">
-             {t.demoBanner}
-          </div>
-        </div>
+        {/* --- Demo Banner Removed from Top --- */}
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden relative">
           
@@ -894,7 +886,7 @@ export default function Page() {
                     </button>
 
                     <div className="flex-1">
-                      {/* CHANGED: Use the bold renderer function */}
+                      {/* Using Bold Renderer */}
                       <p className="text-neutral-900 text-lg leading-relaxed text-center">
                         {renderWithBoldName(displayQuestion.text)}
                       </p>
@@ -988,17 +980,17 @@ export default function Page() {
 
             {step === "HOME" && (
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <div className="text-xs uppercase tracking-wide text-neutral-500">
+                <div className="space-y-2 text-left">
+                  <div className="text-xs uppercase tracking-wide text-neutral-500 pl-1">
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                   </div>
 
-                  <div className="text-center text-3xl sm:text-4xl font-semibold italic font-['Caveat',cursive]">
+                  <div className="text-3xl sm:text-4xl font-semibold italic font-['Caveat',cursive]">
                     {safeName}
                   </div>
 
                   {people.length > 1 ? (
-                    <div className="text-center">
+                    <div className="text-left">
                       <button onClick={() => setStep("PEOPLE")} className="text-sm text-neutral-600 underline">
                         {t.change}
                       </button>
@@ -1032,10 +1024,26 @@ export default function Page() {
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
                 </div>
 
-                {/* --- Export Button Logic --- */}
+                {/* --- Export Button with Hover Tooltip --- */}
                 <div className="grid grid-cols-2 gap-3 mt-4">
                   <SecondaryButton onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
-                  <SecondaryButton onClick={downloadBackup}>{t.saveBackup}</SecondaryButton>
+                  
+                  <div className="relative">
+                    {hoverBackup && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs rounded-xl shadow-lg z-50 pointer-events-none">
+                        {t.demoBanner}
+                        {/* Little triangle arrow at bottom */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-yellow-200"></div>
+                      </div>
+                    )}
+                    <SecondaryButton 
+                      onClick={downloadBackup}
+                      onMouseEnter={() => setHoverBackup(true)}
+                      onMouseLeave={() => setHoverBackup(false)}
+                    >
+                      {t.saveBackup}
+                    </SecondaryButton>
+                  </div>
                 </div>
 
                 <div className="pt-2 text-center">
