@@ -1009,7 +1009,7 @@ export default function Page() {
                 <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
                     <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
                     <p className="text-lg font-serif italic text-stone-700 leading-relaxed">
-                        {lastSaved.text}
+                        {lastSaved?.text}
                     </p>
                     <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
                 </div>
