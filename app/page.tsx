@@ -43,7 +43,6 @@ const TEXT = {
     noPeople: "No chapters yet.",
     back: "Go back",
     added: "Started",
-    // Export/Demo
     demoBanner: "Demo Version: Stories live in your browser cache. Export them to keep them safe.",
     saveBackup: "⬇ Export Backup",
     inviteLink: "Invite family (Coming Soon)",
@@ -99,7 +98,6 @@ const TEXT = {
     noPeople: "No hay capítulos aún.",
     back: "Regresar",
     added: "Iniciado",
-    // Export/Demo
     demoBanner: "Versión Demo: Las historias viven en tu navegador. Expórtalas para guardarlas.",
     saveBackup: "⬇ Exportar Respaldo",
     inviteLink: "Invitar familia (Pronto)",
@@ -376,6 +374,19 @@ function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
   return { onTouchStart, onTouchMove, onTouchEnd };
 }
 
+// --- STANDARDIZED ARROW BUTTON ---
+function ArrowButton({ direction, onClick, disabled }: { direction: "left" | "right", onClick: () => void, disabled: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`p-3 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors ${direction === "left" ? "-ml-2" : "-mr-2"}`}
+    >
+      <span className="text-2xl">{direction === "left" ? "←" : "→"}</span>
+    </button>
+  );
+}
+
 function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
   const [index, setIndex] = useState(0);
 
@@ -387,6 +398,9 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     setIndex((i) => (i === items.length - 1 ? 0 : i + 1));
   }
 
+  // Swipe logic for Story Carousel
+  const swipeHandlers = useSwipe(next, prev);
+
   useEffect(() => {
     if (items.length <= 0) return;
     setIndex((i) => Math.max(0, Math.min(i, items.length - 1)));
@@ -396,45 +410,49 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
   if (!current) return null;
 
   return (
-    <div 
-      className="bg-white border border-stone-100 shadow-sm rounded-2xl p-6 space-y-5 relative"
-    >
-      {/* Decorative quotes */}
-      <div className="absolute top-4 left-4 text-4xl text-stone-100 font-serif leading-none">“</div>
-      
-      <div className="flex items-center justify-between relative z-10">
-        <button
-          onClick={prev}
-          aria-label="Previous story"
-          className="h-8 w-8 rounded-full flex items-center justify-center text-stone-400 hover:bg-stone-100 transition"
-        >
-          &lt;
-        </button>
-
-        <div className="text-xs font-medium text-stone-400 tracking-wider uppercase">
+    <div className="relative">
+      <div 
+        {...swipeHandlers}
+        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[320px] flex flex-col items-center justify-center p-8 relative touch-pan-y"
+      >
+        {/* Date at Top */}
+        <div className="absolute top-6 text-xs font-bold text-stone-300 tracking-widest uppercase">
             {formatWhen(current.createdAt, lang)}
         </div>
 
-        <button
-          onClick={next}
-          aria-label="Next story"
-          className="h-8 w-8 rounded-full flex items-center justify-center text-stone-400 hover:bg-stone-100 transition"
-        >
-          &gt;
-        </button>
-      </div>
+        {/* Content Centered Vertically */}
+        <div className="flex-1 flex flex-col justify-center items-center space-y-4 w-full">
+          {current.prompt ? (
+            <div className="text-sm text-stone-400 italic font-medium text-center px-2">
+              {renderWithBoldName(current.prompt)}
+            </div>
+          ) : null}
 
-      {current.prompt ? (
-        <div className="text-sm text-stone-500 font-medium text-center px-4">
-          {renderWithBoldName(current.prompt)}
+          <div className="text-2xl md:text-3xl text-stone-800 leading-tight text-center font-serif px-2">
+            {current.text}
+          </div>
         </div>
-      ) : null}
 
-      <div className="text-lg text-stone-800 leading-relaxed text-center font-serif px-2">
-        {current.text}
+        {/* Pagination Dots at Bottom */}
+        {items.length > 1 && (
+          <div className="absolute bottom-6 flex gap-2">
+            {items.map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-1.5 w-1.5 rounded-full transition-all ${i === index ? "bg-stone-400 scale-110" : "bg-stone-200"}`} 
+              />
+            ))}
+          </div>
+        )}
       </div>
-      
-      <div className="absolute bottom-2 right-6 text-4xl text-stone-100 font-serif leading-none">”</div>
+
+      {/* Floating Standardized Arrows (Outside) */}
+      <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20">
+         <ArrowButton direction="left" onClick={prev} disabled={false} />
+      </div>
+      <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20">
+         <ArrowButton direction="right" onClick={next} disabled={false} />
+      </div>
     </div>
   );
 }
@@ -665,13 +683,6 @@ export default function Page() {
 
   // Swipe handlers for Question
   const questionSwipeHandlers = useSwipe(goNextQuestion, goPrevQuestion);
-
-  // Swipe handlers for Story Carousel (only active on Home screen)
-  const [storyIndex, setStoryIndex] = useState(0);
-  const storySwipeHandlers = useSwipe(
-    () => setStoryIndex(i => (activeMemories.length > 0 ? (i === activeMemories.length - 1 ? 0 : i + 1) : 0)), // Left Swipe = Next
-    () => setStoryIndex(i => (activeMemories.length > 0 ? (i === 0 ? activeMemories.length - 1 : i - 1) : 0))  // Right Swipe = Prev
-  );
 
   function startNewPerson() {
     suppressAutoSelectRef.current = true;
@@ -954,22 +965,10 @@ export default function Page() {
                     
                     {/* Navigation Arrows floating OUTSIDE */}
                     <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20">
-                        <button
-                          onClick={goPrevQuestion}
-                          disabled={allStarterUsed}
-                          className="p-3 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
-                        >
-                            <span className="text-2xl">←</span>
-                        </button>
+                        <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
                     </div>
                     <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20">
-                        <button
-                          onClick={goNextQuestion}
-                          disabled={allStarterUsed}
-                          className="p-3 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
-                        >
-                            <span className="text-2xl">→</span>
-                        </button>
+                        <ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} />
                     </div>
                 </div>
 
@@ -1048,7 +1047,6 @@ export default function Page() {
 
             {step === "HOME" && (
               <div 
-                {...storySwipeHandlers} // SWIPE HANDLER MOVED TO CONTAINER
                 className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y"
               >
                 <div className="space-y-1 mb-8 text-left">
