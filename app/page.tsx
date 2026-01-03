@@ -422,13 +422,16 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
 
         {/* Content Centered Vertically */}
         <div className="flex-1 flex flex-col justify-center items-center space-y-4 w-full">
+          
+          {/* Question Text (Small, Italic, Context) */}
           {current.prompt ? (
-            <div className="text-sm text-stone-400 italic font-medium text-center px-2">
+            <div className="text-sm text-stone-400 italic font-medium text-center px-2 leading-relaxed">
               {renderWithBoldName(current.prompt)}
             </div>
           ) : null}
 
-          <div className="text-2xl md:text-3xl text-stone-800 leading-tight text-center font-serif px-2">
+          {/* Story Text (Big, Bold, Hero) */}
+          <div className="text-3xl md:text-4xl text-stone-800 leading-tight text-center font-serif px-2">
             {current.text}
           </div>
         </div>
@@ -1005,15 +1008,13 @@ export default function Page() {
                 </div>
 
                 {/* Quote Card */}
-                {lastSaved && (
-                  <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
+                <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
                     <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
                     <p className="text-lg font-serif italic text-stone-700 leading-relaxed">
-                        {lastSaved.text}
+                        {lastSaved?.text}
                     </p>
                     <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
-                  </div>
-                )}
+                </div>
 
                 <div className="space-y-3 pt-4">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
