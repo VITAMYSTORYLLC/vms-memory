@@ -5,7 +5,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE";
 type Lang = "en" | "es";
 
-
 // --- TRANSLATIONS ---
 const TEXT = {
   en: {
@@ -43,6 +42,11 @@ const TEXT = {
     noPeople: "No one yet. Add a name to start.",
     back: "Back",
     added: "added",
+    // New Translations for Export/Demo
+    demoBanner: "Demo Version: Data is saved only on this device. Please export your stories before clearing your cache.",
+    saveBackup: "⬇ Save Backup",
+    inviteLink: "(Invite family coming soon)",
+    backupDownloaded: "Stories downloaded!",
     // Questions
     q1: "What’s the first memory or story that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
@@ -93,6 +97,11 @@ const TEXT = {
     noPeople: "Nadie aún. Agrega un nombre para empezar.",
     back: "Atrás",
     added: "agregado",
+    // New Translations for Export/Demo
+    demoBanner: "Versión Demo: Datos guardados solo en este dispositivo. Exporta tus historias antes de borrar caché.",
+    saveBackup: "⬇ Guardar Respaldo",
+    inviteLink: "(Invitar familia pronto)",
+    backupDownloaded: "¡Historias descargadas!",
     // Questions
     q1: "¿Cuál es el primer recuerdo o historia que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
@@ -139,7 +148,7 @@ const LS = {
   draftPrefix: "vms_draft_v0_",
   usedPrefix: "vms_used_questions_v0_",
   badgesPrefix: "vms_badges_v0_",
-  lang: "vms_lang_v0", // New key for language
+  lang: "vms_lang_v0",
 };
 
 function normalize(s: string): string {
@@ -212,7 +221,6 @@ function currentWeekNumber() {
 function formatWhen(ts: number, lang: Lang) {
   try {
     const d = new Date(ts);
-    // Use the correct locale for the date
     const locale = lang === "es" ? "es-MX" : "en-US";
     return d.toLocaleDateString(locale, { month: "short", day: "numeric" });
   } catch {
@@ -234,12 +242,11 @@ function wrapIndex(index: number, length: number): number {
 }
 
 function plural(n: number, one: string, many?: string) {
-  // Simple pluralizer, mostly for English. Spanish usually adds 's' or 'es'
   if (n === 1) return one;
   if (many) return many;
   const lower = one.toLowerCase();
-  if (lower.endsWith("story")) return "stories"; // specific override
-  if (lower.endsWith("historia")) return "historias"; // specific override
+  if (lower.endsWith("story")) return "stories";
+  if (lower.endsWith("historia")) return "historias";
   return `${one}s`;
 }
 
@@ -372,9 +379,8 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
 
 export default function Page() {
   const [isHydrated, setIsHydrated] = useState(false);
-  const [lang, setLang] = useState<Lang>("en"); // Default english, loads from LS later
+  const [lang, setLang] = useState<Lang>("en"); 
   
-  // Helper to get text
   const t = TEXT[lang];
 
   const QUESTIONS = useMemo(
@@ -400,22 +406,18 @@ export default function Page() {
   const [toast, setToast] = useState<string>("");
 
   useEffect(() => {
-    // 1. Load Language
     const loadedLang = loadString(LS.lang);
     if (loadedLang === "en" || loadedLang === "es") {
       setLang(loadedLang);
     }
 
-    // 2. Load People
     const loadedPeople = loadJSON<Person[]>(LS.people);
     const validPeople = Array.isArray(loadedPeople) ? loadedPeople : [];
     setPeople(validPeople);
 
-    // 3. Load Active ID
     const loadedActiveId = loadString(LS.activePersonId);
     setActivePersonId(loadedActiveId);
 
-    // 4. Load Question State
     const week = currentWeekNumber();
     const storedQ = loadJSON<{ week: number; index: number }>(LS.questionState);
     if (
@@ -429,7 +431,6 @@ export default function Page() {
       setQuestionIndex(week % QUESTIONS.length);
     }
 
-    // 5. Determine Start Step
     if (validPeople.length > 0) {
       setStep("HOME");
     } else {
@@ -437,7 +438,7 @@ export default function Page() {
     }
 
     setIsHydrated(true);
-  }, [QUESTIONS.length]); // Re-run if questions change (lang change) but hydration check handles loop
+  }, [QUESTIONS.length]);
 
   useEffect(() => {
     if (people.length === 0) {
@@ -488,12 +489,6 @@ export default function Page() {
     const q = currentQuestion;
     const name = displayName;
 
-    // Matching logic needs to check against BOTH languages or index
-    // Simplified: Just use the specialized renders for known indices if we wanted strictly index based
-    // But text matching is what we had. Let's make it robust by checking indices or just use logic.
-    // For now, let's use the helper functions based on which question index we are at.
-    
-    // Actually, simple text matching works if we check the current lang text
     if (q.includes("known for") || q.includes("conocidos")) {
       return { type: "knownFor" as const, text: t.qKnownFor(name) };
     }
@@ -574,7 +569,6 @@ export default function Page() {
     const key = `${LS.draftPrefix}${activePersonId}`;
     const saved = loadString(key);
     if (saved && !normalize(storyDraft)) setStoryDraft(saved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activePersonId]);
 
   useEffect(() => {
@@ -629,8 +623,6 @@ export default function Page() {
       window.localStorage.removeItem(LS.people);
       window.localStorage.removeItem(LS.activePersonId);
       window.localStorage.removeItem(LS.questionState);
-      // Keep language setting? Usually yes. But if "Reset App", maybe reset everything. 
-      // Let's keep language.
       
       const prefixes = [LS.draftPrefix, LS.usedPrefix, LS.badgesPrefix];
       const keysToRemove: string[] = [];
@@ -660,6 +652,32 @@ export default function Page() {
     showToast(t.invite);
   }
 
+  // --- NEW: Download Function ---
+  function downloadBackup() {
+    if (people.length === 0) return;
+    
+    const date = new Date().toISOString().split("T")[0];
+    const fileName = `vms-backup-${date}.json`;
+    
+    const data = {
+      app: "VitaMyStory",
+      version: "MVP-Demo",
+      exportedAt: new Date().toISOString(),
+      people: people
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast(t.backupDownloaded);
+  }
+
   function markCurrentQuestionUsed(personId: string) {
     if (!personId || allStarterUsed) return;
     const idx = wrapIndex(questionIndex, QUESTIONS.length);
@@ -686,8 +704,6 @@ export default function Page() {
     const nextIdx = nextUnusedIndex(questionIndex, 1, QUESTIONS.length, usedNext);
     setQuestionIndex(nextIdx);
   }
-
-  // NOTE: renderQuestionWithName replaced by displayQuestion.text in the render loop
 
   function saveStory() {
     const text = normalize(storyDraft);
@@ -773,6 +789,15 @@ export default function Page() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-900">
       <div className="w-full max-w-md">
+        
+        {/* --- NEW: Demo Banner --- */}
+        <div className="mb-4 bg-yellow-50 border border-yellow-100 rounded-xl p-3 flex items-start gap-3">
+          <div className="text-xl">🚧</div>
+          <div className="text-sm text-yellow-800">
+             {t.demoBanner}
+          </div>
+        </div>
+
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden relative">
           
           <div className="p-6">
@@ -800,7 +825,6 @@ export default function Page() {
                     EN
                   </button>
                 </div>
-                {/* ----------------------- */}
 
                 <h1 className="text-2xl font-semibold">{t.welcomeTitle}</h1>
                 <p className="text-neutral-600">
@@ -989,9 +1013,16 @@ export default function Page() {
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
                 </div>
 
+                {/* --- NEW: Export Button Logic --- */}
                 <div className="grid grid-cols-2 gap-3 mt-4">
                   <SecondaryButton onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
-                  <SecondaryButton onClick={inviteOthersComingSoon}>{t.invite}</SecondaryButton>
+                  <SecondaryButton onClick={downloadBackup}>{t.saveBackup}</SecondaryButton>
+                </div>
+
+                <div className="pt-2 text-center">
+                   <button onClick={inviteOthersComingSoon} className="text-xs text-neutral-400 hover:text-neutral-600">
+                     {t.inviteLink}
+                   </button>
                 </div>
 
                 <div className="pt-2 flex justify-center">
