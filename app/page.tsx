@@ -32,8 +32,8 @@ const TEXT = {
     storyKeeperBody: (name: string) =>
       `You’ve preserved the first chapter of ${name}’s legacy.`,
     storyKeeperBadge: "This badge stays with their profile.",
-    storiesOf: "The stories of",
-    storyOf: "The story of",
+    storiesOf: "THE STORY OF",
+    storyOf: "THE STORY OF",
     change: "Switch person",
     emptyHome: "A blank page waiting for memories. Start whenever you’re ready.",
     writeAStory: "Write a story",
@@ -87,8 +87,8 @@ const TEXT = {
     storyKeeperBody: (name: string) =>
       `Has completado el primer capítulo del legado de ${name}.`,
     storyKeeperBadge: "Esta insignia se queda en su perfil.",
-    storiesOf: "Las historias de",
-    storyOf: "La historia de",
+    storiesOf: "LAS HISTORIAS DE",
+    storyOf: "LA HISTORIA DE",
     change: "Cambiar persona",
     emptyHome: "Una página en blanco esperando recuerdos. Empieza cuando quieras.",
     writeAStory: "Escribir historia",
@@ -413,25 +413,27 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     <div className="relative">
       <div 
         {...swipeHandlers}
-        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[360px] flex flex-col items-center justify-start p-8 pt-16 relative touch-pan-y"
+        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[380px] flex flex-col items-center justify-start p-8 relative touch-pan-y"
       >
-        {/* Date at Top */}
-        <div className="absolute top-6 text-xs font-bold text-stone-300 tracking-widest uppercase">
-            {formatWhen(current.createdAt, lang)}
+        {/* --- GROUP 1: CONTEXT (Date + Question) --- */}
+        {/* Pushed to TOP as requested */}
+        <div className="w-full flex flex-col items-center space-y-3 pb-6 border-b border-stone-100">
+             <div className="text-xs font-bold text-stone-300 tracking-widest uppercase">
+                {formatWhen(current.createdAt, lang)}
+            </div>
+            
+            {/* Question - Clustered with Date */}
+            {current.prompt ? (
+                <div className="text-sm text-stone-500 italic font-medium text-center px-2 leading-relaxed">
+                  {renderWithBoldName(current.prompt)}
+                </div>
+            ) : null}
         </div>
 
-        {/* Content Aligned to Top - Question closer to Date */}
-        <div className="flex flex-col items-center space-y-4 w-full">
-          
-          {/* Question Text */}
-          {current.prompt ? (
-            <div className="text-sm text-stone-400 italic font-medium text-center px-4 leading-relaxed">
-              {renderWithBoldName(current.prompt)}
-            </div>
-          ) : null}
-
-          {/* Story Text (REDUCED SIZE per request) */}
-          <div className="text-2xl md:text-3xl text-stone-800 leading-tight text-center font-serif px-2">
+        {/* --- GROUP 2: CONTENT (The Answer) --- */}
+        {/* Centered in remaining space, smaller font */}
+        <div className="flex-1 flex flex-col justify-center items-center w-full py-4">
+          <div className="text-2xl text-stone-800 leading-normal text-center font-serif px-2">
             {current.text}
           </div>
         </div>
@@ -1058,7 +1060,7 @@ export default function Page() {
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                   </div>
                   {/* Smaller Name Size */}
-                  <h1 className="text-3xl sm:text-4xl font-['Caveat',cursive] text-stone-900 leading-tight">
+                  <h1 className="text-3xl font-['Caveat',cursive] text-stone-900 leading-tight">
                     {safeName}
                   </h1>
                   {people.length > 1 && (
