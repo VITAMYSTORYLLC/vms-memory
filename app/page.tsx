@@ -413,25 +413,25 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     <div className="relative">
       <div 
         {...swipeHandlers}
-        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[360px] flex flex-col items-center justify-center p-8 relative touch-pan-y"
+        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[360px] flex flex-col items-center justify-start p-8 pt-16 relative touch-pan-y"
       >
         {/* Date at Top */}
         <div className="absolute top-6 text-xs font-bold text-stone-300 tracking-widest uppercase">
             {formatWhen(current.createdAt, lang)}
         </div>
 
-        {/* Content Centered Vertically */}
-        <div className="flex-1 flex flex-col justify-center items-center space-y-6 w-full mt-4">
+        {/* Content Aligned to Top - Question closer to Date */}
+        <div className="flex flex-col items-center space-y-4 w-full">
           
-          {/* Question Text (Medium Size, Darker, More Readable) */}
+          {/* Question Text */}
           {current.prompt ? (
-            <div className="text-base md:text-lg text-stone-500 italic font-medium text-center px-4 leading-relaxed">
+            <div className="text-sm text-stone-400 italic font-medium text-center px-4 leading-relaxed">
               {renderWithBoldName(current.prompt)}
             </div>
           ) : null}
 
-          {/* Story Text (Massive, Bold, Hero) */}
-          <div className="text-3xl md:text-4xl lg:text-5xl text-stone-900 leading-tight text-center font-serif px-2">
+          {/* Story Text (REDUCED SIZE per request) */}
+          <div className="text-2xl md:text-3xl text-stone-800 leading-tight text-center font-serif px-2">
             {current.text}
           </div>
         </div>
@@ -686,18 +686,6 @@ export default function Page() {
   const questionSwipeHandlers = useSwipe(goNextQuestion, goPrevQuestion);
 
   // Swipe handlers for Stories
-  // NOTE: I am restoring this variable which I accidentally deleted in the previous response
-  function nextStory() {
-      // Logic handled inside carousel but we need a handler for container if desired.
-      // Actually, for the container we want to navigate questions or people? 
-      // For now let's just keep the handlers empty or basic if we want top-level swipe.
-      // But standard interaction is swipe on carousel.
-  }
-  // To avoid errors, I will use a simple ref or no-op since carousel handles its own swipe.
-  // HOWEVER, for consistency with the code structure, I will add generic handlers
-  // or simply attach the question handlers if we want to move between *people*?
-  // Let's stick to simple: The container swipe in HOME isn't strictly needed if Carousel has it.
-  // BUT the previous working version had it. I will restore empty handlers to prevent crash if referenced.
   const storySwipeHandlers = useSwipe(() => {}, () => {}); 
 
   function startNewPerson() {
@@ -1024,7 +1012,6 @@ export default function Page() {
                 <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
                     <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
                     <p className="text-lg font-serif italic text-stone-700 leading-relaxed">
-                        {/* THE FIX IS HERE: OPTIONAL CHAINING */}
                         {lastSaved?.text}
                     </p>
                     <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
@@ -1065,11 +1052,13 @@ export default function Page() {
                 {...storySwipeHandlers}
                 className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y"
               >
-                <div className="space-y-2 mb-6 text-center">
+                {/* Header Aligned Left */}
+                <div className="space-y-2 mb-6 text-left pl-2">
                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                   </div>
-                  <h1 className="text-4xl sm:text-5xl font-['Caveat',cursive] text-stone-900 leading-tight">
+                  {/* Smaller Name Size */}
+                  <h1 className="text-3xl sm:text-4xl font-['Caveat',cursive] text-stone-900 leading-tight">
                     {safeName}
                   </h1>
                   {people.length > 1 && (
