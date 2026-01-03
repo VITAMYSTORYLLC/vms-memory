@@ -348,7 +348,8 @@ function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
   const touchStart = useRef<number | null>(null);
   const touchEnd = useRef<number | null>(null);
 
-  const minSwipeDistance = 50;
+  // Lower threshold for easier swiping
+  const minSwipeDistance = 40;
 
   const onTouchStart = (e: React.TouchEvent) => {
     touchEnd.current = null;
@@ -386,9 +387,6 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     setIndex((i) => (i === items.length - 1 ? 0 : i + 1));
   }
 
-  // Swipe logic for Story Carousel
-  const swipeHandlers = useSwipe(next, prev); // Swipe Left = Next, Swipe Right = Prev
-
   useEffect(() => {
     if (items.length <= 0) return;
     setIndex((i) => Math.max(0, Math.min(i, items.length - 1)));
@@ -399,8 +397,7 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
 
   return (
     <div 
-      {...swipeHandlers}
-      className="bg-white border border-stone-100 shadow-sm rounded-2xl p-6 space-y-5 relative touch-pan-y"
+      className="bg-white border border-stone-100 shadow-sm rounded-2xl p-6 space-y-5 relative"
     >
       {/* Decorative quotes */}
       <div className="absolute top-4 left-4 text-4xl text-stone-100 font-serif leading-none">“</div>
@@ -669,6 +666,13 @@ export default function Page() {
   // Swipe handlers for Question
   const questionSwipeHandlers = useSwipe(goNextQuestion, goPrevQuestion);
 
+  // Swipe handlers for Story Carousel (only active on Home screen)
+  const [storyIndex, setStoryIndex] = useState(0);
+  const storySwipeHandlers = useSwipe(
+    () => setStoryIndex(i => (activeMemories.length > 0 ? (i === activeMemories.length - 1 ? 0 : i + 1) : 0)), // Left Swipe = Next
+    () => setStoryIndex(i => (activeMemories.length > 0 ? (i === 0 ? activeMemories.length - 1 : i - 1) : 0))  // Right Swipe = Prev
+  );
+
   function startNewPerson() {
     suppressAutoSelectRef.current = true;
     setActivePersonId("");
@@ -925,11 +929,11 @@ export default function Page() {
             )}
 
             {step === "WRITE" && (
-              <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300">
-                <div 
-                  {...questionSwipeHandlers}
-                  className="text-center space-y-2 mb-8 touch-pan-y"
-                >
+              <div 
+                {...questionSwipeHandlers} // SWIPE HANDLER MOVED TO CONTAINER
+                className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 touch-pan-y"
+              >
+                <div className="text-center space-y-2 mb-8">
                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
                       {t.starterProgress(starterProgressIndex, starterTotal)}
                    </div>
@@ -1043,7 +1047,10 @@ export default function Page() {
             )}
 
             {step === "HOME" && (
-              <div className="flex-1 flex flex-col animate-in fade-in duration-500">
+              <div 
+                {...storySwipeHandlers} // SWIPE HANDLER MOVED TO CONTAINER
+                className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y"
+              >
                 <div className="space-y-1 mb-8 text-left">
                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400 pl-1">
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
