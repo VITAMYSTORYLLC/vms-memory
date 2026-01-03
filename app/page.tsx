@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-
 type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE";
 type Lang = "en" | "es";
 
@@ -19,7 +18,8 @@ const TEXT = {
     chooseExisting: "Choose existing person",
     writeTitle: "Share the stories here",
     writeSubtitle: "Take your time. A few sentences is perfect.",
-    writePlaceholder: "A few sentences is perfect",
+    // CHANGED: New placeholder to avoid repetition
+    writePlaceholder: "It doesn't have to be long...",
     saveStory: "Save story",
     viewStories: "View stories",
     viewAllStories: "View all stories",
@@ -48,18 +48,18 @@ const TEXT = {
     saveBackup: "⬇ Save Backup",
     inviteLink: "(Invite family coming soon)",
     backupDownloaded: "Stories downloaded!",
-    // Questions
+    // Questions (Updated with ||| delimiters for bolding)
     q1: "What’s the first memory or story that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
     q3: "What’s something they were known for?",
     q4: "In one word, how would you describe this person?",
     q5: "What do you think mattered most to them?",
     qFree: "Write any story you want.",
-    qKnownFor: (name: string) => `What’s something ${name} was known for?`,
-    qDescribe: (name: string) => `In one word, how would you describe ${name}?`,
-    qFirstMemory: (name: string) => `What’s the first memory or story that comes to mind when you think of ${name}?`,
-    qEveryoneKnow: (name: string) => `What’s something you want everyone to know about ${name}?`,
-    qMatteredMost: (name: string) => `What do you think mattered most to ${name}?`,
+    qKnownFor: (name: string) => `What’s something |||${name}||| was known for?`,
+    qDescribe: (name: string) => `In one word, how would you describe |||${name}|||?`,
+    qFirstMemory: (name: string) => `What’s the first memory or story that comes to mind when you think of |||${name}|||?`,
+    qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
+    qMatteredMost: (name: string) => `What do you think mattered most to |||${name}|||?`,
     starterComplete: "Starter questions complete. Now write any story — big or small.",
     starterProgress: (current: number, total: number) => `Starter question ${current} of ${total}`,
   },
@@ -74,7 +74,8 @@ const TEXT = {
     chooseExisting: "Elegir persona existente",
     writeTitle: "Comparte las historias aquí",
     writeSubtitle: "Tómate tu tiempo. Unas pocas frases es perfecto.",
-    writePlaceholder: "Unas pocas frases es perfecto",
+    // CHANGED: New placeholder to avoid repetition
+    writePlaceholder: "No tiene que ser largo...",
     saveStory: "Guardar historia",
     viewStories: "Ver historias",
     viewAllStories: "Ver todas las historias",
@@ -103,18 +104,18 @@ const TEXT = {
     saveBackup: "⬇ Guardar Respaldo",
     inviteLink: "(Invitar familia pronto)",
     backupDownloaded: "¡Historias descargadas!",
-    // Questions
+    // Questions (Updated with ||| delimiters for bolding)
     q1: "¿Cuál es el primer recuerdo o historia que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
     q3: "¿Por qué cosa eran conocidos?",
     q4: "En una palabra, ¿cómo describirías a esta persona?",
     q5: "¿Qué crees que era lo que más les importaba?",
     qFree: "Escribe cualquier historia que quieras.",
-    qKnownFor: (name: string) => `¿Qué es algo por lo que ${name} era conocido/a?`,
-    qDescribe: (name: string) => `En una palabra, ¿cómo describirías a ${name}?`,
-    qFirstMemory: (name: string) => `¿Cuál es el primer recuerdo que te viene a la mente al pensar en ${name}?`,
-    qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre ${name}?`,
-    qMatteredMost: (name: string) => `¿Qué crees que era lo que más le importaba a ${name}?`,
+    qKnownFor: (name: string) => `¿Qué es algo por lo que |||${name}||| era conocido/a?`,
+    qDescribe: (name: string) => `En una palabra, ¿cómo describirías a |||${name}|||?`,
+    qFirstMemory: (name: string) => `¿Cuál es el primer recuerdo que te viene a la mente al pensar en |||${name}|||?`,
+    qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
+    qMatteredMost: (name: string) => `¿Qué crees que era lo que más le importaba a |||${name}|||?`,
     starterComplete: "Preguntas iniciales completas. Ahora escribe cualquier historia.",
     starterProgress: (current: number, total: number) => `Pregunta inicial ${current} de ${total}`,
   },
@@ -298,6 +299,21 @@ function addBadge(personId: string, badgeId: string) {
   saveJSON(`${LS.badgesPrefix}${personId}`, [...current, badgeId]);
 }
 
+// --- HELPER: Renders text where "|||" delimits bold content ---
+function renderWithBoldName(text: string) {
+  if (!text) return null;
+  // Splits "What did |||Name||| do?" into ["What did ", "Name", " do?"]
+  const parts = text.split("|||");
+  if (parts.length === 1) return parts[0];
+  return (
+    <>
+      {parts[0]}
+      <span className="font-bold">{parts[1]}</span>
+      {parts[2]}
+    </>
+  );
+}
+
 function PrimaryButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }
 ) {
@@ -369,7 +385,8 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
 
       {current.prompt ? (
         <div className="rounded-xl bg-neutral-50 p-3 text-xs text-neutral-600 italic text-center">
-          {current.prompt}
+          {/* Use the bold renderer here too, in case we saved prompts with delimiters */}
+          {renderWithBoldName(current.prompt)}
         </div>
       ) : null}
 
@@ -791,7 +808,7 @@ export default function Page() {
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-900">
       <div className="w-full max-w-md">
         
-        {/* --- NEW: Demo Banner --- */}
+        {/* --- Demo Banner --- */}
         <div className="mb-4 bg-yellow-50 border border-yellow-100 rounded-xl p-3 flex items-start gap-3">
           <div className="text-xl">🚧</div>
           <div className="text-sm text-yellow-800">
@@ -877,8 +894,9 @@ export default function Page() {
                     </button>
 
                     <div className="flex-1">
+                      {/* CHANGED: Use the bold renderer function */}
                       <p className="text-neutral-900 text-lg leading-relaxed text-center">
-                        {displayQuestion.text}
+                        {renderWithBoldName(displayQuestion.text)}
                       </p>
 
                       {!allStarterUsed ? (
@@ -1014,7 +1032,7 @@ export default function Page() {
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
                 </div>
 
-                {/* --- NEW: Export Button Logic --- */}
+                {/* --- Export Button Logic --- */}
                 <div className="grid grid-cols-2 gap-3 mt-4">
                   <SecondaryButton onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
                   <SecondaryButton onClick={downloadBackup}>{t.saveBackup}</SecondaryButton>
