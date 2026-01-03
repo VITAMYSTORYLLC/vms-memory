@@ -488,8 +488,6 @@ export default function Page() {
   const [lastSaved, setLastSaved] = useState<LastSaved | null>(null);
   const [toast, setToast] = useState<string>("");
   
-  const [hoverBackup, setHoverBackup] = useState(false);
-
   useEffect(() => {
     const loadedLang = loadString(LS.lang);
     if (loadedLang === "en" || loadedLang === "es") {
