@@ -413,16 +413,16 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     <div className="relative">
       <div 
         {...swipeHandlers}
-        className="bg-stone-50 border border-stone-200 shadow-inner rounded-xl min-h-[380px] flex flex-col items-center justify-start p-8 relative touch-pan-y"
+        // MODIFIED: White background, border, overflow-hidden for rounded corners
+        className="bg-white border border-stone-200 shadow-sm rounded-xl min-h-[380px] flex flex-col relative touch-pan-y overflow-hidden"
       >
-        {/* --- GROUP 1: CONTEXT (Date + Question) --- */}
-        {/* Pushed to TOP as requested */}
-        <div className="w-full flex flex-col items-center space-y-3 pb-6 border-b border-stone-100">
-             <div className="text-xs font-bold text-stone-300 tracking-widest uppercase">
+        {/* --- GROUP 1: CONTEXT (Gray Background) --- */}
+        <div className="bg-stone-100 w-full p-6 flex flex-col items-center space-y-3 border-b border-stone-200">
+             <div className="text-xs font-bold text-stone-400 tracking-widest uppercase">
                 {formatWhen(current.createdAt, lang)}
             </div>
             
-            {/* Question - Clustered with Date */}
+            {/* Question */}
             {current.prompt ? (
                 <div className="text-sm text-stone-500 italic font-medium text-center px-2 leading-relaxed">
                   {renderWithBoldName(current.prompt)}
@@ -430,17 +430,16 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
             ) : null}
         </div>
 
-        {/* --- GROUP 2: CONTENT (The Answer) --- */}
-        {/* Centered in remaining space, smaller font */}
-        <div className="flex-1 flex flex-col justify-center items-center w-full py-4">
+        {/* --- GROUP 2: CONTENT (White Background) --- */}
+        <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full">
           <div className="text-2xl text-stone-800 leading-normal text-center font-serif px-2">
             {current.text}
           </div>
         </div>
 
-        {/* Pagination Dots at Bottom */}
+        {/* Pagination Dots at Bottom - Absolute to sit over white background */}
         {items.length > 1 && (
-          <div className="absolute bottom-6 flex gap-2">
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
             {items.map((_, i) => (
               <div 
                 key={i} 
@@ -1060,7 +1059,7 @@ export default function Page() {
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                   </div>
                   {/* Smaller Name Size */}
-                  <h1 className="text-3xl font-['Caveat',cursive] text-stone-900 leading-tight">
+                  <h1 className="text-3xl sm:text-4xl font-['Caveat',cursive] text-stone-900 leading-tight">
                     {safeName}
                   </h1>
                   {people.length > 1 && (
