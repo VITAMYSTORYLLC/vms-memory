@@ -18,7 +18,7 @@ const TEXT = {
     chooseExisting: "Or choose an existing person",
     writeTitle: "Share a memory",
     writeSubtitle: "Don't overthink it. A few sentences is perfect.",
-    writePlaceholder: "Start typing here...",
+    writePlaceholder: "Start writing here...",
     saveStory: "Save this memory",
     viewStories: "Read stories",
     viewAllStories: (name: string) => `Read all stories about ${name}`,
@@ -343,6 +343,38 @@ function SecondaryButton(
   );
 }
 
+// --- SWIPE LOGIC HOOK ---
+function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
+  const touchStart = useRef<number | null>(null);
+  const touchEnd = useRef<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchEnd.current = null;
+    touchStart.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEnd.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart.current || !touchEnd.current) return;
+    const distance = touchStart.current - touchEnd.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      onSwipeLeft();
+    }
+    if (isRightSwipe) {
+      onSwipeRight();
+    }
+  };
+
+  return { onTouchStart, onTouchMove, onTouchEnd };
+}
+
 function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
   const [index, setIndex] = useState(0);
 
@@ -354,6 +386,9 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
     setIndex((i) => (i === items.length - 1 ? 0 : i + 1));
   }
 
+  // Swipe logic for Story Carousel
+  const swipeHandlers = useSwipe(next, prev); // Swipe Left = Next, Swipe Right = Prev
+
   useEffect(() => {
     if (items.length <= 0) return;
     setIndex((i) => Math.max(0, Math.min(i, items.length - 1)));
@@ -363,7 +398,10 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
   if (!current) return null;
 
   return (
-    <div className="bg-white border border-stone-100 shadow-sm rounded-2xl p-6 space-y-5 relative">
+    <div 
+      {...swipeHandlers}
+      className="bg-white border border-stone-100 shadow-sm rounded-2xl p-6 space-y-5 relative touch-pan-y"
+    >
       {/* Decorative quotes */}
       <div className="absolute top-4 left-4 text-4xl text-stone-100 font-serif leading-none">“</div>
       
@@ -628,6 +666,9 @@ export default function Page() {
     setQuestionIndex((i) => nextUnusedIndex(i, 1, QUESTIONS.length, usedSet));
   }
 
+  // Swipe handlers for Question
+  const questionSwipeHandlers = useSwipe(goNextQuestion, goPrevQuestion);
+
   function startNewPerson() {
     suppressAutoSelectRef.current = true;
     setActivePersonId("");
@@ -831,7 +872,7 @@ export default function Page() {
             {step === "WELCOME" && (
               <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
                 
-                {/* LANGUAGE TOGGLE - MOVED INSIDE THE CARD */}
+                {/* LANGUAGE TOGGLE */}
                 <div className="absolute top-6 right-6 flex gap-3 text-xs font-bold tracking-widest z-10">
                   <button
                     onClick={() => setLang("es")}
@@ -885,7 +926,10 @@ export default function Page() {
 
             {step === "WRITE" && (
               <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300">
-                <div className="text-center space-y-2 mb-8">
+                <div 
+                  {...questionSwipeHandlers}
+                  className="text-center space-y-2 mb-8 touch-pan-y"
+                >
                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
                       {t.starterProgress(starterProgressIndex, starterTotal)}
                    </div>
@@ -894,30 +938,31 @@ export default function Page() {
                    </h2>
                 </div>
 
-                {/* VISIBLE WRITING BOX */}
+                {/* VISIBLE WRITING BOX (STATIONERY LOOK) */}
                 <div className="flex-1 relative mb-6">
+                    <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner"></div>
                     <textarea
                       value={storyDraft}
                       onChange={(e) => setStoryDraft(e.target.value)}
                       placeholder={t.writePlaceholder}
-                      className="w-full h-full resize-none bg-stone-50 border border-stone-200 rounded-xl p-6 text-lg leading-relaxed text-stone-700 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-200 focus:border-transparent transition-all"
+                      className="relative w-full h-full resize-none bg-transparent p-6 text-lg font-serif leading-relaxed text-stone-700 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10"
                     />
                     
-                    {/* Navigation Arrows floating - positioned outside the box slightly */}
-                    <div className="absolute -left-4 top-1/2 -translate-y-1/2">
+                    {/* Navigation Arrows floating OUTSIDE */}
+                    <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20">
                         <button
                           onClick={goPrevQuestion}
                           disabled={allStarterUsed}
-                          className="p-2 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
+                          className="p-3 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
                         >
                             <span className="text-2xl">←</span>
                         </button>
                     </div>
-                    <div className="absolute -right-4 top-1/2 -translate-y-1/2">
+                    <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20">
                         <button
                           onClick={goNextQuestion}
                           disabled={allStarterUsed}
-                          className="p-2 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
+                          className="p-3 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
                         >
                             <span className="text-2xl">→</span>
                         </button>
@@ -999,15 +1044,15 @@ export default function Page() {
 
             {step === "HOME" && (
               <div className="flex-1 flex flex-col animate-in fade-in duration-500">
-                <div className="space-y-1 mb-8">
-                  <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
+                <div className="space-y-1 mb-8 text-left">
+                  <div className="text-xs font-bold uppercase tracking-widest text-stone-400 pl-1">
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                   </div>
                   <h1 className="text-4xl sm:text-5xl font-['Caveat',cursive] text-stone-900">
                     {safeName}
                   </h1>
                   {people.length > 1 && (
-                     <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 underline decoration-stone-200 hover:text-stone-600">
+                     <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 underline decoration-stone-200 hover:text-stone-600 pl-1">
                         {t.change}
                      </button>
                   )}
