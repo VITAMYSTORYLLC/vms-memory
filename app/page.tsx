@@ -8,104 +8,104 @@ type Lang = "en" | "es";
 // --- TRANSLATIONS ---
 const TEXT = {
   en: {
-    welcomeTitle: "Welcome to VMS",
-    welcomeBody: "A simple place to collect stories and memories about the people who matter to you.",
-    savedDevice: "Saved on this device for now.",
-    whoFor: "Who is this for?",
+    welcomeTitle: "VitaMyStory",
+    welcomeBody: "A simple place to collect the stories that matter.",
+    savedDevice: "Stories live on this device.",
+    whoFor: "Who are we writing about?",
     placeholder: "Grandma Elvia",
-    justName: "Just a name to get started.",
-    continue: "Continue",
-    chooseExisting: "Choose existing person",
-    writeTitle: "Share the stories here",
-    writeSubtitle: "Take your time. A few sentences is perfect.",
+    justName: "Just a name to start a chapter.",
+    continue: "Start Writing",
+    chooseExisting: "Or choose an existing person",
+    writeTitle: "Share a memory",
+    writeSubtitle: "Don't overthink it. A few sentences is perfect.",
     writePlaceholder: "It doesn't have to be long...",
-    saveStory: "Save story",
-    viewStories: "View stories",
-    viewAllStories: (name: string) => `View all ${name} stories`,
-    addAnother: "Add another story",
-    invite: "Invite family (soon)",
-    storySaved: "Story saved.",
+    saveStory: "Save this memory",
+    viewStories: "Read stories",
+    viewAllStories: (name: string) => `Read all stories about ${name}`,
+    addAnother: "Write another",
+    invite: "Invite family (Coming Soon)",
+    storySaved: "Memory kept.",
     storyShared: "Story shared",
-    firstStorySaved: "Your first story has been saved.",
-    firstStorySavedPerson: (name: string) => `Your first story about ${name} has been saved.`,
+    firstStorySaved: "First memory saved.",
+    firstStorySavedPerson: (name: string) => `Your first story about ${name} is safe.`,
     storyKeeperTitle: "Story Keeper",
     storyKeeperBody: (name: string) =>
-      `You completed the first chapter of ${name}’s stories.`,
-    storyKeeperBadge: "This badge stays with this person.",
-    storiesOf: "Stories of",
-    storyOf: "Story of",
-    change: "Change",
-    emptyHome: "This is where stories about this person will live. Start whenever you’re ready.",
+      `You’ve preserved the first chapter of ${name}’s legacy.`,
+    storyKeeperBadge: "This badge stays with their profile.",
+    storiesOf: "The stories of",
+    storyOf: "The story of",
+    change: "Switch person",
+    emptyHome: "A blank page waiting for memories. Start whenever you’re ready.",
     writeAStory: "Write a story",
-    newPerson: "New person",
+    newPerson: "Add a new person",
     resetApp: "Reset app",
-    choosePerson: "Choose a person",
-    noPeople: "No one yet. Add a name to start.",
-    back: "Back",
-    added: "added",
+    choosePerson: "Select a person",
+    noPeople: "No chapters yet.",
+    back: "Go back",
+    added: "Started",
     // Export/Demo
-    demoBanner: "Demo Version: Data is saved only on this device. Please export your stories before clearing your cache.",
-    saveBackup: "⬇ Save Backup",
-    inviteLink: "(Invite family coming soon)",
-    backupDownloaded: "Stories downloaded!",
+    demoBanner: "Demo Version: Stories live in your browser cache. Export them to keep them safe.",
+    saveBackup: "⬇ Export Backup",
+    inviteLink: "Invite family (Coming Soon)",
+    backupDownloaded: "Backup file downloaded.",
     // Questions
-    q1: "What’s the first memory or story that comes to mind when you think of them?",
+    q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
-    q3: "What’s something they were known for?",
+    q3: "What were they known for?",
     q4: "In one word, how would you describe this person?",
     q5: "What do you think mattered most to them?",
     qFree: "Write any story you want.",
-    qKnownFor: (name: string) => `What’s something |||${name}||| was known for?`,
+    qKnownFor: (name: string) => `What is something |||${name}||| was known for?`,
     qDescribe: (name: string) => `In one word, how would you describe |||${name}|||?`,
-    qFirstMemory: (name: string) => `What’s the first memory or story that comes to mind when you think of |||${name}|||?`,
+    qFirstMemory: (name: string) => `What’s the first memory that comes to mind when you think of |||${name}|||?`,
     qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
     qMatteredMost: (name: string) => `What do you think mattered most to |||${name}|||?`,
-    starterComplete: "Starter questions complete. Now write any story — big or small.",
-    starterProgress: (current: number, total: number) => `Starter question ${current} of ${total}`,
+    starterComplete: "Starter questions complete. The rest of the book is yours to write.",
+    starterProgress: (current: number, total: number) => `Chapter ${current} of ${total}`,
   },
   es: {
-    welcomeTitle: "Bienvenido a VMS",
-    welcomeBody: "Un lugar sencillo para guardar historias y recuerdos de las personas que te importan.",
-    savedDevice: "Guardado en este dispositivo por ahora.",
-    whoFor: "¿Para quién es esto?",
+    welcomeTitle: "VitaMyStory",
+    welcomeBody: "Un lugar sencillo para guardar las historias que importan.",
+    savedDevice: "Las historias viven en este dispositivo.",
+    whoFor: "¿Sobre quién escribiremos?",
     placeholder: "Abuela Elvia",
-    justName: "Solo un nombre para empezar.",
-    continue: "Continuar",
-    chooseExisting: "Elegir persona existente",
-    writeTitle: "Comparte las historias aquí",
+    justName: "Solo un nombre para empezar un capítulo.",
+    continue: "Comenzar",
+    chooseExisting: "O elige a alguien más",
+    writeTitle: "Comparte un recuerdo",
     writeSubtitle: "Tómate tu tiempo. Unas pocas frases es perfecto.",
     writePlaceholder: "No tiene que ser largo...",
-    saveStory: "Guardar historia",
-    viewStories: "Ver historias",
-    viewAllStories: (name: string) => `Ver todas las historias de ${name}`,
-    addAnother: "Agregar otra historia",
-    invite: "Invitar familia (pronto)",
-    storySaved: "Historia guardada.",
+    saveStory: "Guardar recuerdo",
+    viewStories: "Leer historias",
+    viewAllStories: (name: string) => `Leer todo sobre ${name}`,
+    addAnother: "Escribir otra",
+    invite: "Invitar familia (Pronto)",
+    storySaved: "Recuerdo guardado.",
     storyShared: "Historia compartida",
-    firstStorySaved: "Tu primera historia ha sido guardada.",
-    firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} ha sido guardada.`,
+    firstStorySaved: "Primer recuerdo guardado.",
+    firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} está segura.`,
     storyKeeperTitle: "Guardián de Historias",
     storyKeeperBody: (name: string) =>
-      `Completaste el primer capítulo de las historias de ${name}.`,
-    storyKeeperBadge: "Esta insignia se queda con esta persona.",
-    storiesOf: "Historias de",
-    storyOf: "Historia de",
-    change: "Cambiar",
-    emptyHome: "Aquí vivirán las historias sobre esta persona. Empieza cuando estés listo.",
+      `Has completado el primer capítulo del legado de ${name}.`,
+    storyKeeperBadge: "Esta insignia se queda en su perfil.",
+    storiesOf: "Las historias de",
+    storyOf: "La historia de",
+    change: "Cambiar persona",
+    emptyHome: "Una página en blanco esperando recuerdos. Empieza cuando quieras.",
     writeAStory: "Escribir historia",
-    newPerson: "Nueva persona",
+    newPerson: "Agregar persona",
     resetApp: "Reiniciar app",
-    choosePerson: "Elegir persona",
-    noPeople: "Nadie aún. Agrega un nombre para empezar.",
-    back: "Atrás",
-    added: "agregado",
+    choosePerson: "Elige una persona",
+    noPeople: "No hay capítulos aún.",
+    back: "Regresar",
+    added: "Iniciado",
     // Export/Demo
-    demoBanner: "Versión Demo: Datos guardados solo en este dispositivo. Exporta tus historias antes de borrar caché.",
-    saveBackup: "⬇ Guardar Respaldo",
-    inviteLink: "(Invitar familia pronto)",
-    backupDownloaded: "¡Historias descargadas!",
+    demoBanner: "Versión Demo: Las historias viven en tu navegador. Expórtalas para guardarlas.",
+    saveBackup: "⬇ Exportar Respaldo",
+    inviteLink: "Invitar familia (Pronto)",
+    backupDownloaded: "Archivo de respaldo descargado.",
     // Questions
-    q1: "¿Cuál es el primer recuerdo o historia que te viene a la mente cuando piensas en ellos?",
+    q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
     q3: "¿Por qué cosa eran conocidos?",
     q4: "En una palabra, ¿cómo describirías a esta persona?",
@@ -116,8 +116,8 @@ const TEXT = {
     qFirstMemory: (name: string) => `¿Cuál es el primer recuerdo que te viene a la mente al pensar en |||${name}|||?`,
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
     qMatteredMost: (name: string) => `¿Qué crees que era lo que más le importaba a |||${name}|||?`,
-    starterComplete: "Preguntas iniciales completas. Ahora escribe cualquier historia.",
-    starterProgress: (current: number, total: number) => `Pregunta inicial ${current} de ${total}`,
+    starterComplete: "Preguntas iniciales completas. El resto del libro es tuyo.",
+    starterProgress: (current: number, total: number) => `Capítulo ${current} de ${total}`,
   },
 };
 
@@ -307,11 +307,13 @@ function renderWithBoldName(text: string) {
   return (
     <>
       {parts[0]}
-      <span className="font-bold">{parts[1]}</span>
+      <span className="font-semibold text-stone-900">{parts[1]}</span>
       {parts[2]}
     </>
   );
 }
+
+// --- NEW COMPONENT STYLES ---
 
 function PrimaryButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }
@@ -320,7 +322,7 @@ function PrimaryButton(
   return (
     <button
       {...rest}
-      className={`w-full py-3 rounded-xl bg-neutral-900 text-white disabled:opacity-40 ${className}`}
+      className={`w-full py-4 rounded-xl bg-stone-900 text-stone-50 font-medium shadow-md active:scale-[0.98] transition-all disabled:opacity-40 disabled:shadow-none ${className}`}
     >
       {children}
     </button>
@@ -334,7 +336,7 @@ function SecondaryButton(
   return (
     <button
       {...rest}
-      className={`w-full py-3 rounded-xl border disabled:opacity-40 disabled:cursor-not-allowed ${className}`}
+      className={`w-full py-4 rounded-xl border border-stone-200 bg-white text-stone-800 font-medium shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:bg-stone-50 disabled:cursor-not-allowed ${className}`}
     >
       {children}
     </button>
@@ -361,34 +363,43 @@ function StoryCarousel({ items, lang }: { items: MemoryItem[]; lang: Lang }) {
   if (!current) return null;
 
   return (
-    <div className="border rounded-2xl p-4 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="bg-white border border-stone-100 shadow-sm rounded-2xl p-6 space-y-5 relative">
+      {/* Decorative quotes */}
+      <div className="absolute top-4 left-4 text-4xl text-stone-100 font-serif leading-none">“</div>
+      
+      <div className="flex items-center justify-between relative z-10">
         <button
           onClick={prev}
           aria-label="Previous story"
-          className="h-8 w-8 rounded-full border text-neutral-500 hover:bg-neutral-50"
+          className="h-8 w-8 rounded-full flex items-center justify-center text-stone-400 hover:bg-stone-100 transition"
         >
           &lt;
         </button>
 
-        <div className="text-xs text-neutral-500">{formatWhen(current.createdAt, lang)}</div>
+        <div className="text-xs font-medium text-stone-400 tracking-wider uppercase">
+            {formatWhen(current.createdAt, lang)}
+        </div>
 
         <button
           onClick={next}
           aria-label="Next story"
-          className="h-8 w-8 rounded-full border text-neutral-500 hover:bg-neutral-50"
+          className="h-8 w-8 rounded-full flex items-center justify-center text-stone-400 hover:bg-stone-100 transition"
         >
           &gt;
         </button>
       </div>
 
       {current.prompt ? (
-        <div className="rounded-xl bg-neutral-50 p-3 text-xs text-neutral-600 italic text-center">
+        <div className="text-sm text-stone-500 font-medium text-center px-4">
           {renderWithBoldName(current.prompt)}
         </div>
       ) : null}
 
-      <div className="text-base text-neutral-900 leading-relaxed text-center">{current.text}</div>
+      <div className="text-lg text-stone-800 leading-relaxed text-center font-serif px-2">
+        {current.text}
+      </div>
+      
+      <div className="absolute bottom-2 right-6 text-4xl text-stone-100 font-serif leading-none">”</div>
     </div>
   );
 }
@@ -674,7 +685,7 @@ export default function Page() {
     if (people.length === 0) return;
     
     const date = new Date().toISOString().split("T")[0];
-    const fileName = `vms-backup-${date}.json`;
+    const fileName = `vita-backup-${date}.json`;
     
     const data = {
       app: "VitaMyStory",
@@ -799,200 +810,180 @@ export default function Page() {
 
   if (!isHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-900"></div>
+      <div className="min-h-screen flex items-center justify-center bg-stone-50 text-stone-900"></div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 text-neutral-900">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-stone-50 text-stone-900 font-sans selection:bg-stone-200">
+      <div className="w-full max-w-lg px-4">
+        
+        {/* --- Language Toggle (Fixed Top Right) --- */}
+        <div className="fixed top-4 right-4 flex gap-3 text-xs font-bold tracking-widest z-50">
+          <button
+            onClick={() => setLang("es")}
+            className={`transition-colors ${lang === "es" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-400 hover:text-stone-600"}`}
+          >
+            ES
+          </button>
+          <button
+            onClick={() => setLang("en")}
+            className={`transition-colors ${lang === "en" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-400 hover:text-stone-600"}`}
+          >
+            EN
+          </button>
+        </div>
 
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden relative">
+        {/* --- MAIN CARD --- */}
+        <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 overflow-hidden relative border border-stone-100 min-h-[500px] flex flex-col">
           
-          <div className="p-6">
+          <div className="p-8 flex-1 flex flex-col">
             {toast ? (
-              <div className="mb-4 rounded-xl border bg-white px-4 py-3 text-sm text-neutral-800">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-stone-900 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg animate-fade-in z-50">
                 {toast}
               </div>
             ) : null}
 
             {step === "WELCOME" && (
-              <div className="relative space-y-6 text-center pt-2">
-                {/* --- LANGUAGE TOGGLE --- */}
-                <div className="absolute top-0 right-0 flex gap-2 text-xs font-medium">
-                  <button
-                    onClick={() => setLang("es")}
-                    className={lang === "es" ? "text-neutral-900 font-bold" : "text-neutral-400 hover:text-neutral-600"}
-                  >
-                    ES
-                  </button>
-                  <span className="text-neutral-300">|</span>
-                  <button
-                    onClick={() => setLang("en")}
-                    className={lang === "en" ? "text-neutral-900 font-bold" : "text-neutral-400 hover:text-neutral-600"}
-                  >
-                    EN
-                  </button>
+              <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                <div className="space-y-4">
+                    <h1 className="text-4xl font-serif font-semibold tracking-tight text-stone-900">
+                      {t.welcomeTitle}
+                    </h1>
+                    <p className="text-stone-500 text-lg leading-relaxed max-w-xs mx-auto">
+                      {t.welcomeBody}
+                    </p>
                 </div>
 
-                <h1 className="text-2xl font-semibold">{t.welcomeTitle}</h1>
-                <p className="text-neutral-600">
-                  {t.welcomeBody}
-                </p>
-
-                <div className="text-sm text-neutral-500">{t.savedDevice}</div>
-
-                <div className="border rounded-2xl p-4 space-y-3">
-                  <h2 className="text-lg font-semibold">{t.whoFor}</h2>
-                  <input
-                    value={nameDraft}
-                    onChange={(e) => setNameDraft(e.target.value)}
-                    placeholder={t.placeholder}
-                    className="w-full border rounded-xl p-3 text-center text-lg"
-                  />
-                  <p className="text-xs text-neutral-500">{t.justName}</p>
-                </div>
-
-                <PrimaryButton disabled={!normalize(nameDraft)} onClick={() => setStep("WRITE")}>
-                  {t.continue}
-                </PrimaryButton>
-
-                {people.length > 0 ? (
-                  <SecondaryButton onClick={() => setStep("PEOPLE")}>
-                    {t.chooseExisting}
-                  </SecondaryButton>
-                ) : null}
-              </div>
-            )}
-
-            {step === "WRITE" && (
-              <div className="space-y-6">
-                <div className="text-center space-y-1">
-                  <h2 className="text-xl font-semibold">{t.writeTitle}</h2>
-                  <p className="text-sm text-neutral-500">{t.writeSubtitle}</p>
-                </div>
-
-                <div className="border rounded-2xl p-4 bg-neutral-50">
-                  <div className="flex items-start gap-3">
-                    <button
-                      type="button"
-                      onClick={goPrevQuestion}
-                      aria-label="Previous question"
-                      disabled={allStarterUsed}
-                      className="mt-1 h-9 w-9 shrink-0 rounded-full border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 flex items-center justify-center disabled:opacity-40"
-                    >
-                      &lt;
-                    </button>
-
-                    <div className="flex-1">
-                      {/* Using Bold Renderer */}
-                      <p className="text-neutral-900 text-lg leading-relaxed text-center">
-                        {renderWithBoldName(displayQuestion.text)}
-                      </p>
-
-                      {!allStarterUsed ? (
-                        <div className="mt-3 space-y-2">
-                          <div className="text-xs text-neutral-500 text-center">
-                            {t.starterProgress(starterProgressIndex, starterTotal)}
-                          </div>
-                          <div className="h-2 w-full rounded-full bg-white border overflow-hidden">
-                            <div className="h-full bg-neutral-900" style={{ width: `${starterProgressPct}%` }} />
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="mt-2 text-xs text-neutral-500 text-center">
-                          {t.starterComplete}
-                        </p>
-                      )}
+                <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold uppercase tracking-widest text-stone-400">{t.whoFor}</label>
+                      <input
+                        value={nameDraft}
+                        onChange={(e) => setNameDraft(e.target.value)}
+                        placeholder={t.placeholder}
+                        className="w-full bg-transparent border-b-2 border-stone-100 p-2 text-center text-3xl font-serif text-stone-800 placeholder:text-stone-200 focus:outline-none focus:border-stone-400 transition-colors"
+                        autoFocus
+                      />
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={goNextQuestion}
-                      aria-label="Next question"
-                      disabled={allStarterUsed}
-                      className="mt-1 h-9 w-9 shrink-0 rounded-full border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 flex items-center justify-center disabled:opacity-40"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-
-                  <div className="mt-4">
-                    <textarea
-                      value={storyDraft}
-                      onChange={(e) => setStoryDraft(e.target.value)}
-                      rows={6}
-                      placeholder={t.writePlaceholder}
-                      className="w-full border rounded-xl p-3 bg-white text-center"
-                    />
-                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  <PrimaryButton disabled={!canSave} onClick={saveStory}>
-                    {t.saveStory}
+                <div className="pt-4 space-y-3">
+                  <PrimaryButton disabled={!normalize(nameDraft)} onClick={() => setStep("WRITE")}>
+                    {t.continue}
                   </PrimaryButton>
 
                   {people.length > 0 ? (
-                    <SecondaryButton onClick={() => setStep("HOME")}>{t.viewStories}</SecondaryButton>
+                    <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 hover:text-stone-600 transition-colors">
+                      {t.chooseExisting}
+                    </button>
                   ) : null}
                 </div>
               </div>
             )}
 
+            {step === "WRITE" && (
+              <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300">
+                <div className="text-center space-y-2 mb-8">
+                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
+                      {t.starterProgress(starterProgressIndex, starterTotal)}
+                   </div>
+                   <h2 className="text-2xl font-serif font-medium leading-relaxed text-stone-800">
+                      {renderWithBoldName(displayQuestion.text)}
+                   </h2>
+                </div>
+
+                <div className="flex-1 relative mb-6">
+                    <textarea
+                      value={storyDraft}
+                      onChange={(e) => setStoryDraft(e.target.value)}
+                      placeholder={t.writePlaceholder}
+                      className="w-full h-full resize-none bg-transparent text-lg leading-loose text-stone-700 placeholder:text-stone-300 placeholder:font-serif focus:outline-none"
+                    />
+                    
+                    {/* Navigation Arrows floating */}
+                    <div className="absolute -left-4 top-1/2 -translate-y-1/2">
+                        <button
+                          onClick={goPrevQuestion}
+                          disabled={allStarterUsed}
+                          className="p-2 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
+                        >
+                            <span className="text-2xl">←</span>
+                        </button>
+                    </div>
+                    <div className="absolute -right-4 top-1/2 -translate-y-1/2">
+                        <button
+                          onClick={goNextQuestion}
+                          disabled={allStarterUsed}
+                          className="p-2 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors"
+                        >
+                            <span className="text-2xl">→</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                  <PrimaryButton disabled={!canSave} onClick={saveStory}>
+                    {t.saveStory}
+                  </PrimaryButton>
+                  
+                  {people.length > 0 && (
+                      <div className="text-center">
+                        <button onClick={() => setStep("HOME")} className="text-sm text-stone-400 hover:text-stone-600">
+                            {t.viewStories}
+                        </button>
+                      </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {step === "SAVED" && (
-              <div className="space-y-6">
-                <div className="text-center space-y-2">
-                  {/* --- Success Icon --- */}
-                  <div className="flex justify-center mb-4">
-                    <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+              <div className="flex-1 flex flex-col justify-center space-y-8 animate-in zoom-in-95 duration-300">
+                
+                <div className="text-center space-y-4">
+                  <div className="flex justify-center">
+                    <div className="bg-green-50 text-green-600 p-3 rounded-full">
                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                          <polyline points="20 6 9 17 4 12"></polyline>
                        </svg>
                     </div>
                   </div>
-
-                  <h2 className="text-2xl font-semibold">
-                    {savedCount === 1 
-                      ? t.firstStorySavedPerson(displayName) 
-                      : t.storySaved}
+                  <h2 className="text-2xl font-serif text-stone-900">
+                    {savedCount === 1 ? t.firstStorySaved : t.storySaved}
                   </h2>
                 </div>
 
-                {/* --- NEW: Story Preview (Quote Card) --- */}
+                {/* Quote Card */}
                 {lastSaved && (
-                  <div className="relative bg-white border border-neutral-200 shadow-sm rounded-xl p-6 text-center">
-                    <div className="text-4xl text-neutral-200 absolute top-2 left-4 font-serif leading-none">“</div>
-                    <div className="text-lg text-neutral-800 font-serif italic px-2">
-                      {lastSaved.text}
-                    </div>
-                     <div className="text-4xl text-neutral-200 absolute bottom-[-10px] right-4 font-serif leading-none">”</div>
+                  <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
+                    <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
+                    <p className="text-lg font-serif italic text-stone-700 leading-relaxed">
+                        {lastSaved.text}
+                    </p>
+                    <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
                   </div>
                 )}
 
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3 pt-4">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
-                  
                   <SecondaryButton onClick={() => setStep("HOME")}>
                     {t.viewAllStories(displayName)}
                   </SecondaryButton>
                 </div>
-
-                {/* Invite Link at bottom */}
+                
                 <div className="text-center">
-                   <button className="text-xs text-neutral-400 hover:text-neutral-600 cursor-not-allowed">
-                     {t.invite}
-                   </button>
+                   <span className="text-xs text-stone-300">{t.invite}</span>
                 </div>
               </div>
             )}
 
             {step === "BADGE" && (
-              <div className="space-y-6">
-                <div className="text-center space-y-2">
-                  <div className="text-4xl">📖</div>
-                  <h2 className="text-2xl font-semibold">{t.storyKeeperTitle}</h2>
-                  <p className="text-sm text-neutral-600">
+              <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in zoom-in-95 duration-500">
+                <div className="space-y-4">
+                  <div className="text-6xl animate-bounce">📖</div>
+                  <h2 className="text-3xl font-serif text-stone-900">{t.storyKeeperTitle}</h2>
+                  <p className="text-stone-500">
                     {t.storyKeeperBody(displayName)}
                   </p>
                 </div>
@@ -1001,137 +992,104 @@ export default function Page() {
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
                   <SecondaryButton onClick={() => setStep("HOME")}>{t.viewStories}</SecondaryButton>
                 </div>
-
-                <div className="text-[11px] text-neutral-500 text-center">{t.storyKeeperBadge}</div>
               </div>
             )}
 
             {step === "HOME" && (
-              <div className="space-y-6">
-                <div className="space-y-2 text-left">
-                  <div className="text-xs uppercase tracking-wide text-neutral-500 pl-1">
+              <div className="flex-1 flex flex-col animate-in fade-in duration-500">
+                <div className="space-y-1 mb-8">
+                  <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
                     {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                   </div>
-
-                  <div className="text-3xl sm:text-4xl font-semibold italic font-['Caveat',cursive]">
+                  <h1 className="text-4xl sm:text-5xl font-['Caveat',cursive] text-stone-900">
                     {safeName}
-                  </div>
-
-                  {people.length > 1 ? (
-                    <div className="text-left">
-                      <button onClick={() => setStep("PEOPLE")} className="text-sm text-neutral-600 underline">
+                  </h1>
+                  {people.length > 1 && (
+                     <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 underline decoration-stone-200 hover:text-stone-600">
                         {t.change}
-                      </button>
-                    </div>
-                  ) : null}
+                     </button>
+                  )}
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex-1">
                   {activeMemories.length === 0 ? (
-                    <div className="border rounded-2xl p-4 text-sm text-neutral-600 text-center">
-                      {t.emptyHome}
+                    <div className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-stone-100 rounded-2xl">
+                      <p className="text-stone-400 font-serif italic">{t.emptyHome}</p>
                     </div>
                   ) : (
                     <StoryCarousel items={[...activeMemories].reverse()} lang={lang} />
                   )}
                 </div>
 
-                <div className="flex items-center justify-center gap-3 text-sm text-neutral-500">
-                  <span>
-                    {activeMemories.length} {plural(activeMemories.length, "story", lang === "es" ? "historias" : "stories")}
-                  </span>
-                  {storyKeeperEarned ? (
-                    <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs text-neutral-700 bg-white">
-                      <span aria-hidden>📖</span>
-                      <span>{t.storyKeeperTitle}</span>
-                    </span>
-                  ) : null}
+                <div className="mt-8 space-y-4">
+                    <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
+                    
+                    <div className="flex gap-3">
+                        <SecondaryButton className="flex-1" onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
+                        <div className="relative flex-1 group">
+                             {/* Hover Tooltip */}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-stone-800 text-stone-50 text-[10px] text-center rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+                                {t.demoBanner}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-stone-800"></div>
+                            </div>
+                            <SecondaryButton onClick={downloadBackup}>
+                                {t.saveBackup}
+                            </SecondaryButton>
+                        </div>
+                    </div>
                 </div>
-
-                <div className="mt-2">
-                  <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
-                </div>
-
-                {/* --- Export Button with Hover Tooltip --- */}
-                <div className="grid grid-cols-2 gap-3 mt-4">
-                  <SecondaryButton onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
-                  
-                  <div className="relative">
-                    {hoverBackup && (
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs rounded-xl shadow-lg z-50 pointer-events-none">
-                        {t.demoBanner}
-                        {/* Little triangle arrow at bottom */}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-yellow-200"></div>
-                      </div>
-                    )}
-                    <SecondaryButton 
-                      onClick={downloadBackup}
-                      onMouseEnter={() => setHoverBackup(true)}
-                      onMouseLeave={() => setHoverBackup(false)}
-                    >
-                      {t.saveBackup}
-                    </SecondaryButton>
-                  </div>
-                </div>
-
-                <div className="pt-2 text-center">
-                   <button onClick={inviteOthersComingSoon} className="text-xs text-neutral-400 hover:text-neutral-600">
-                     {t.inviteLink}
-                   </button>
-                </div>
-
-                <div className="pt-2 flex justify-center">
-                  <button type="button" onClick={resetApp} className="text-xs text-neutral-500 underline">
-                    {t.resetApp}
-                  </button>
-                </div>
-
-                <div className="text-[11px] text-neutral-400 text-center">{t.savedDevice}</div>
               </div>
             )}
 
             {step === "PEOPLE" && (
-              <div className="space-y-5">
-                <h2 className="text-xl font-semibold text-center">{t.choosePerson}</h2>
+              <div className="flex-1 flex flex-col animate-in fade-in duration-300">
+                <h2 className="text-center text-lg font-serif font-bold text-stone-900 mb-8">{t.choosePerson}</h2>
 
-                {people.length === 0 ? (
-                  <div className="border rounded-2xl p-4 text-sm text-neutral-600 text-center">
-                    {t.noPeople}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {people.map((p) => (
+                <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                  {people.length === 0 ? (
+                    <div className="text-center text-stone-400 py-10">{t.noPeople}</div>
+                  ) : (
+                    people.map((p) => (
                       <button
                         key={p.id}
                         onClick={() => {
                           setActivePersonId(p.id);
                           setStep("HOME");
                         }}
-                        className={`w-full text-left border rounded-2xl p-4 hover:bg-neutral-50 transition ${
-                          p.id === activePersonId ? "border-neutral-900" : ""
+                        className={`w-full text-left p-5 rounded-xl transition-all ${
+                          p.id === activePersonId 
+                            ? "bg-stone-900 text-white shadow-md" 
+                            : "bg-stone-50 text-stone-600 hover:bg-stone-100"
                         }`}
                       >
-                        <div className="text-lg font-serif italic">{p.name}</div>
-                        <div className="mt-1 text-xs text-neutral-500">
-                          {p.memories.length} {plural(p.memories.length, "story", lang === "es" ? "historias" : "stories")} • {t.added} {formatWhen(p.createdAt, lang)}
+                        <div className="text-xl font-['Caveat',cursive] leading-none mb-2">{p.name}</div>
+                        <div className={`text-xs uppercase tracking-wider ${p.id === activePersonId ? "text-stone-400" : "text-stone-400"}`}>
+                          {p.memories.length} {plural(p.memories.length, "story", lang === "es" ? "historias" : "stories")}
                         </div>
                       </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-3">
-                  <SecondaryButton onClick={() => setStep("HOME")}>{t.back}</SecondaryButton>
-                  <PrimaryButton onClick={startNewPerson}>{t.newPerson}</PrimaryButton>
+                    ))
+                  )}
                 </div>
 
-                <div className="text-[11px] text-neutral-400 text-center">{t.savedDevice}</div>
+                <div className="pt-6 space-y-3">
+                    <PrimaryButton onClick={startNewPerson}>{t.newPerson}</PrimaryButton>
+                    <button onClick={() => setStep("HOME")} className="w-full py-3 text-sm text-stone-400 hover:text-stone-600">
+                        {t.back}
+                    </button>
+                </div>
               </div>
             )}
+            
           </div>
         </div>
+        
+        {/* Footer links */}
+        <div className="text-center py-6 space-y-2">
+            <button onClick={resetApp} className="text-[10px] uppercase tracking-widest text-stone-300 hover:text-stone-500 transition-colors">
+                {t.resetApp}
+            </button>
+        </div>
 
-        <div className="h-6" />
       </div>
     </div>
   );
