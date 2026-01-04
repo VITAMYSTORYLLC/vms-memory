@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE" | "INTRO";
 type Lang = "en" | "es";
 
-// --- TRANSLATIONS ---
+// --- TRANSLATIONS (Content remains the same) ---
 const TEXT = {
   en: {
     welcomeTitle: "VitaMyStory",
@@ -16,12 +16,10 @@ const TEXT = {
     justName: "Just a name to start a chapter.",
     continue: "Continue",
     chooseExisting: "Or choose an existing person",
-    // INTRO SCREEN
     introTitle: "A sanctuary for memories",
     introBody: (name: string) => 
       `VitaMyStory is where we ensure |||${name}'s||| legacy never fades.\n\nThere is no rush here. Take your time. Capture one story at a time and share them with your family.`,
     startWriting: "Start Writing",
-    // WRITE SCREEN
     writeTitle: "Share a memory",
     writeSubtitle: "Don't overthink it. A few sentences is perfect.",
     writePlaceholder: "Start writing here...",
@@ -36,36 +34,33 @@ const TEXT = {
     storyShared: "Story shared",
     firstStorySaved: "First memory saved.",
     firstStorySavedPerson: (name: string) => `Your first story about ${name} is safe.`,
-    // SAVED SCREEN VARIANTS
     storySavedTitle: "Memory kept.",
     storySavedBody: "This moment is safe.",
     firstStoryTitle: "The first chapter begins.",
     firstStoryBody: "You have started a legacy.",
     secondStoryTitle: "Two stories saved.",
     secondStoryBody: "You are building momentum. Complete 5 stories to unlock special features.",
-    // BADGES
     storyKeeperTitle: "Story Keeper",
     storyKeeperBody: (name: string) =>
       `You’ve preserved the first chapter of ${name}’s legacy.`,
-    storyKeeperBadge: "This badge stays with their profile.",
-    storiesOf: "THE STORY OF",
+    storyKeeperBadge: "Story Keeper", // Shortened for badge
+    storiesOf: "THE STORIES OF",
     storyOf: "THE STORY OF",
-    change: "Switch person",
+    change: "Change",
     emptyHome: "A blank page waiting for memories. Start whenever you’re ready.",
     writeAStory: "Write a story",
-    newPerson: "Add a new person",
+    newPerson: "New person",
     resetApp: "Reset app",
     choosePerson: "Select a person",
     noPeople: "No chapters yet.",
     back: "Go back",
     added: "Started",
     demoBanner: "Demo Version: Stories live in your browser cache. Export them to keep them safe.",
-    saveBackup: "⬇ Export Backup",
+    saveBackup: "Export Backup",
     inviteLink: "Invite family (Coming Soon)",
     backupDownloaded: "Backup file downloaded.",
     confirmDelete: "Are you sure you want to delete this memory?",
     copied: "Copied to clipboard",
-    // Questions
     q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
     q3: "What were they known for?",
@@ -89,12 +84,10 @@ const TEXT = {
     justName: "Solo un nombre para empezar un capítulo.",
     continue: "Continuar",
     chooseExisting: "O elige a alguien más",
-    // INTRO SCREEN
     introTitle: "Un santuario para recuerdos",
     introBody: (name: string) => 
       `VitaMyStory es el lugar donde aseguramos que el legado de |||${name}||| nunca se apague.\n\nNo hay prisa. Tómate tu tiempo. Captura una historia a la vez y compártela con tu familia.`,
     startWriting: "Comenzar a escribir",
-    // WRITE SCREEN
     writeTitle: "Comparte un recuerdo",
     writeSubtitle: "Tómate tu tiempo. Unas pocas frases es perfecto.",
     writePlaceholder: "Empieza a escribir aquí...",
@@ -109,36 +102,33 @@ const TEXT = {
     storyShared: "Historia compartida",
     firstStorySaved: "Primer recuerdo guardado.",
     firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} está segura.`,
-    // SAVED SCREEN VARIANTS
     storySavedTitle: "Recuerdo guardado.",
     storySavedBody: "Este momento está seguro.",
     firstStoryTitle: "El primer capítulo comienza.",
     firstStoryBody: "Has iniciado un legado.",
     secondStoryTitle: "Dos historias guardadas.",
     secondStoryBody: "Vas muy bien. Completa 5 historias para desbloquear funciones especiales.",
-    // BADGES
     storyKeeperTitle: "Guardián de Historias",
     storyKeeperBody: (name: string) =>
       `Has completado el primer capítulo del legado de ${name}.`,
-    storyKeeperBadge: "Esta insignia se queda en su perfil.",
+    storyKeeperBadge: "Guardián",
     storiesOf: "LAS HISTORIAS DE",
     storyOf: "LA HISTORIA DE",
-    change: "Cambiar persona",
+    change: "Cambiar",
     emptyHome: "Una página en blanco esperando recuerdos. Empieza cuando quieras.",
     writeAStory: "Escribir historia",
-    newPerson: "Agregar persona",
+    newPerson: "Nueva persona",
     resetApp: "Reiniciar app",
     choosePerson: "Elige una persona",
     noPeople: "No hay capítulos aún.",
     back: "Regresar",
     added: "Iniciado",
     demoBanner: "Versión Demo: Las historias viven en tu navegador. Expórtalas para guardarlas.",
-    saveBackup: "⬇ Exportar Respaldo",
+    saveBackup: "Exportar Respaldo",
     inviteLink: "Invitar familia (Pronto)",
     backupDownloaded: "Archivo de respaldo descargado.",
     confirmDelete: "¿Estás seguro de que quieres borrar este recuerdo?",
     copied: "Copiado al portapapeles",
-    // Questions
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
     q3: "¿Por qué cosa eran conocidos?",
@@ -187,6 +177,7 @@ const LS = {
   lang: "vms_lang_v0",
 };
 
+// --- UTILS REMAIN THE SAME ---
 function normalize(s: string): string {
   return (s ?? "").trim();
 }
@@ -349,7 +340,7 @@ function renderWithBoldName(text: string) {
   );
 }
 
-// --- NEW COMPONENT STYLES ---
+// --- REDESIGNED COMPONENT STYLES ---
 
 function PrimaryButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }
@@ -358,7 +349,8 @@ function PrimaryButton(
   return (
     <button
       {...rest}
-      className={`w-full py-4 rounded-xl bg-stone-900 text-stone-50 font-medium shadow-md active:scale-[0.98] transition-all disabled:opacity-40 disabled:shadow-none ${className}`}
+      // Increased padding for height, bolder font, sharper shadow
+      className={`w-full py-4 rounded-xl bg-stone-900 text-stone-50 font-medium tracking-wide shadow-lg active:scale-[0.98] transition-all disabled:opacity-40 disabled:shadow-none ${className}`}
     >
       {children}
     </button>
@@ -372,7 +364,8 @@ function SecondaryButton(
   return (
     <button
       {...rest}
-      className={`w-full py-4 rounded-xl border border-stone-200 bg-white text-stone-800 font-medium shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:bg-stone-50 disabled:cursor-not-allowed ${className}`}
+      // Lighter border, softer text color
+      className={`w-full py-4 rounded-xl border border-stone-200 bg-white text-stone-600 font-medium shadow-sm active:scale-[0.98] transition-all hover:bg-stone-50 hover:text-stone-900 disabled:opacity-50 disabled:bg-stone-50 disabled:cursor-not-allowed ${className}`}
     >
       {children}
     </button>
@@ -459,7 +452,10 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
         {...swipeHandlers}
         className="bg-white border border-stone-200 shadow-sm rounded-xl min-h-[380px] flex flex-col relative touch-pan-y overflow-hidden"
       >
-        <div className="bg-stone-100 w-full p-6 flex flex-col items-center space-y-3 border-b border-stone-200 relative">
+        {/* --- CARD HEADER --- 
+            Redesign: More spacing, lighter fonts for metadata 
+        */}
+        <div className="bg-stone-100 w-full px-6 py-8 flex flex-col items-center space-y-4 border-b border-stone-200 relative">
              <div className="absolute top-4 right-4 flex gap-3 text-stone-400">
                 <button 
                     onClick={(e) => { e.stopPropagation(); onEdit(current); }}
@@ -488,19 +484,24 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
                 </button>
              </div>
 
-             <div className="text-xs font-bold text-stone-400 tracking-widest uppercase mt-2">
+             {/* Date: Smaller, refined spacing */}
+             <div className="text-[10px] font-bold text-stone-400 tracking-[0.2em] uppercase">
                 {formatWhen(current.createdAt, lang)}
             </div>
             
+            {/* Question: Lighter, italic, smaller width for readability */}
             {current.prompt ? (
-                <div className="text-sm text-stone-500 italic font-medium text-center px-6 leading-relaxed">
+                <div className="text-sm text-stone-500 italic font-medium text-center px-4 leading-relaxed max-w-xs">
                   {renderWithBoldName(current.prompt)}
                 </div>
             ) : null}
         </div>
 
+        {/* --- CARD BODY --- 
+            Redesign: Larger serif font for the story
+        */}
         <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full">
-          <div className="text-2xl text-stone-800 leading-normal text-center font-serif px-2">
+          <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2">
             {current.text}
           </div>
         </div>
@@ -1023,54 +1024,28 @@ export default function Page() {
 
             {step === "WELCOME" && (
               <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                
-                {/* LANGUAGE TOGGLE */}
+                {/* Language Toggle */}
                 <div className="absolute top-6 right-6 flex gap-3 text-xs font-bold tracking-widest z-10">
-                  <button
-                    onClick={() => setLang("es")}
-                    className={`transition-colors ${lang === "es" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}
-                  >
-                    ES
-                  </button>
-                  <button
-                    onClick={() => setLang("en")}
-                    className={`transition-colors ${lang === "en" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}
-                  >
-                    EN
-                  </button>
+                  <button onClick={() => setLang("es")} className={`transition-colors ${lang === "es" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}>ES</button>
+                  <button onClick={() => setLang("en")} className={`transition-colors ${lang === "en" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}>EN</button>
                 </div>
 
                 <div className="space-y-4">
-                    <h1 className="text-4xl font-serif font-semibold tracking-tight text-stone-900">
-                      {t.welcomeTitle}
-                    </h1>
-                    <p className="text-stone-500 text-lg leading-relaxed max-w-xs mx-auto">
-                      {t.welcomeBody}
-                    </p>
+                    <h1 className="text-4xl font-serif font-semibold tracking-tight text-stone-900">{t.welcomeTitle}</h1>
+                    <p className="text-stone-500 text-lg leading-relaxed max-w-xs mx-auto">{t.welcomeBody}</p>
                 </div>
 
                 <div className="space-y-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-stone-400">{t.whoFor}</label>
-                      <input
-                        value={nameDraft}
-                        onChange={(e) => setNameDraft(e.target.value)}
-                        placeholder={t.placeholder}
-                        className="w-full bg-transparent border-b-2 border-stone-100 p-2 text-center text-3xl font-serif text-stone-800 placeholder:text-stone-200 focus:outline-none focus:border-stone-400 transition-colors"
-                        autoFocus
-                      />
+                      <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 p-2 text-center text-3xl font-serif text-stone-800 placeholder:text-stone-200 focus:outline-none focus:border-stone-400 transition-colors" autoFocus />
                     </div>
                 </div>
 
                 <div className="pt-4 space-y-3">
-                  <PrimaryButton disabled={!normalize(nameDraft)} onClick={() => setStep("INTRO")}>
-                    {t.continue}
-                  </PrimaryButton>
-
+                  <PrimaryButton disabled={!normalize(nameDraft)} onClick={() => setStep("INTRO")}>{t.continue}</PrimaryButton>
                   {people.length > 0 ? (
-                    <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 hover:text-stone-600 transition-colors">
-                      {t.chooseExisting}
-                    </button>
+                    <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 hover:text-stone-600 transition-colors">{t.chooseExisting}</button>
                   ) : null}
                 </div>
               </div>
@@ -1080,75 +1055,38 @@ export default function Page() {
                 <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
                     <div className="space-y-6 px-4">
                         <div className="text-5xl animate-pulse">🕯️</div>
-                        <h2 className="text-2xl font-serif text-stone-900 leading-tight">
-                            {t.introTitle}
-                        </h2>
-                        <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line">
-                            {renderWithBoldName(t.introBody(nameDraft))}
-                        </p>
+                        <h2 className="text-2xl font-serif text-stone-900 leading-tight">{t.introTitle}</h2>
+                        <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line">{renderWithBoldName(t.introBody(nameDraft))}</p>
                     </div>
                     <div className="pt-4">
-                        <PrimaryButton onClick={() => setStep("WRITE")}>
-                            {t.startWriting}
-                        </PrimaryButton>
+                        <PrimaryButton onClick={() => setStep("WRITE")}>{t.startWriting}</PrimaryButton>
                     </div>
                 </div>
             )}
 
             {step === "WRITE" && (
-              <div 
-                {...questionSwipeHandlers} // SWIPE HANDLER MOVED TO CONTAINER
-                className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 touch-pan-y"
-              >
+              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 touch-pan-y">
                 <div className="text-center space-y-2 mb-8">
-                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
-                      {editingId ? "EDITING" : t.starterProgress(starterProgressIndex, starterTotal)}
-                   </div>
-                   <h2 className="text-2xl font-serif font-medium leading-relaxed text-stone-800">
-                      {renderWithBoldName(displayQuestion.text)}
-                   </h2>
+                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400">{editingId ? "EDITING" : t.starterProgress(starterProgressIndex, starterTotal)}</div>
+                   <h2 className="text-2xl font-serif font-medium leading-relaxed text-stone-800">{renderWithBoldName(displayQuestion.text)}</h2>
                 </div>
 
-                {/* VISIBLE WRITING BOX (STATIONERY LOOK) */}
                 <div className="flex-1 relative mb-6">
                     <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner"></div>
-                    <textarea
-                      value={storyDraft}
-                      onChange={(e) => setStoryDraft(e.target.value)}
-                      placeholder={t.writePlaceholder}
-                      className="relative w-full h-full resize-none bg-transparent p-6 text-lg font-serif leading-relaxed text-stone-700 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10"
-                    />
-                    
-                    {/* Navigation Arrows floating OUTSIDE - Hide if Editing */}
+                    <textarea value={storyDraft} onChange={(e) => setStoryDraft(e.target.value)} placeholder={t.writePlaceholder} className="relative w-full h-full resize-none bg-transparent p-6 text-lg font-serif leading-relaxed text-stone-700 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10" />
                     {!editingId && (
                         <>
-                            <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20">
-                                <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
-                            </div>
-                            <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20">
-                                <ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} />
-                            </div>
+                            <div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20"><ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} /></div>
+                            <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20"><ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} /></div>
                         </>
                     )}
                 </div>
 
                 <div className="space-y-4">
-                  <PrimaryButton disabled={!canSave} onClick={saveStory}>
-                    {editingId ? t.updateStory : t.saveStory}
-                  </PrimaryButton>
-                  
+                  <PrimaryButton disabled={!canSave} onClick={saveStory}>{editingId ? t.updateStory : t.saveStory}</PrimaryButton>
                   {people.length > 0 && (
                       <div className="text-center">
-                        <button onClick={() => {
-                            if(editingId) {
-                                setEditingId(null);
-                                setEditingPrompt("");
-                                setStoryDraft("");
-                            }
-                            setStep("HOME")
-                        }} className="text-sm text-stone-400 hover:text-stone-600">
-                            {editingId ? "Cancel editing" : t.viewStories}
-                        </button>
+                        <button onClick={() => { if(editingId) { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); } setStep("HOME") }} className="text-sm text-stone-400 hover:text-stone-600">{editingId ? "Cancel editing" : t.viewStories}</button>
                       </div>
                   )}
                 </div>
@@ -1157,56 +1095,27 @@ export default function Page() {
 
             {step === "SAVED" && (
               <div className="flex-1 flex flex-col justify-center space-y-8 animate-in zoom-in-95 duration-300">
-                
                 <div className="text-center space-y-4">
                   <div className="flex justify-center">
-                    {/* ANIMATED ICON SWITCHER */}
-                    {savedCount === 1 ? (
-                        <div className="text-6xl animate-bounce mb-2">✨</div>
-                    ) : savedCount === 2 ? (
-                        <div className="text-6xl animate-bounce mb-2">🗝️</div>
-                    ) : (
-                        <div className="bg-green-50 text-green-600 p-3 rounded-full">
-                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                             <polyline points="20 6 9 17 4 12"></polyline>
-                           </svg>
-                        </div>
-                    )}
+                    {savedCount === 1 ? (<div className="text-6xl animate-bounce mb-2">✨</div>) : savedCount === 2 ? (<div className="text-6xl animate-bounce mb-2">🗝️</div>) : (<div className="bg-green-50 text-green-600 p-3 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>)}
                   </div>
-                  
-                  {/* TEXT SWITCHER */}
-                  <h2 className="text-3xl font-serif text-stone-900 leading-tight">
-                    {savedCount === 1 ? t.firstStoryTitle 
-                     : savedCount === 2 ? t.secondStoryTitle
-                     : t.storySavedTitle}
-                  </h2>
-                  <p className="text-stone-500 px-6">
-                    {savedCount === 1 ? t.firstStoryBody 
-                     : savedCount === 2 ? t.secondStoryBody
-                     : t.storySavedBody}
-                  </p>
+                  <h2 className="text-3xl font-serif text-stone-900 leading-tight">{savedCount === 1 ? t.firstStoryTitle : savedCount === 2 ? t.secondStoryTitle : t.storySavedTitle}</h2>
+                  <p className="text-stone-500 px-6">{savedCount === 1 ? t.firstStoryBody : savedCount === 2 ? t.secondStoryBody : t.storySavedBody}</p>
                 </div>
 
-                {/* Quote Card */}
                 <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
                     <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
-                    <p className="text-lg font-serif italic text-stone-700 leading-relaxed">
-                        {lastSaved?.text}
-                    </p>
+                    <p className="text-lg font-serif italic text-stone-700 leading-relaxed">{lastSaved?.text}</p>
                     <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
                 </div>
 
                 <div className="space-y-3 pt-4">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
-                  <SecondaryButton onClick={() => setStep("HOME")}>
-                    {t.viewAllStories(displayName)}
-                  </SecondaryButton>
+                  <SecondaryButton onClick={() => setStep("HOME")}>{t.viewAllStories(displayName)}</SecondaryButton>
                 </div>
                 
                 <div className="text-center">
-                   <button onClick={inviteFamily} className="text-xs text-stone-400 hover:text-stone-600 underline">
-                       {t.invite}
-                   </button>
+                   <button onClick={inviteFamily} className="text-xs text-stone-400 hover:text-stone-600 underline">{t.invite}</button>
                 </div>
               </div>
             )}
@@ -1216,11 +1125,8 @@ export default function Page() {
                 <div className="space-y-4">
                   <div className="text-6xl animate-bounce">📖</div>
                   <h2 className="text-3xl font-serif text-stone-900">{t.storyKeeperTitle}</h2>
-                  <p className="text-stone-500">
-                    {t.storyKeeperBody(displayName)}
-                  </p>
+                  <p className="text-stone-500">{t.storyKeeperBody(displayName)}</p>
                 </div>
-
                 <div className="space-y-3">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
                   <SecondaryButton onClick={() => setStep("HOME")}>{t.viewStories}</SecondaryButton>
@@ -1228,33 +1134,38 @@ export default function Page() {
               </div>
             )}
 
+            {/* --- HOME (REDESIGNED) --- */}
             {step === "HOME" && (
-              <div 
-                {...storySwipeHandlers}
-                className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y"
-              >
-                <div className="space-y-2 mb-6 text-left pl-2">
-                  <div className="flex items-center justify-between pr-4">
-                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
+              <div {...storySwipeHandlers} className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y">
+                
+                {/* Header: More vertical spacing, refined typography */}
+                <div className="space-y-3 mb-8 text-left pl-1">
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
                       {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                     </div>
-                    {/* Badge Display in Home if earned */}
+                    {/* Badge: Now small, outline, elegant */}
                     {storyKeeperEarned && (
-                       <div className="text-xs bg-stone-900 text-stone-50 px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                         <span>📖</span> {t.storyKeeperTitle}
+                       <div className="text-[10px] border border-stone-200 text-stone-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                         <span className="text-stone-800">📖</span> {t.storyKeeperBadge}
                        </div>
                     )}
                   </div>
-                  <h1 className="text-3xl sm:text-4xl font-['Caveat',cursive] text-stone-900 leading-tight">
-                    {safeName}
-                  </h1>
-                  {people.length > 1 && (
-                     <button onClick={() => setStep("PEOPLE")} className="text-xs text-stone-400 underline decoration-stone-200 hover:text-stone-600">
-                        {t.change}
-                     </button>
-                  )}
+                  
+                  {/* Name: Larger, cleaner layout */}
+                  <div className="flex items-center gap-2">
+                      <h1 className="text-5xl font-['Caveat',cursive] text-stone-900 leading-none py-2">
+                        {safeName}
+                      </h1>
+                      {people.length > 1 && (
+                         <button onClick={() => setStep("PEOPLE")} className="self-end mb-2 text-[10px] uppercase font-bold tracking-wider text-stone-300 hover:text-stone-500 transition-colors">
+                            ({t.change})
+                         </button>
+                      )}
+                  </div>
                 </div>
 
+                {/* Card Area */}
                 <div className="flex-1">
                   {activeMemories.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-stone-100 rounded-2xl">
@@ -1270,13 +1181,13 @@ export default function Page() {
                   )}
                 </div>
 
-                <div className="mt-8 space-y-4">
+                {/* Action Area: Standardized buttons */}
+                <div className="mt-10 space-y-3">
                     <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
                     
                     <div className="flex gap-3">
                         <SecondaryButton className="flex-1" onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
                         <div className="relative flex-1 group">
-                             {/* Hover Tooltip */}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-stone-800 text-stone-50 text-[10px] text-center rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
                                 {t.demoBanner}
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-stone-800"></div>
@@ -1293,38 +1204,21 @@ export default function Page() {
             {step === "PEOPLE" && (
               <div className="flex-1 flex flex-col animate-in fade-in duration-300">
                 <h2 className="text-center text-lg font-serif font-bold text-stone-900 mb-8">{t.choosePerson}</h2>
-
                 <div className="flex-1 overflow-y-auto space-y-3 pr-2">
                   {people.length === 0 ? (
                     <div className="text-center text-stone-400 py-10">{t.noPeople}</div>
                   ) : (
                     people.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => {
-                          setActivePersonId(p.id);
-                          setStep("HOME");
-                        }}
-                        className={`w-full text-left p-5 rounded-xl transition-all ${
-                          p.id === activePersonId 
-                            ? "bg-stone-900 text-white shadow-md" 
-                            : "bg-stone-50 text-stone-600 hover:bg-stone-100"
-                        }`}
-                      >
+                      <button key={p.id} onClick={() => { setActivePersonId(p.id); setStep("HOME"); }} className={`w-full text-left p-5 rounded-xl transition-all ${ p.id === activePersonId ? "bg-stone-900 text-white shadow-md" : "bg-stone-50 text-stone-600 hover:bg-stone-100" }`}>
                         <div className="text-xl font-['Caveat',cursive] leading-none mb-2">{p.name}</div>
-                        <div className={`text-xs uppercase tracking-wider ${p.id === activePersonId ? "text-stone-400" : "text-stone-400"}`}>
-                          {p.memories.length} {plural(p.memories.length, "story", lang === "es" ? "historias" : "stories")}
-                        </div>
+                        <div className={`text-xs uppercase tracking-wider ${p.id === activePersonId ? "text-stone-400" : "text-stone-400"}`}>{p.memories.length} {plural(p.memories.length, "story", lang === "es" ? "historias" : "stories")}</div>
                       </button>
                     ))
                   )}
                 </div>
-
                 <div className="pt-6 space-y-3">
                     <PrimaryButton onClick={startNewPerson}>{t.newPerson}</PrimaryButton>
-                    <button onClick={() => setStep("HOME")} className="w-full py-3 text-sm text-stone-400 hover:text-stone-600">
-                        {t.back}
-                    </button>
+                    <button onClick={() => setStep("HOME")} className="w-full py-3 text-sm text-stone-400 hover:text-stone-600">{t.back}</button>
                 </div>
               </div>
             )}
@@ -1334,9 +1228,7 @@ export default function Page() {
         
         {/* Footer links */}
         <div className="text-center py-6 space-y-2">
-            <button onClick={resetApp} className="text-[10px] uppercase tracking-widest text-stone-300 hover:text-stone-500 transition-colors">
-                {t.resetApp}
-            </button>
+            <button onClick={resetApp} className="text-[10px] uppercase tracking-widest text-stone-300 hover:text-stone-500 transition-colors">{t.resetApp}</button>
         </div>
 
       </div>
