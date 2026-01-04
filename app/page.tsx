@@ -31,11 +31,13 @@ const TEXT = {
     viewAllStories: (name: string) => `Read all stories about ${name}`,
     addAnother: "Write another",
     invite: "Invite family (Coming Soon)",
-    // SAVED SCREEN
-    storySavedTitle: "Memory preserved.",
+    // SAVED SCREEN VARIANTS
+    storySavedTitle: "Memory kept.",
+    storySavedBody: "This moment is safe.",
     firstStoryTitle: "The first chapter begins.",
-    storySavedBody: "This moment is now safe forever.",
-    firstStorySavedPerson: (name: string) => `Your first story about ${name} is safe.`,
+    firstStoryBody: "You have started a legacy.",
+    secondStoryTitle: "Two stories saved.",
+    secondStoryBody: "You are building momentum. Complete 5 stories to unlock special features.",
     // BADGES
     storyKeeperTitle: "Story Keeper",
     storyKeeperBody: (name: string) =>
@@ -97,11 +99,13 @@ const TEXT = {
     viewAllStories: (name: string) => `Leer todo sobre ${name}`,
     addAnother: "Escribir otra",
     invite: "Invitar familia (Pronto)",
-    // SAVED SCREEN
+    // SAVED SCREEN VARIANTS
     storySavedTitle: "Recuerdo guardado.",
+    storySavedBody: "Este momento está seguro.",
     firstStoryTitle: "El primer capítulo comienza.",
-    storySavedBody: "Este momento ahora está seguro para siempre.",
-    firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} está segura.`,
+    firstStoryBody: "Has iniciado un legado.",
+    secondStoryTitle: "Dos historias guardadas.",
+    secondStoryBody: "Vas muy bien. Completa 5 historias para desbloquear funciones especiales.",
     // BADGES
     storyKeeperTitle: "Guardián de Historias",
     storyKeeperBody: (name: string) =>
@@ -1137,9 +1141,11 @@ export default function Page() {
                 
                 <div className="text-center space-y-4">
                   <div className="flex justify-center">
-                    {/* ANIMATED ICON */}
+                    {/* ANIMATED ICON SWITCHER */}
                     {savedCount === 1 ? (
                         <div className="text-6xl animate-bounce mb-2">✨</div>
+                    ) : savedCount === 2 ? (
+                        <div className="text-6xl animate-bounce mb-2">🗝️</div>
                     ) : (
                         <div className="bg-green-50 text-green-600 p-3 rounded-full">
                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -1148,11 +1154,17 @@ export default function Page() {
                         </div>
                     )}
                   </div>
+                  
+                  {/* TEXT SWITCHER */}
                   <h2 className="text-3xl font-serif text-stone-900 leading-tight">
-                    {savedCount === 1 ? t.firstStoryTitle : t.storySavedTitle}
+                    {savedCount === 1 ? t.firstStoryTitle 
+                     : savedCount === 2 ? t.secondStoryTitle
+                     : t.storySavedTitle}
                   </h2>
                   <p className="text-stone-500">
-                    {savedCount === 1 ? t.storySavedBody : ""}
+                    {savedCount === 1 ? t.firstStoryBody 
+                     : savedCount === 2 ? t.secondStoryBody
+                     : t.storySavedBody}
                   </p>
                 </div>
 
