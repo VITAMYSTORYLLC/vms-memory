@@ -11,6 +11,8 @@ const TEXT = {
     welcomeTitle: "VitaMyStory",
     welcomeBody: "A simple place to collect the stories that matter.",
     savedDevice: "Stories live on this device.",
+    demoNoteTitle: "How this Demo works",
+    demoNoteBody: "Your stories are saved safely in your browser. You can export a backup at any time to keep them forever.",
     whoFor: "Who are we writing about?",
     placeholder: "Grandma Elvia",
     justName: "Just a name to start a chapter.",
@@ -59,8 +61,12 @@ const TEXT = {
     saveBackup: "Export Backup",
     inviteLink: "Invite family (Coming Soon)",
     backupDownloaded: "Backup file downloaded.",
-    confirmDelete: "Are you sure you want to delete this memory?",
+    confirmDeleteTitle: "Delete this memory?",
+    confirmDeleteBody: "This action cannot be undone.",
+    cancel: "Cancel",
+    confirm: "Delete",
     copied: "Copied to clipboard",
+    swipeHint: "Swipe to read",
     // HEADER TEXTS
     starterProgress: (current: number, total: number) => `Chapter ${current} of ${total}`,
     freeChapter: "The story continues",
@@ -81,6 +87,8 @@ const TEXT = {
     welcomeTitle: "VitaMyStory",
     welcomeBody: "Un lugar sencillo para guardar las historias que importan.",
     savedDevice: "Las historias viven en este dispositivo.",
+    demoNoteTitle: "Cómo funciona esta Demo",
+    demoNoteBody: "Tus historias se guardan en tu navegador. Puedes exportar un respaldo cuando quieras para conservarlas.",
     whoFor: "¿Sobre quién escribiremos?",
     placeholder: "Abuela Elvia",
     justName: "Solo un nombre para empezar un capítulo.",
@@ -129,8 +137,12 @@ const TEXT = {
     saveBackup: "Exportar Respaldo",
     inviteLink: "Invitar familia (Pronto)",
     backupDownloaded: "Archivo de respaldo descargado.",
-    confirmDelete: "¿Estás seguro de que quieres borrar este recuerdo?",
+    confirmDeleteTitle: "¿Borrar este recuerdo?",
+    confirmDeleteBody: "Esta acción no se puede deshacer.",
+    cancel: "Cancelar",
+    confirm: "Borrar",
     copied: "Copiado al portapapeles",
+    swipeHint: "Desliza para leer",
     // HEADER TEXTS
     starterProgress: (current: number, total: number) => `Capítulo ${current} de ${total}`,
     freeChapter: "La historia continúa",
@@ -181,7 +193,7 @@ const LS = {
   lang: "vms_lang_v0",
 };
 
-// --- UTILS REMAIN THE SAME ---
+// --- UTILS ---
 function normalize(s: string): string {
   return (s ?? "").trim();
 }
@@ -334,7 +346,7 @@ function renderWithBoldName(text: string) {
   const parts = text.split("|||");
   if (parts.length === 1) return parts[0];
   if(parts.length < 3) return text;
-  
+   
   return (
     <>
       {parts[0]}
@@ -344,7 +356,7 @@ function renderWithBoldName(text: string) {
   );
 }
 
-// --- REDESIGNED COMPONENT STYLES ---
+// --- COMPONENT STYLES ---
 
 function PrimaryButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }
@@ -412,7 +424,7 @@ function ArrowButton({ direction, onClick, disabled }: { direction: "left" | "ri
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`p-3 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors ${direction === "left" ? "-ml-2" : "-mr-2"}`}
+      className={`p-3 text-stone-300 hover:text-stone-600 disabled:opacity-0 transition-colors hidden sm:block ${direction === "left" ? "-ml-2" : "-mr-2"}`}
     >
       <span className="text-2xl">{direction === "left" ? "←" : "→"}</span>
     </button>
@@ -428,13 +440,16 @@ interface StoryCarouselProps {
 
 function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
   const [index, setIndex] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const t = TEXT[lang];
 
   function prev() {
+    setShowDeleteConfirm(false);
     setIndex((i) => (i === 0 ? items.length - 1 : i - 1));
   }
 
   function next() {
+    setShowDeleteConfirm(false);
     setIndex((i) => (i === items.length - 1 ? 0 : i + 1));
   }
 
@@ -452,8 +467,33 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
     <div className="relative">
       <div 
         {...swipeHandlers}
-        className="bg-white border border-stone-200 shadow-sm rounded-xl min-h-[380px] flex flex-col relative touch-pan-y overflow-hidden"
+        className="bg-white border border-stone-200 shadow-sm rounded-xl min-h-[380px] flex flex-col relative touch-pan-y overflow-hidden transition-all"
       >
+        {/* --- CUSTOM DELETE MODAL OVERLAY --- */}
+        {showDeleteConfirm && (
+          <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 animate-in fade-in duration-200">
+            <h3 className="text-xl font-serif text-stone-900 mb-2">{t.confirmDeleteTitle}</h3>
+            <p className="text-sm text-stone-500 mb-6 text-center">{t.confirmDeleteBody}</p>
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-3 bg-stone-100 rounded-lg text-stone-600 font-medium hover:bg-stone-200 transition-colors"
+              >
+                {t.cancel}
+              </button>
+              <button 
+                onClick={() => {
+                  onDelete(current.id);
+                  setShowDeleteConfirm(false);
+                }}
+                className="flex-1 py-3 bg-red-50 rounded-lg text-red-600 font-medium hover:bg-red-100 transition-colors"
+              >
+                {t.confirm}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* --- CARD HEADER --- */}
         <div className="bg-stone-100 w-full px-6 py-8 flex flex-col items-center space-y-4 border-b border-stone-200 relative">
              <div className="absolute top-4 right-4 flex gap-3 text-stone-400">
@@ -470,9 +510,7 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
                 <button 
                     onClick={(e) => {
                         e.stopPropagation();
-                        if(confirm(t.confirmDelete)) {
-                            onDelete(current.id);
-                        }
+                        setShowDeleteConfirm(true);
                     }}
                     className="hover:text-red-400 transition-colors p-1"
                     title="Delete memory"
@@ -495,7 +533,7 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
             ) : null}
         </div>
 
-        {/* --- CARD BODY (Updated for overflow and text wrap) --- */}
+        {/* --- CARD BODY --- */}
         <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full overflow-hidden">
           <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2 w-full break-words overflow-y-auto max-h-[300px]">
             {current.text}
@@ -675,11 +713,6 @@ export default function Page() {
     return x;
   }, [starterTotal, usedCount]);
 
-  const starterProgressPct = useMemo(() => {
-    if (starterTotal <= 0) return 0;
-    return Math.max(0, Math.min(100, Math.round((usedCount / starterTotal) * 100)));
-  }, [starterTotal, usedCount]);
-
   useEffect(() => {
     if (isHydrated) saveJSON(LS.people, people);
   }, [people, isHydrated]);
@@ -816,7 +849,7 @@ export default function Page() {
       window.localStorage.removeItem(LS.people);
       window.localStorage.removeItem(LS.activePersonId);
       window.localStorage.removeItem(LS.questionState);
-      
+       
       const prefixes = [LS.draftPrefix, LS.usedPrefix, LS.badgesPrefix];
       const keysToRemove: string[] = [];
       for (let i = 0; i < window.localStorage.length; i++) {
@@ -1019,7 +1052,7 @@ export default function Page() {
             ) : null}
 
             {step === "WELCOME" && (
-              <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
+              <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500 relative">
                 {/* Language Toggle */}
                 <div className="absolute top-6 right-6 flex gap-3 text-xs font-bold tracking-widest z-10">
                   <button onClick={() => setLang("es")} className={`transition-colors ${lang === "es" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}>ES</button>
@@ -1044,6 +1077,20 @@ export default function Page() {
                     <button onClick={() => setStep("PEOPLE")} className="text-sm text-stone-400 hover:text-stone-600 transition-colors">{t.chooseExisting}</button>
                   ) : null}
                 </div>
+
+                {/* --- DEMO INFO BOX --- */}
+                <div className="mt-8 bg-stone-50 border border-stone-200 rounded-lg p-4 text-left">
+                  <div className="flex items-start gap-3">
+                    <div className="text-stone-400 mt-0.5">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wide mb-1">{t.demoNoteTitle}</h4>
+                      <p className="text-xs text-stone-500 leading-relaxed">{t.demoNoteBody}</p>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             )}
 
@@ -1064,7 +1111,7 @@ export default function Page() {
               <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 touch-pan-y">
                 <div className="text-center space-y-2 mb-8">
                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
-                        {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : t.starterProgress(starterProgressIndex, starterTotal)}
+                       {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : t.starterProgress(starterProgressIndex, starterTotal)}
                    </div>
                    <h2 className="text-2xl font-serif font-medium leading-relaxed text-stone-800">{renderWithBoldName(displayQuestion.text)}</h2>
                 </div>
@@ -1136,28 +1183,27 @@ export default function Page() {
             {step === "HOME" && (
               <div {...storySwipeHandlers} className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y">
                 
-                {/* Header: More vertical spacing, refined typography */}
+                {/* Header */}
                 <div className="mb-6 text-left pl-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
                       {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                     </div>
-                    {/* Badge: Text Only (No Pill/Button) - Black Text */}
+                    {/* Badge */}
                     {storyKeeperEarned && (
-                       <div className="text-xs text-stone-900 font-bold tracking-widest uppercase flex items-center gap-1">
-                         <span className="text-base">📖</span> {t.storyKeeperBadge}
-                       </div>
+                        <div className="text-xs text-stone-900 font-bold tracking-widest uppercase flex items-center gap-1">
+                          <span className="text-base">📖</span> {t.storyKeeperBadge}
+                        </div>
                     )}
                   </div>
                   
-                  {/* Name: Smaller, Serif, Cleaner layout */}
                   <div className="flex items-center gap-2">
                       <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 leading-none">
                         {safeName}
                       </h1>
                       {people.length > 1 && (
                          <button onClick={() => setStep("PEOPLE")} className="self-end mb-1 text-[10px] uppercase font-bold tracking-wider text-stone-300 hover:text-stone-500 transition-colors">
-                            ({t.change})
+                           ({t.change})
                          </button>
                       )}
                   </div>
@@ -1167,6 +1213,9 @@ export default function Page() {
                 <div className="flex-1">
                   {activeMemories.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-stone-100 rounded-2xl">
+                      <div className="text-stone-200 mb-4">
+                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+                      </div>
                       <p className="text-stone-400 font-serif italic">{t.emptyHome}</p>
                     </div>
                   ) : (
@@ -1179,17 +1228,13 @@ export default function Page() {
                   )}
                 </div>
 
-                {/* Action Area: Standardized buttons */}
+                {/* Action Area */}
                 <div className="mt-10 space-y-3">
                     <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
                     
                     <div className="flex gap-3">
                         <SecondaryButton className="flex-1" onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
                         <div className="relative flex-1 group">
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-stone-800 text-stone-50 text-[10px] text-center rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
-                                {t.demoBanner}
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-stone-800"></div>
-                            </div>
                             <SecondaryButton onClick={downloadBackup}>
                                 {t.saveBackup}
                             </SecondaryButton>
