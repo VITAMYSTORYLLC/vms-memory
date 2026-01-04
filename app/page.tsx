@@ -61,6 +61,9 @@ const TEXT = {
     backupDownloaded: "Backup file downloaded.",
     confirmDelete: "Are you sure you want to delete this memory?",
     copied: "Copied to clipboard",
+    // HEADER TEXTS
+    starterProgress: (current: number, total: number) => `Chapter ${current} of ${total}`,
+    freeChapter: "The story continues", // NEW
     q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
     q3: "What were they known for?",
@@ -73,7 +76,6 @@ const TEXT = {
     qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
     qMatteredMost: (name: string) => `What do you think mattered most to |||${name}|||?`,
     starterComplete: "Starter questions complete. The rest of the book is yours to write.",
-    starterProgress: (current: number, total: number) => `Chapter ${current} of ${total}`,
   },
   es: {
     welcomeTitle: "VitaMyStory",
@@ -129,6 +131,9 @@ const TEXT = {
     backupDownloaded: "Archivo de respaldo descargado.",
     confirmDelete: "¿Estás seguro de que quieres borrar este recuerdo?",
     copied: "Copiado al portapapeles",
+    // HEADER TEXTS
+    starterProgress: (current: number, total: number) => `Capítulo ${current} de ${total}`,
+    freeChapter: "La historia continúa", // NEW
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
     q3: "¿Por qué cosa eran conocidos?",
@@ -141,7 +146,6 @@ const TEXT = {
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
     qMatteredMost: (name: string) => `¿Qué crees que era lo que más le importaba a |||${name}|||?`,
     starterComplete: "Preguntas iniciales completas. El resto del libro es tuyo.",
-    starterProgress: (current: number, total: number) => `Capítulo ${current} de ${total}`,
   },
 };
 
@@ -1059,7 +1063,9 @@ export default function Page() {
             {step === "WRITE" && (
               <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 touch-pan-y">
                 <div className="text-center space-y-2 mb-8">
-                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400">{editingId ? "EDITING" : t.starterProgress(starterProgressIndex, starterTotal)}</div>
+                   <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
+                        {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : t.starterProgress(starterProgressIndex, starterTotal)}
+                   </div>
                    <h2 className="text-2xl font-serif font-medium leading-relaxed text-stone-800">{renderWithBoldName(displayQuestion.text)}</h2>
                 </div>
 
