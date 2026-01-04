@@ -392,7 +392,6 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
                 {formatWhen(current.createdAt, lang)}
             </div>
             {current.prompt ? (
-                // UPDATED: Increased text size for prompt
                 <div className="text-lg text-stone-500 italic font-medium text-center px-4 leading-relaxed max-w-sm font-serif">
                   {renderWithBoldName(current.prompt)}
                 </div>
@@ -400,7 +399,6 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
         </div>
 
         <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full overflow-hidden">
-          {/* UPDATED: Hidden scrollbar utility class added */}
           <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2 w-full break-words overflow-y-auto max-h-[300px] no-scrollbar">
             {current.text}
           </div>
@@ -635,7 +633,7 @@ export default function Page() {
                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">
                        {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : t.starterProgress(starterProgressIndex, starterTotal)}
                    </div>
-                   <h2 className="text-xl font-serif font-bold leading-relaxed text-stone-800">{renderWithBoldName(displayQuestion.text)}</h2>
+                   <h2 className="text-xl font-serif font-normal leading-relaxed text-stone-800">{renderWithBoldName(displayQuestion.text)}</h2>
                 </div>
                 <div className="flex-1 relative mb-6">
                     <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner"></div>
@@ -671,9 +669,7 @@ export default function Page() {
             {step === "BADGE" && (
               <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in zoom-in-95 duration-500">
                 <div className="space-y-4">
-                  {/* UPDATED: Bigger Book Icon */}
                   <div className="text-8xl animate-bounce">📖</div>
-                  {/* UPDATED: Sans Serif for Badge Title */}
                   <h2 className="text-3xl font-sans font-bold text-stone-900">{t.storyKeeperTitle}</h2>
                   <p className="text-stone-500 font-sans">{t.storyKeeperBody(displayName)}</p>
                 </div>
@@ -681,7 +677,6 @@ export default function Page() {
                     <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
                     <SecondaryButton onClick={() => setStep("HOME")}>{t.viewStories}</SecondaryButton>
                 </div>
-                {/* UPDATED: Share Milestone Link */}
                 <div className="text-center pt-2">
                     <button onClick={shareMilestone} className="text-xs text-stone-400 hover:text-stone-600 underline font-sans tracking-wide">
                         {t.shareMilestone}
@@ -695,7 +690,7 @@ export default function Page() {
                 <div className="mb-6 text-left pl-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">{activeMemories.length === 1 ? t.storyOf : t.storiesOf}</div>
-                    {storyKeeperEarned && (<div className="text-xs text-stone-900 font-bold tracking-widest uppercase flex items-center gap-1 font-sans"><span className="text-base">📖</span> {t.storyKeeperBadge}</div>)}
+                    {storyKeeperEarned && (<div className="text-2xl" title={t.storyKeeperBadge}>📖</div>)}
                   </div>
                   <div className="flex items-center gap-2">
                       <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 leading-none">{safeName}</h1>
