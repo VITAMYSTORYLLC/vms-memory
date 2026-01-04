@@ -30,8 +30,8 @@ const TEXT = {
     viewStories: "Read stories",
     viewAllStories: (name: string) => `Read all stories about ${name}`,
     addAnother: "Write another",
-    invite: "Invite family", // CHANGED
-    inviteMsg: (name: string) => `I am capturing ${name}'s stories on VitaMyStory. Join me.`, // NEW
+    invite: "Invite family", 
+    inviteMsg: (name: string) => `I am capturing ${name}'s stories on VitaMyStory. Join me.`,
     storySaved: "Memory kept.",
     storyShared: "Story shared",
     firstStorySaved: "First memory saved.",
@@ -103,8 +103,8 @@ const TEXT = {
     viewStories: "Leer historias",
     viewAllStories: (name: string) => `Leer todo sobre ${name}`,
     addAnother: "Escribir otra",
-    invite: "Invitar familia", // CHANGED
-    inviteMsg: (name: string) => `Estoy guardando las historias de ${name} en VitaMyStory. Únete a mí.`, // NEW
+    invite: "Invitar familia", 
+    inviteMsg: (name: string) => `Estoy guardando las historias de ${name} en VitaMyStory. Únete a mí.`,
     storySaved: "Recuerdo guardado.",
     storyShared: "Historia compartida",
     firstStorySaved: "Primer recuerdo guardado.",
@@ -1233,12 +1233,18 @@ export default function Page() {
                 {...storySwipeHandlers}
                 className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y"
               >
-                {/* Header Aligned Left */}
                 <div className="space-y-2 mb-6 text-left pl-2">
-                  <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
-                    {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
+                  <div className="flex items-center justify-between pr-4">
+                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400">
+                      {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
+                    </div>
+                    {/* Badge Display in Home if earned */}
+                    {storyKeeperEarned && (
+                       <div className="text-xs bg-stone-900 text-stone-50 px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                         <span>📖</span> {t.storyKeeperTitle}
+                       </div>
+                    )}
                   </div>
-                  {/* Smaller Name Size */}
                   <h1 className="text-3xl sm:text-4xl font-['Caveat',cursive] text-stone-900 leading-tight">
                     {safeName}
                   </h1>
