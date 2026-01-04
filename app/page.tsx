@@ -34,6 +34,9 @@ const TEXT = {
     milestoneMsg: (name: string) => `Look what I did with ${name}'s story! I just unlocked the Story Keeper badge on VitaMyStory.`,
     shareMilestone: "Share this milestone with your family",
     storyKeeperTooltip: "You are a Story Keeper.",
+    badgeModalTitle: "You are a Story Keeper.",
+    badgeModalBody: "You have preserved 5 stories. Keep sharing and posting to unlock new features.",
+    close: "Close",
     storySaved: "Memory kept.",
     storyShared: "Story shared",
     firstStorySaved: "First memory saved.",
@@ -112,6 +115,9 @@ const TEXT = {
     milestoneMsg: (name: string) => `¡Mira lo que hice con la historia de ${name}! Acabo de desbloquear la insignia de Guardián de Historias en VitaMyStory.`,
     shareMilestone: "Comparte este logro con tu familia",
     storyKeeperTooltip: "Eres un Guardián de Historias.",
+    badgeModalTitle: "Eres un Guardián de Historias.",
+    badgeModalBody: "Has preservado 5 historias. Sigue compartiendo para desbloquear nuevas funciones.",
+    close: "Cerrar",
     storySaved: "Recuerdo guardado.",
     storyShared: "Historia compartida",
     firstStorySaved: "Primer recuerdo guardado.",
@@ -442,6 +448,8 @@ export default function Page() {
   const [toast, setToast] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<string>("");
+  // NEW: State for the badge modal
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
 
   useEffect(() => {
     const loadedLang = loadString(LS.lang);
@@ -642,7 +650,6 @@ export default function Page() {
                 </div>
                 <div className="flex-1 relative mb-6">
                     <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner z-0"></div>
-                    {/* INPUT BOX FIX: Absolute fill, Z-10 to ensure click capture */}
                     <textarea value={storyDraft} onChange={(e) => setStoryDraft(e.target.value)} placeholder={t.writePlaceholder} className="absolute inset-0 w-full h-full resize-none bg-transparent p-6 text-xl font-serif leading-relaxed text-stone-800 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10" />
                     {!editingId && (<><div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto"><ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} /></div><div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto"><ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} /></div></>)}
                 </div>
@@ -676,7 +683,6 @@ export default function Page() {
               <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in zoom-in-95 duration-500">
                 <div className="space-y-4">
                   <div className="text-8xl animate-bounce">📖</div>
-                  {/* REMOVED: "Story Keeper" title as requested. Only Icon + Description + Share Link */}
                   <p className="text-stone-500 font-sans mt-4 px-6">{t.storyKeeperBody(displayName)}</p>
                 </div>
                 <div className="space-y-3">
@@ -692,12 +698,29 @@ export default function Page() {
             )}
 
             {step === "HOME" && (
-              <div {...storySwipeHandlers} className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y">
+              <div {...storySwipeHandlers} className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y relative">
+                {/* MODAL FOR BADGE */}
+                {showBadgeModal && (
+                  <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 animate-in fade-in duration-200 font-sans text-center">
+                    <div className="text-6xl mb-4">✨</div>
+                    <h3 className="text-2xl font-bold text-stone-900 mb-2">{t.badgeModalTitle}</h3>
+                    <p className="text-stone-500 mb-8 leading-relaxed">{t.badgeModalBody}</p>
+                    <PrimaryButton onClick={() => setShowBadgeModal(false)}>{t.close}</PrimaryButton>
+                  </div>
+                )}
+
                 <div className="mb-6 text-left pl-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">{activeMemories.length === 1 ? t.storyOf : t.storiesOf}</div>
-                    {/* TOOLTIP ADDED: Added title attribute for hover text */}
-                    {storyKeeperEarned && (<div className="text-2xl cursor-help" title={t.storyKeeperTooltip}>📖</div>)}
+                    {storyKeeperEarned && (
+                        <button 
+                            className="text-2xl cursor-pointer hover:scale-110 transition-transform" 
+                            title={t.storyKeeperTooltip}
+                            onClick={() => setShowBadgeModal(true)}
+                        >
+                            📖
+                        </button>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                       <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 leading-none">{safeName}</h1>
