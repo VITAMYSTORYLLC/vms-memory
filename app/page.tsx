@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE" | "INTRO";
 type Lang = "en" | "es";
 
-// --- TRANSLATIONS (Content remains the same) ---
+// --- TRANSLATIONS ---
 const TEXT = {
   en: {
     welcomeTitle: "VitaMyStory",
@@ -43,7 +43,7 @@ const TEXT = {
     storyKeeperTitle: "Story Keeper",
     storyKeeperBody: (name: string) =>
       `You’ve preserved the first chapter of ${name}’s legacy.`,
-    storyKeeperBadge: "Story Keeper", // Shortened for badge
+    storyKeeperBadge: "Story Keeper",
     storiesOf: "THE STORIES OF",
     storyOf: "THE STORY OF",
     change: "Change",
@@ -349,7 +349,6 @@ function PrimaryButton(
   return (
     <button
       {...rest}
-      // Increased padding for height, bolder font, sharper shadow
       className={`w-full py-4 rounded-xl bg-stone-900 text-stone-50 font-medium tracking-wide shadow-lg active:scale-[0.98] transition-all disabled:opacity-40 disabled:shadow-none ${className}`}
     >
       {children}
@@ -364,7 +363,6 @@ function SecondaryButton(
   return (
     <button
       {...rest}
-      // Lighter border, softer text color
       className={`w-full py-4 rounded-xl border border-stone-200 bg-white text-stone-600 font-medium shadow-sm active:scale-[0.98] transition-all hover:bg-stone-50 hover:text-stone-900 disabled:opacity-50 disabled:bg-stone-50 disabled:cursor-not-allowed ${className}`}
     >
       {children}
@@ -452,9 +450,7 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
         {...swipeHandlers}
         className="bg-white border border-stone-200 shadow-sm rounded-xl min-h-[380px] flex flex-col relative touch-pan-y overflow-hidden"
       >
-        {/* --- CARD HEADER --- 
-            Redesign: More spacing, lighter fonts for metadata 
-        */}
+        {/* --- CARD HEADER --- */}
         <div className="bg-stone-100 w-full px-6 py-8 flex flex-col items-center space-y-4 border-b border-stone-200 relative">
              <div className="absolute top-4 right-4 flex gap-3 text-stone-400">
                 <button 
@@ -484,12 +480,10 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
                 </button>
              </div>
 
-             {/* Date: Smaller, refined spacing */}
              <div className="text-[10px] font-bold text-stone-400 tracking-[0.2em] uppercase">
                 {formatWhen(current.createdAt, lang)}
             </div>
             
-            {/* Question: Lighter, italic, smaller width for readability */}
             {current.prompt ? (
                 <div className="text-sm text-stone-500 italic font-medium text-center px-4 leading-relaxed max-w-xs">
                   {renderWithBoldName(current.prompt)}
@@ -497,11 +491,9 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
             ) : null}
         </div>
 
-        {/* --- CARD BODY --- 
-            Redesign: Larger serif font for the story
-        */}
-        <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full">
-          <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2">
+        {/* --- CARD BODY (Updated for overflow and text wrap) --- */}
+        <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full overflow-hidden">
+          <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2 w-full break-words overflow-y-auto max-h-[300px]">
             {current.text}
           </div>
         </div>
@@ -1144,17 +1136,17 @@ export default function Page() {
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
                       {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                     </div>
-                    {/* Badge: Now small, outline, elegant */}
+                    {/* Badge: Text Only (No Pill/Button) - Golden Color */}
                     {storyKeeperEarned && (
-                       <div className="text-[10px] border border-stone-200 text-stone-500 px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
-                         <span className="text-stone-800">📖</span> {t.storyKeeperBadge}
+                       <div className="text-xs text-amber-600 font-bold tracking-widest uppercase flex items-center gap-1">
+                         <span>📖</span> {t.storyKeeperBadge}
                        </div>
                     )}
                   </div>
                   
-                  {/* Name: Larger, cleaner layout */}
+                  {/* Name: Smaller, Serif, Cleaner layout */}
                   <div className="flex items-center gap-2">
-                      <h1 className="text-5xl font-['Caveat',cursive] text-stone-900 leading-none py-2">
+                      <h1 className="text-3xl sm:text-4xl font-serif text-stone-900 leading-none py-2">
                         {safeName}
                       </h1>
                       {people.length > 1 && (
@@ -1210,7 +1202,7 @@ export default function Page() {
                   ) : (
                     people.map((p) => (
                       <button key={p.id} onClick={() => { setActivePersonId(p.id); setStep("HOME"); }} className={`w-full text-left p-5 rounded-xl transition-all ${ p.id === activePersonId ? "bg-stone-900 text-white shadow-md" : "bg-stone-50 text-stone-600 hover:bg-stone-100" }`}>
-                        <div className="text-xl font-['Caveat',cursive] leading-none mb-2">{p.name}</div>
+                        <div className="text-xl font-serif leading-none mb-2">{p.name}</div>
                         <div className={`text-xs uppercase tracking-wider ${p.id === activePersonId ? "text-stone-400" : "text-stone-400"}`}>{p.memories.length} {plural(p.memories.length, "story", lang === "es" ? "historias" : "stories")}</div>
                       </button>
                     ))
