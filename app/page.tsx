@@ -5,7 +5,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE" | "INTRO";
 type Lang = "en" | "es";
 
-// --- TRANSLATIONS (Content remains the same, focusing on structure) ---
 const TEXT = {
   en: {
     welcomeTitle: "VitaMyStory",
@@ -32,6 +31,8 @@ const TEXT = {
     addAnother: "Write another",
     invite: "Invite family", 
     inviteMsg: (name: string) => `I am capturing ${name}'s stories on VitaMyStory. Join me.`,
+    milestoneMsg: (name: string) => `Look what I did with ${name}'s story! I just unlocked the Story Keeper badge on VitaMyStory.`,
+    shareMilestone: "Share this milestone with your family",
     storySaved: "Memory kept.",
     storyShared: "Story shared",
     firstStorySaved: "First memory saved.",
@@ -67,7 +68,6 @@ const TEXT = {
     confirm: "Delete",
     copied: "Copied to clipboard",
     swipeHint: "Swipe to read",
-    // HEADER TEXTS
     starterProgress: (current: number, total: number) => `Chapter ${current} of ${total}`,
     freeChapter: "The story continues",
     q1: "What’s the first memory that comes to mind when you think of them?",
@@ -108,6 +108,8 @@ const TEXT = {
     addAnother: "Escribir otra",
     invite: "Invitar familia", 
     inviteMsg: (name: string) => `Estoy guardando las historias de ${name} en VitaMyStory. Únete a mí.`,
+    milestoneMsg: (name: string) => `¡Mira lo que hice con la historia de ${name}! Acabo de desbloquear la insignia de Guardián de Historias en VitaMyStory.`,
+    shareMilestone: "Comparte este logro con tu familia",
     storySaved: "Recuerdo guardado.",
     storyShared: "Historia compartida",
     firstStorySaved: "Primer recuerdo guardado.",
@@ -143,7 +145,6 @@ const TEXT = {
     confirm: "Borrar",
     copied: "Copiado al portapapeles",
     swipeHint: "Desliza para leer",
-    // HEADER TEXTS
     starterProgress: (current: number, total: number) => `Capítulo ${current} de ${total}`,
     freeChapter: "La historia continúa",
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
@@ -161,7 +162,7 @@ const TEXT = {
   },
 };
 
-// --- DATA TYPES & STORAGE HELPERS (No logic changes here) ---
+// --- DATA TYPES & STORAGE HELPERS ---
 type LastSaved = {
   personName: string;
   prompt: string;
@@ -278,7 +279,6 @@ function addBadge(personId: string, badgeId: string) {
   saveJSON(`${LS.badgesPrefix}${personId}`, [...current, badgeId]);
 }
 
-// --- RENDERING HELPER (Bold Name) ---
 function renderWithBoldName(text: string) {
   if (!text) return null;
   const parts = text.split("|||");
@@ -287,7 +287,6 @@ function renderWithBoldName(text: string) {
   return <>{parts[0]}<span className="font-bold text-stone-900">{parts[1]}</span>{parts[2]}</>;
 }
 
-// --- BUTTON COMPONENTS (STRICTLY SANS-SERIF) ---
 function PrimaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: React.ReactNode }) {
   const { className = "", children, ...rest } = props;
   return (
@@ -312,7 +311,6 @@ function SecondaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElement> & 
   );
 }
 
-// --- SWIPE LOGIC ---
 function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
   const touchStart = useRef<number | null>(null);
   const touchEnd = useRef<number | null>(null);
@@ -340,7 +338,6 @@ function ArrowButton({ direction, onClick, disabled }: { direction: "left" | "ri
   );
 }
 
-// --- STORY CAROUSEL ---
 interface StoryCarouselProps {
     items: MemoryItem[];
     lang: Lang;
@@ -371,7 +368,6 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
         {...swipeHandlers}
         className="bg-white border border-stone-200 shadow-sm rounded-xl min-h-[380px] flex flex-col relative touch-pan-y overflow-hidden transition-all"
       >
-        {/* MODAL - Strict Sans-Serif for UI Alerts */}
         {showDeleteConfirm && (
           <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 animate-in fade-in duration-200 font-sans">
             <h3 className="text-xl font-bold text-stone-900 mb-2">{t.confirmDeleteTitle}</h3>
@@ -383,7 +379,6 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
           </div>
         )}
 
-        {/* HEADER - Meta Data is Sans, Prompt is Sans/Mixed */}
         <div className="bg-stone-100 w-full px-6 py-8 flex flex-col items-center space-y-4 border-b border-stone-200 relative">
              <div className="absolute top-4 right-4 flex gap-3 text-stone-400">
                 <button onClick={(e) => { e.stopPropagation(); onEdit(current); }} className="hover:text-stone-600 transition-colors p-1" title="Edit memory">
@@ -397,15 +392,16 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
                 {formatWhen(current.createdAt, lang)}
             </div>
             {current.prompt ? (
-                <div className="text-sm text-stone-500 italic font-medium text-center px-4 leading-relaxed max-w-xs font-serif">
+                // UPDATED: Increased text size for prompt
+                <div className="text-lg text-stone-500 italic font-medium text-center px-4 leading-relaxed max-w-sm font-serif">
                   {renderWithBoldName(current.prompt)}
                 </div>
             ) : null}
         </div>
 
-        {/* BODY - This is the "Book". Strict Serif. */}
         <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full overflow-hidden">
-          <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2 w-full break-words overflow-y-auto max-h-[300px]">
+          {/* UPDATED: Hidden scrollbar utility class added */}
+          <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2 w-full break-words overflow-y-auto max-h-[300px] no-scrollbar">
             {current.text}
           </div>
         </div>
@@ -424,7 +420,6 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
   );
 }
 
-// --- MAIN PAGE ---
 export default function Page() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [lang, setLang] = useState<Lang>("en"); 
@@ -445,7 +440,6 @@ export default function Page() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<string>("");
 
-  // ... (All Effects, Save Logic, Download Logic remain identical to ensure stability) ...
   useEffect(() => {
     const loadedLang = loadString(LS.lang);
     if (loadedLang === "en" || loadedLang === "es") setLang(loadedLang);
@@ -518,6 +512,16 @@ export default function Page() {
   function startEditing(item: MemoryItem) { setEditingId(item.id); setEditingPrompt(item.prompt); setStoryDraft(item.text); setStep("WRITE"); }
   function inviteFamily() { if (typeof navigator !== "undefined" && navigator.share) { navigator.share({ title: "VitaMyStory", text: t.inviteMsg(displayName), url: window.location.href }).catch(console.error); } else { navigator.clipboard.writeText(`${t.inviteMsg(displayName)} ${window.location.href}`); showToast(t.copied); } }
   
+  function shareMilestone() {
+    const text = t.milestoneMsg(displayName);
+    if (typeof navigator !== "undefined" && navigator.share) {
+        navigator.share({ title: "VitaMyStory Milestone", text: text, url: window.location.href }).catch(console.error);
+    } else {
+        navigator.clipboard.writeText(`${text} ${window.location.href}`);
+        showToast(t.copied);
+    }
+  }
+
   function resetApp() {
     if (!canUseStorage()) { setPeople([]); setActivePersonId(""); setNameDraft(""); setStoryDraft(""); setLastSaved(null); setToast(""); setEditingId(null); setEditingPrompt(""); setStep("WELCOME"); return; }
     try {
@@ -570,17 +574,17 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-stone-50 text-stone-900 selection:bg-stone-200">
-      {/* --- INJECT FONTS & VARIABLES --- */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
         :root { --font-sans: 'Inter', sans-serif; --font-serif: 'Libre Baskerville', serif; }
         .font-sans { font-family: var(--font-sans); }
         .font-serif { font-family: var(--font-serif); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
       <div className="w-full max-w-lg px-4 font-sans">
         
-        {/* --- MAIN CARD --- */}
         <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 overflow-hidden relative border border-stone-100 min-h-[500px] flex flex-col">
           <div className="p-8 flex-1 flex flex-col">
             {toast ? <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-stone-900 text-white px-4 py-2 rounded-full text-sm font-sans font-medium shadow-lg animate-fade-in z-50">{toast}</div> : null}
@@ -592,9 +596,7 @@ export default function Page() {
                   <button onClick={() => setLang("en")} className={`transition-colors ${lang === "en" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}>EN</button>
                 </div>
                 <div className="space-y-4">
-                    {/* APP TITLE: Serif (Legacy) */}
                     <h1 className="text-4xl font-serif font-bold tracking-tight text-stone-900">{t.welcomeTitle}</h1>
-                    {/* APP SUBTITLE: Serif (Story) */}
                     <p className="text-stone-500 text-lg leading-relaxed max-w-xs mx-auto font-serif">{t.welcomeBody}</p>
                 </div>
                 <div className="space-y-6">
@@ -620,9 +622,7 @@ export default function Page() {
                 <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
                     <div className="space-y-6 px-4">
                         <div className="text-5xl animate-pulse">🕯️</div>
-                        {/* INTRO TITLE: Serif */}
                         <h2 className="text-3xl font-serif text-stone-900 leading-tight">{t.introTitle}</h2>
-                        {/* INTRO BODY: Serif (It's a "letter" to the user) */}
                         <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line font-serif">{renderWithBoldName(t.introBody(nameDraft))}</p>
                     </div>
                     <div className="pt-4"><PrimaryButton onClick={() => setStep("WRITE")}>{t.startWriting}</PrimaryButton></div>
@@ -635,12 +635,10 @@ export default function Page() {
                    <div className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">
                        {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : t.starterProgress(starterProgressIndex, starterTotal)}
                    </div>
-                   {/* QUESTION: Serif (It invokes the story) */}
                    <h2 className="text-xl font-serif font-bold leading-relaxed text-stone-800">{renderWithBoldName(displayQuestion.text)}</h2>
                 </div>
                 <div className="flex-1 relative mb-6">
                     <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner"></div>
-                    {/* TEXTAREA: Serif (The user is writing the book) */}
                     <textarea value={storyDraft} onChange={(e) => setStoryDraft(e.target.value)} placeholder={t.writePlaceholder} className="relative w-full h-full resize-none bg-transparent p-6 text-xl font-serif leading-relaxed text-stone-800 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10" />
                     {!editingId && (<><div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20"><ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} /></div><div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20"><ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} /></div></>)}
                 </div>
@@ -673,11 +671,22 @@ export default function Page() {
             {step === "BADGE" && (
               <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in zoom-in-95 duration-500">
                 <div className="space-y-4">
-                  <div className="text-6xl animate-bounce">📖</div>
-                  <h2 className="text-3xl font-serif text-stone-900">{t.storyKeeperTitle}</h2>
+                  {/* UPDATED: Bigger Book Icon */}
+                  <div className="text-8xl animate-bounce">📖</div>
+                  {/* UPDATED: Sans Serif for Badge Title */}
+                  <h2 className="text-3xl font-sans font-bold text-stone-900">{t.storyKeeperTitle}</h2>
                   <p className="text-stone-500 font-sans">{t.storyKeeperBody(displayName)}</p>
                 </div>
-                <div className="space-y-3"><PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton><SecondaryButton onClick={() => setStep("HOME")}>{t.viewStories}</SecondaryButton></div>
+                <div className="space-y-3">
+                    <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
+                    <SecondaryButton onClick={() => setStep("HOME")}>{t.viewStories}</SecondaryButton>
+                </div>
+                {/* UPDATED: Share Milestone Link */}
+                <div className="text-center pt-2">
+                    <button onClick={shareMilestone} className="text-xs text-stone-400 hover:text-stone-600 underline font-sans tracking-wide">
+                        {t.shareMilestone}
+                    </button>
+                </div>
               </div>
             )}
 
