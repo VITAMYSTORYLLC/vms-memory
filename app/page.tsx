@@ -63,7 +63,7 @@ const TEXT = {
     copied: "Copied to clipboard",
     // HEADER TEXTS
     starterProgress: (current: number, total: number) => `Chapter ${current} of ${total}`,
-    freeChapter: "The story continues", // NEW
+    freeChapter: "The story continues",
     q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
     q3: "What were they known for?",
@@ -133,7 +133,7 @@ const TEXT = {
     copied: "Copiado al portapapeles",
     // HEADER TEXTS
     starterProgress: (current: number, total: number) => `Capítulo ${current} de ${total}`,
-    freeChapter: "La historia continúa", // NEW
+    freeChapter: "La historia continúa",
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
     q3: "¿Por qué cosa eran conocidos?",
@@ -1137,26 +1137,26 @@ export default function Page() {
               <div {...storySwipeHandlers} className="flex-1 flex flex-col animate-in fade-in duration-500 touch-pan-y">
                 
                 {/* Header: More vertical spacing, refined typography */}
-                <div className="space-y-3 mb-8 text-left pl-1">
-                  <div className="flex items-center justify-between">
+                <div className="mb-6 text-left pl-1">
+                  <div className="flex items-center justify-between mb-1">
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
                       {activeMemories.length === 1 ? t.storyOf : t.storiesOf}
                     </div>
-                    {/* Badge: Text Only (No Pill/Button) - Golden Color */}
+                    {/* Badge: Text Only (No Pill/Button) - Black Text */}
                     {storyKeeperEarned && (
-                       <div className="text-xs text-amber-600 font-bold tracking-widest uppercase flex items-center gap-1">
-                         <span>📖</span> {t.storyKeeperBadge}
+                       <div className="text-xs text-stone-900 font-bold tracking-widest uppercase flex items-center gap-1">
+                         <span className="text-base">📖</span> {t.storyKeeperBadge}
                        </div>
                     )}
                   </div>
                   
                   {/* Name: Smaller, Serif, Cleaner layout */}
                   <div className="flex items-center gap-2">
-                      <h1 className="text-3xl sm:text-4xl font-serif text-stone-900 leading-none py-2">
+                      <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 leading-none">
                         {safeName}
                       </h1>
                       {people.length > 1 && (
-                         <button onClick={() => setStep("PEOPLE")} className="self-end mb-2 text-[10px] uppercase font-bold tracking-wider text-stone-300 hover:text-stone-500 transition-colors">
+                         <button onClick={() => setStep("PEOPLE")} className="self-end mb-1 text-[10px] uppercase font-bold tracking-wider text-stone-300 hover:text-stone-500 transition-colors">
                             ({t.change})
                          </button>
                       )}
