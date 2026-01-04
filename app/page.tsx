@@ -30,7 +30,12 @@ const TEXT = {
     viewStories: "Read stories",
     viewAllStories: (name: string) => `Read all stories about ${name}`,
     addAnother: "Write another",
-    invite: "Invite family (Coming Soon)",
+    invite: "Invite family", // CHANGED
+    inviteMsg: (name: string) => `I am capturing ${name}'s stories on VitaMyStory. Join me.`, // NEW
+    storySaved: "Memory kept.",
+    storyShared: "Story shared",
+    firstStorySaved: "First memory saved.",
+    firstStorySavedPerson: (name: string) => `Your first story about ${name} is safe.`,
     // SAVED SCREEN VARIANTS
     storySavedTitle: "Memory kept.",
     storySavedBody: "This moment is safe.",
@@ -98,7 +103,12 @@ const TEXT = {
     viewStories: "Leer historias",
     viewAllStories: (name: string) => `Leer todo sobre ${name}`,
     addAnother: "Escribir otra",
-    invite: "Invitar familia (Pronto)",
+    invite: "Invitar familia", // CHANGED
+    inviteMsg: (name: string) => `Estoy guardando las historias de ${name} en VitaMyStory. Únete a mí.`, // NEW
+    storySaved: "Recuerdo guardado.",
+    storyShared: "Historia compartida",
+    firstStorySaved: "Primer recuerdo guardado.",
+    firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} está segura.`,
     // SAVED SCREEN VARIANTS
     storySavedTitle: "Recuerdo guardado.",
     storySavedBody: "Este momento está seguro.",
@@ -778,6 +788,19 @@ export default function Page() {
       setStep("WRITE");
   }
 
+  function inviteFamily() {
+      if (typeof navigator !== "undefined" && navigator.share) {
+          navigator.share({
+              title: "VitaMyStory",
+              text: t.inviteMsg(displayName),
+              url: window.location.href
+          }).catch(console.error);
+      } else {
+          navigator.clipboard.writeText(`${t.inviteMsg(displayName)} ${window.location.href}`);
+          showToast(t.copied);
+      }
+  }
+
   function resetApp() {
     if (!canUseStorage()) {
       setPeople([]);
@@ -821,10 +844,6 @@ export default function Page() {
     setStep("WELCOME");
     setUsedVersion((v) => v + 1);
     setBadgeVersion((v) => v + 1);
-  }
-
-  function inviteOthersComingSoon() {
-    showToast(t.invite);
   }
 
   function downloadBackup() {
@@ -1161,7 +1180,7 @@ export default function Page() {
                      : savedCount === 2 ? t.secondStoryTitle
                      : t.storySavedTitle}
                   </h2>
-                  <p className="text-stone-500">
+                  <p className="text-stone-500 px-6">
                     {savedCount === 1 ? t.firstStoryBody 
                      : savedCount === 2 ? t.secondStoryBody
                      : t.storySavedBody}
@@ -1185,7 +1204,9 @@ export default function Page() {
                 </div>
                 
                 <div className="text-center">
-                   <span className="text-xs text-stone-300">{t.invite}</span>
+                   <button onClick={inviteFamily} className="text-xs text-stone-400 hover:text-stone-600 underline">
+                       {t.invite}
+                   </button>
                 </div>
               </div>
             )}
