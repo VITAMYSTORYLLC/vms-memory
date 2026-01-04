@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE" | "INTRO";
 type Lang = "en" | "es";
 
+// --- TRANSLATIONS ---
 const TEXT = {
   en: {
     welcomeTitle: "VitaMyStory",
@@ -370,7 +371,7 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
   const current = items[index];
   if (!current) return null;
 
-  // SMART SIZING: If text is > 140 chars, use book layout (Left/Top). Else use poster layout (Center/Center).
+  // SMART SIZING: If text is > 140 chars, use book layout (Left/Top).
   const isLong = current.text.length > 140;
 
   return (
@@ -448,7 +449,6 @@ export default function Page() {
   const [toast, setToast] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<string>("");
-  // NEW: State for the badge modal
   const [showBadgeModal, setShowBadgeModal] = useState(false);
 
   useEffect(() => {
@@ -702,9 +702,9 @@ export default function Page() {
                 {/* MODAL FOR BADGE */}
                 {showBadgeModal && (
                   <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-8 animate-in fade-in duration-200 font-sans text-center">
-                    <div className="text-6xl mb-4">✨</div>
+                    <div className="text-8xl mb-6 animate-bounce">📖</div>
                     <h3 className="text-2xl font-bold text-stone-900 mb-2">{t.badgeModalTitle}</h3>
-                    <p className="text-stone-500 mb-8 leading-relaxed">{t.badgeModalBody}</p>
+                    <p className="text-stone-500 mb-8 leading-relaxed px-4">{t.badgeModalBody}</p>
                     <PrimaryButton onClick={() => setShowBadgeModal(false)}>{t.close}</PrimaryButton>
                   </div>
                 )}
