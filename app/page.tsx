@@ -33,6 +33,7 @@ const TEXT = {
     inviteMsg: (name: string) => `I am capturing ${name}'s stories on VitaMyStory. Join me.`,
     milestoneMsg: (name: string) => `Look what I did with ${name}'s story! I just unlocked the Story Keeper badge on VitaMyStory.`,
     shareMilestone: "Share this milestone with your family",
+    storyKeeperTooltip: "You are a Story Keeper.",
     storySaved: "Memory kept.",
     storyShared: "Story shared",
     firstStorySaved: "First memory saved.",
@@ -110,6 +111,7 @@ const TEXT = {
     inviteMsg: (name: string) => `Estoy guardando las historias de ${name} en VitaMyStory. Únete a mí.`,
     milestoneMsg: (name: string) => `¡Mira lo que hice con la historia de ${name}! Acabo de desbloquear la insignia de Guardián de Historias en VitaMyStory.`,
     shareMilestone: "Comparte este logro con tu familia",
+    storyKeeperTooltip: "Eres un Guardián de Historias.",
     storySaved: "Recuerdo guardado.",
     storyShared: "Historia compartida",
     firstStorySaved: "Primer recuerdo guardado.",
@@ -362,6 +364,9 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
   const current = items[index];
   if (!current) return null;
 
+  // SMART SIZING: If text is > 140 chars, use book layout (Left/Top). Else use poster layout (Center/Center).
+  const isLong = current.text.length > 140;
+
   return (
     <div className="relative">
       <div 
@@ -398,8 +403,8 @@ function StoryCarousel({ items, lang, onDelete, onEdit }: StoryCarouselProps) {
             ) : null}
         </div>
 
-        <div className="flex-1 bg-white p-8 flex flex-col justify-center items-center w-full overflow-hidden">
-          <div className="text-2xl sm:text-3xl text-stone-800 leading-normal text-center font-serif px-2 w-full break-words overflow-y-auto max-h-[300px] no-scrollbar">
+        <div className={`flex-1 bg-white p-8 flex flex-col w-full overflow-hidden ${isLong ? 'justify-start items-start' : 'justify-center items-center'}`}>
+          <div className={`leading-relaxed font-serif px-2 w-full break-words overflow-y-auto max-h-[300px] no-scrollbar ${isLong ? 'text-lg text-left text-stone-700' : 'text-2xl sm:text-3xl text-center text-stone-800'}`}>
             {current.text}
           </div>
         </div>
@@ -636,9 +641,10 @@ export default function Page() {
                    <h2 className="text-xl font-serif font-normal leading-relaxed text-stone-800">{renderWithBoldName(displayQuestion.text)}</h2>
                 </div>
                 <div className="flex-1 relative mb-6">
-                    <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner"></div>
-                    <textarea value={storyDraft} onChange={(e) => setStoryDraft(e.target.value)} placeholder={t.writePlaceholder} className="relative w-full h-full resize-none bg-transparent p-6 text-xl font-serif leading-relaxed text-stone-800 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10" />
-                    {!editingId && (<><div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20"><ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} /></div><div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20"><ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} /></div></>)}
+                    <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner z-0"></div>
+                    {/* INPUT BOX FIX: Absolute fill, Z-10 to ensure click capture */}
+                    <textarea value={storyDraft} onChange={(e) => setStoryDraft(e.target.value)} placeholder={t.writePlaceholder} className="absolute inset-0 w-full h-full resize-none bg-transparent p-6 text-xl font-serif leading-relaxed text-stone-800 placeholder:font-sans placeholder:text-stone-400 focus:outline-none z-10" />
+                    {!editingId && (<><div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto"><ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} /></div><div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto"><ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} /></div></>)}
                 </div>
                 <div className="space-y-4">
                   <PrimaryButton disabled={!canSave} onClick={saveStory}>{editingId ? t.updateStory : t.saveStory}</PrimaryButton>
@@ -670,8 +676,8 @@ export default function Page() {
               <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in zoom-in-95 duration-500">
                 <div className="space-y-4">
                   <div className="text-8xl animate-bounce">📖</div>
-                  <h2 className="text-3xl font-sans font-bold text-stone-900">{t.storyKeeperTitle}</h2>
-                  <p className="text-stone-500 font-sans">{t.storyKeeperBody(displayName)}</p>
+                  {/* REMOVED: "Story Keeper" title as requested. Only Icon + Description + Share Link */}
+                  <p className="text-stone-500 font-sans mt-4 px-6">{t.storyKeeperBody(displayName)}</p>
                 </div>
                 <div className="space-y-3">
                     <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
@@ -690,7 +696,8 @@ export default function Page() {
                 <div className="mb-6 text-left pl-1">
                   <div className="flex items-center justify-between mb-1">
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">{activeMemories.length === 1 ? t.storyOf : t.storiesOf}</div>
-                    {storyKeeperEarned && (<div className="text-2xl" title={t.storyKeeperBadge}>📖</div>)}
+                    {/* TOOLTIP ADDED: Added title attribute for hover text */}
+                    {storyKeeperEarned && (<div className="text-2xl cursor-help" title={t.storyKeeperTooltip}>📖</div>)}
                   </div>
                   <div className="flex items-center gap-2">
                       <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 leading-none">{safeName}</h1>
