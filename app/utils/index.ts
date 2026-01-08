@@ -44,11 +44,13 @@ export function formatWhen(ts: number, lang: Lang) {
   } catch { return ""; }
 }
 
-export function addMemory(existing: MemoryItem[], prompt: string, text: string): MemoryItem[] {
+export function addMemory(existing: MemoryItem[], prompt: string, text: string, memoryDate?: string, imageUrl?: string): MemoryItem[] {
   const p = normalize(prompt);
   const t = normalize(text);
-  if (!t) return existing;
-  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now() }];
+  const md = normalize(memoryDate || "");
+  const img = normalize(imageUrl || "");
+  if (!t && !img) return existing;
+  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now(), memoryDate: md, imageUrl: img }];
 }
 
 export function wrapIndex(index: number, length: number): number {
@@ -103,4 +105,34 @@ export function addBadge(personId: string, badgeId: string) {
   const current = loadBadges(personId);
   if (current.includes(badgeId)) return;
   saveJSON(`${LS.badgesPrefix}${personId}`, [...current, badgeId]);
+}
+
+export function compressImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const maxWidth = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        if (ctx) ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", 0.6));
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
 }

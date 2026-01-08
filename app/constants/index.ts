@@ -5,15 +5,15 @@ export const TEXT = {
     welcomeTitle: "VitaMyStory",
     welcomeBody: "A simple place to collect the stories that matter.",
     savedDevice: "Stories live on this device.",
-    demoNoteTitle: "How this Demo works",
-    demoNoteBody: "Your stories are saved safely in your browser. You can export a backup at any time to keep them forever.",
+    demoNoteTitle: "How saving works",
+    demoNoteBody: "Create an account to back up your stories to the cloud. Without an account, they only live on this device and could be lost.",
     whoFor: "Who are we writing about?",
     placeholder: "Grandma Elvia",
     justName: "Just a name to start a chapter.",
     continue: "Continue",
     chooseExisting: "Or choose an existing person",
     introTitle: "A sanctuary for memories",
-    introBody: (name: string) => 
+    introBody: (name: string) =>
       `VitaMyStory is where we ensure |||${name}'s||| legacy never fades.\n\nThere is no rush here. Take your time. Capture one story at a time and share them with your family.`,
     startWriting: "Start Writing",
     writeTitle: "Share a memory",
@@ -24,7 +24,7 @@ export const TEXT = {
     viewStories: "Read stories",
     viewAllStories: (name: string) => `Read all stories about ${name}`,
     addAnother: "Write another",
-    invite: "Invite family", 
+    invite: "Invite family",
     inviteMsg: (name: string) => `I am capturing ${name}'s stories on VitaMyStory. Join me.`,
     milestoneMsg: (name: string) => `Look what I did with ${name}'s story! I just unlocked the Story Keeper badge on VitaMyStory.`,
     shareMilestone: "Share this milestone with your family",
@@ -44,7 +44,7 @@ export const TEXT = {
     secondStoryBody: "You are building momentum. Complete 5 stories to unlock special features.",
     storyKeeperTitle: "Story Keeper",
     storyKeeperBody: (name: string) =>
-      `You’ve preserved the first chapter of ${name}’s legacy.`, 
+      `You’ve preserved the first chapter of ${name}’s legacy.`,
     storyKeeperBadge: "Story Keeper",
     storiesOf: "THE STORIES OF",
     storyOf: "THE STORY OF",
@@ -81,20 +81,44 @@ export const TEXT = {
     qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
     qMatteredMost: (name: string) => `What do you think mattered most to |||${name}|||?`,
     starterComplete: "Starter questions complete. The rest of the book is yours to write.",
+    // Auth
+    login: "Log in",
+    register: "Create account",
+    loginSubtitle: "Welcome back. Your stories are waiting.",
+    registerSubtitle: "Create an account to save your stories.",
+    email: "Email",
+    password: "Password",
+    passwordHint: "At least 6 characters",
+    loginBtn: "Log in",
+    registerBtn: "Create account",
+    loading: "Loading...",
+    noAccount: "Don't have an account? Create one",
+    hasAccount: "Already have an account? Log in",
+    logout: "Log out",
+    loggedInAs: "Logged in as",
+
+    listening: "Listening...",
+    tapToSpeak: "Tap to speak",
+    shareStory: "Share this story",
+    shareSuccess: "Story copied to clipboard",
+    whenHappened: "When did this happen? (Optional)",
+    datePlaceholder: "e.g. 1985, Summer '92, When I was 10...",
+    inspireMe: "Inspire me",
+    imagePrompt: "What does this remind you of?",
   },
   es: {
     welcomeTitle: "VitaMyStory",
     welcomeBody: "Un lugar sencillo para guardar las historias que importan.",
     savedDevice: "Las historias viven en este dispositivo.",
-    demoNoteTitle: "Cómo funciona esta Demo",
-    demoNoteBody: "Tus historias se guardan en tu navegador. Puedes exportar un respaldo cuando quieras para conservarlas.",
+    demoNoteTitle: "Cómo funciona el guardado",
+    demoNoteBody: "Crea una cuenta para respaldar tus historias en la nube. Sin una cuenta, solo viven en este dispositivo y podrían perderse.",
     whoFor: "¿Sobre quién escribiremos?",
     placeholder: "Abuela Elvia",
     justName: "Solo un nombre para empezar un capítulo.",
     continue: "Continuar",
     chooseExisting: "O elige a alguien más",
     introTitle: "Un santuario para recuerdos",
-    introBody: (name: string) => 
+    introBody: (name: string) =>
       `VitaMyStory es el lugar donde aseguramos que el legado de |||${name}||| nunca se apague.\n\nNo hay prisa. Tómate tu tiempo. Captura una historia a la vez y compártela con tu familia.`,
     startWriting: "Comenzar a escribir",
     writeTitle: "Comparte un recuerdo",
@@ -105,9 +129,9 @@ export const TEXT = {
     viewStories: "Leer historias",
     viewAllStories: (name: string) => `Leer todo sobre ${name}`,
     addAnother: "Escribir otra",
-    invite: "Invitar familia", 
+    invite: "Invitar familia",
     inviteMsg: (name: string) => `Estoy guardando las historias de ${name} en VitaMyStory. Únete a mí.`,
-    milestoneMsg: (name: string) => `¡Mira lo que hice con la historia de ${name}! Acabo de desbloquear la insignia de Guardián de Historias en VitaMyStory.`, 
+    milestoneMsg: (name: string) => `¡Mira lo que hice con la historia de ${name}! Acabo de desbloquear la insignia de Guardián de Historias en VitaMyStory.`,
     shareMilestone: "Comparte este logro con tu familia",
     storyKeeperTooltip: "Eres un Guardián de Historias.",
     badgeModalTitle: "Eres un Guardián de Historias.",
@@ -116,7 +140,7 @@ export const TEXT = {
     storySaved: "Recuerdo guardado.",
     storyShared: "Historia compartida",
     firstStorySaved: "Primer recuerdo guardado.",
-    firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} está segura.`, 
+    firstStorySavedPerson: (name: string) => `Tu primera historia sobre ${name} está segura.`,
     storySavedTitle: "Recuerdo guardado.",
     storySavedBody: "Este momento está seguro.",
     firstStoryTitle: "El primer capítulo comienza.",
@@ -162,7 +186,48 @@ export const TEXT = {
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
     qMatteredMost: (name: string) => `¿Qué crees que era lo que más le importaba a |||${name}|||?`,
     starterComplete: "Preguntas iniciales completas. El resto del libro es tuyo.",
+    // Auth
+    login: "Iniciar sesión",
+    register: "Crear cuenta",
+    loginSubtitle: "Bienvenido de vuelta. Tus historias te esperan.",
+    registerSubtitle: "Crea una cuenta para guardar tus historias.",
+    email: "Correo electrónico",
+    password: "Contraseña",
+    passwordHint: "Al menos 6 caracteres",
+    loginBtn: "Iniciar sesión",
+    registerBtn: "Crear cuenta",
+    loading: "Cargando...",
+    noAccount: "¿No tienes cuenta? Crea una",
+    hasAccount: "¿Ya tienes cuenta? Inicia sesión",
+    logout: "Cerrar sesión",
+    loggedInAs: "Sesión iniciada como",
+
+    listening: "Escuchando...",
+    tapToSpeak: "Toca para hablar",
+    shareStory: "Compartir historia",
+    shareSuccess: "Historia copiada al portapapeles",
+    whenHappened: "¿Cuándo pasó esto? (Opcional)",
+    datePlaceholder: "ej. 1985, Verano del '92, Cuando tenía 10...",
+    inspireMe: "Inspirame",
+    imagePrompt: "¿Qué te recuerda esto?",
   },
+};
+
+export const QUESTION_EXAMPLES = {
+  en: {
+    0: "\"I remember the sound of her laugh during Sunday dinners...\"", // q1: First memory
+    1: "\"I want them to know she was the strongest person I knew...\"", // q2: What everyone should know
+    2: "\"She was known for her incredible cherry pies...\"", // q3: Known for
+    3: "\"Radiant.\"", // q4: One word description
+    4: "\"Her family was everything to her...\"", // q5: Mattered most
+  },
+  es: {
+    0: "\"Recuerdo el sonido de su risa durante las cenas del domingo...\"",
+    1: "\"Quiero que sepan que fue la persona más fuerte que conocí...\"",
+    2: "\"Era conocida por sus increíbles pasteles de cereza...\"",
+    3: "\"Radiante.\"",
+    4: "\"Su familia lo era todo para ella...\"",
+  }
 };
 
 export const LS = {

@@ -1,4 +1,4 @@
-export type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE" | "INTRO";
+export type Step = "WELCOME" | "WRITE" | "SAVED" | "BADGE" | "HOME" | "PEOPLE" | "INTRO" | "LOGIN" | "REGISTER";
 export type Lang = "en" | "es";
 
 export type LastSaved = {
@@ -14,6 +14,8 @@ export type MemoryItem = {
   prompt: string;
   text: string;
   createdAt: number;
+  memoryDate?: string;
+  imageUrl?: string;
 };
 
 export type Person = {
@@ -21,4 +23,9 @@ export type Person = {
   name: string;
   memories: MemoryItem[];
   createdAt: number;
+};
+
+export type AuthUser = {
+  uid: string;
+  email: string | null;
 };
