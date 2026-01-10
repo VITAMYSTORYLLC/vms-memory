@@ -275,13 +275,15 @@ export default function Page() {
         .font-serif { font-family: var(--font-serif); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .safe-top { padding-top: env(safe-area-inset-top); }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
       `}</style>
 
-      <div className="w-full max-w-lg sm:px-4 font-sans h-full sm:h-auto">
+      <div className="w-full max-w-lg sm:px-4 font-sans h-full sm:h-auto safe-top">
 
         <div className="bg-white sm:rounded-[2.5rem] shadow-2xl shadow-stone-200/60 overflow-hidden relative sm:border border-stone-100 min-h-screen sm:min-h-[850px] flex flex-col h-[100dvh] sm:h-auto">
           {/* Global Header */}
-          <div className={`${step === "WRITE" ? "hidden sm:flex" : "flex"} pt-6 sm:pt-8 px-8 justify-center items-center relative h-16 flex-shrink-0`}>
+          <div className={`${step === "WRITE" ? "hidden sm:flex" : "flex"} pt-4 sm:pt-8 px-8 justify-center items-center relative h-16 flex-shrink-0`}>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-stone-900 rounded-lg flex items-center justify-center text-white font-serif font-bold text-lg shadow-lg">V</div>
               <span className="font-serif font-bold text-stone-900 tracking-tight text-xl">VitaMyStory</span>
@@ -352,15 +354,15 @@ export default function Page() {
             )}
 
             {step === "WRITE" && (
-              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-2 sm:pt-0">
-                <div className="text-center space-y-1 mb-4 sm:mb-6 flex-shrink-0">
+              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-8 sm:pt-0">
+                <div className="text-center space-y-1 mb-4 sm:mb-8 flex-shrink-0">
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">
                     {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : `Chapter ${starterProgressIndex} of ${starterTotal}`}
                   </div>
-                  <h2 className="text-lg sm:text-2xl font-serif font-normal leading-tight sm:leading-relaxed text-stone-800 px-4">
+                  <h2 className="text-lg sm:text-2xl font-serif font-bold leading-tight sm:leading-relaxed text-stone-900 px-6">
                     {renderWithBoldName(displayQuestion.text)}
                   </h2>
-                  <div className="min-h-[24px] flex items-center justify-center">
+                  <div className="min-h-[24px] flex items-center justify-center pt-1">
                     {!allStarterUsed && !editingId && (
                       <button
                         onClick={() => {
@@ -369,7 +371,7 @@ export default function Page() {
                           const example = QUESTION_EXAMPLES[lang][idx];
                           setInspiration(example);
                         }}
-                        className={`text-[9px] font-bold uppercase tracking-[0.15em] transition-colors flex items-center gap-2 py-1 ${inspiration ? "text-stone-600" : "text-stone-400 hover:text-stone-600"}`}
+                        className={`text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-2 py-1 px-3 bg-stone-50 rounded-full border border-stone-100 ${inspiration ? "text-stone-600" : "text-stone-400 hover:text-stone-600"}`}
                       >
                         <span>✨ {t.inspireMe}</span>
                       </button>
@@ -377,9 +379,9 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="flex-1 relative flex flex-col min-h-0 mb-4 bg-stone-50/50 rounded-2xl border border-stone-100 shadow-inner overflow-hidden">
+                <div className="h-48 sm:h-auto sm:flex-1 relative flex flex-col min-h-0 mb-6 bg-stone-50/50 rounded-2xl border border-stone-200 shadow-inner overflow-hidden">
                   {imageDraft && (
-                    <div className="h-24 sm:h-48 w-full relative flex-shrink-0">
+                    <div className="h-20 sm:h-48 w-full relative flex-shrink-0">
                       <img src={imageDraft} className="w-full h-full object-cover opacity-60 absolute inset-0" />
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-stone-50/50"></div>
                       <button onClick={() => setImageDraft("")} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1 sm:p-1.5 hover:bg-black/70 z-30 backdrop-blur-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
@@ -390,7 +392,7 @@ export default function Page() {
                     value={storyDraft}
                     onChange={(e) => setStoryDraft(e.target.value)}
                     placeholder={inspiration || t.writePlaceholder}
-                    className="w-full flex-1 resize-none bg-transparent p-4 sm:p-6 text-lg sm:text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-base sm:text-lg placeholder:text-stone-300 focus:outline-none z-10"
+                    className="w-full h-full resize-none bg-transparent p-5 text-base sm:text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-stone-300 focus:outline-none z-10"
                   />
 
                   {isSupported && (
