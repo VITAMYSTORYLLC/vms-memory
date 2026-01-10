@@ -283,7 +283,7 @@ export default function Page() {
 
         <div className="bg-white sm:rounded-[2.5rem] shadow-2xl shadow-stone-200/60 overflow-hidden relative sm:border border-stone-100 min-h-screen sm:min-h-[850px] flex flex-col h-[100dvh] sm:h-auto">
           {/* Global Header */}
-          <div className={`${step === "WRITE" ? "hidden sm:flex" : "flex"} pt-4 sm:pt-8 px-8 justify-center items-center relative h-16 flex-shrink-0`}>
+          <div className={`${step === "WELCOME" ? "flex" : "hidden"} pt-4 sm:pt-8 px-8 justify-center items-center relative h-16 flex-shrink-0`}>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-stone-900 rounded-lg flex items-center justify-center text-white font-serif font-bold text-lg shadow-lg">V</div>
               <span className="font-serif font-bold text-stone-900 tracking-tight text-xl">VitaMyStory</span>
