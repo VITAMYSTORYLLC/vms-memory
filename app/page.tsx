@@ -352,23 +352,15 @@ export default function Page() {
             )}
 
             {step === "WRITE" && (
-              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden">
-                {!editingId && !allStarterUsed && (
-                  <div className="w-full bg-stone-100 h-1.5 rounded-full mb-6 overflow-hidden flex-shrink-0">
-                    <div
-                      className="bg-stone-900 h-full transition-all duration-700 ease-out"
-                      style={{ width: `${(starterProgressIndex / starterTotal) * 100}%` }}
-                    />
-                  </div>
-                )}
-                <div className="text-center space-y-2 mb-6 flex-shrink-0">
+              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-2 sm:pt-0">
+                <div className="text-center space-y-1 mb-4 sm:mb-6 flex-shrink-0">
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">
                     {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : `Chapter ${starterProgressIndex} of ${starterTotal}`}
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-serif font-normal leading-relaxed text-stone-800 px-2">
+                  <h2 className="text-lg sm:text-2xl font-serif font-normal leading-tight sm:leading-relaxed text-stone-800 px-4">
                     {renderWithBoldName(displayQuestion.text)}
                   </h2>
-                  <div className="min-h-[32px] flex items-center justify-center">
+                  <div className="min-h-[24px] flex items-center justify-center">
                     {!allStarterUsed && !editingId && (
                       <button
                         onClick={() => {
@@ -377,7 +369,7 @@ export default function Page() {
                           const example = QUESTION_EXAMPLES[lang][idx];
                           setInspiration(example);
                         }}
-                        className={`text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-2 py-1 ${inspiration ? "text-stone-600" : "text-stone-400 hover:text-stone-600"}`}
+                        className={`text-[9px] font-bold uppercase tracking-[0.15em] transition-colors flex items-center gap-2 py-1 ${inspiration ? "text-stone-600" : "text-stone-400 hover:text-stone-600"}`}
                       >
                         <span>✨ {t.inspireMe}</span>
                       </button>
@@ -385,12 +377,12 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="flex-1 relative flex flex-col min-h-0 mb-6 bg-stone-50/50 rounded-2xl border border-stone-100 shadow-inner overflow-hidden">
+                <div className="flex-1 relative flex flex-col min-h-0 mb-4 bg-stone-50/50 rounded-2xl border border-stone-100 shadow-inner overflow-hidden">
                   {imageDraft && (
-                    <div className="h-32 sm:h-48 w-full relative flex-shrink-0">
+                    <div className="h-24 sm:h-48 w-full relative flex-shrink-0">
                       <img src={imageDraft} className="w-full h-full object-cover opacity-60 absolute inset-0" />
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-stone-50/50"></div>
-                      <button onClick={() => setImageDraft("")} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1.5 hover:bg-black/70 z-30 backdrop-blur-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                      <button onClick={() => setImageDraft("")} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1 sm:p-1.5 hover:bg-black/70 z-30 backdrop-blur-sm"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                     </div>
                   )}
 
@@ -398,7 +390,7 @@ export default function Page() {
                     value={storyDraft}
                     onChange={(e) => setStoryDraft(e.target.value)}
                     placeholder={inspiration || t.writePlaceholder}
-                    className="w-full flex-1 resize-none bg-transparent p-6 text-xl sm:text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-lg placeholder:text-stone-300 focus:outline-none z-10"
+                    className="w-full flex-1 resize-none bg-transparent p-4 sm:p-6 text-lg sm:text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-base sm:text-lg placeholder:text-stone-300 focus:outline-none z-10"
                   />
 
                   {isSupported && (
