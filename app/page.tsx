@@ -174,7 +174,8 @@ export default function Page() {
   function advanceToNextUnused(personId: string) { if (!personId) return; const usedNext = new Set<number>(loadUsedQuestionIndexes(personId)); if (usedNext.size >= QUESTIONS.length) return; setQuestionIndex(nextUnusedIndex(questionIndex, 1, QUESTIONS.length, usedNext)); }
 
   async function saveStory() {
-    const text = normalize(storyDraft); if (!text) return;
+    const text = normalize(storyDraft);
+    if (!text && !imageDraft) return;
     setIsSaving(true);
 
     // Simulate a brief delay for "premium" feel and to ensure UI feedback
@@ -249,7 +250,7 @@ export default function Page() {
     }
   }
 
-  const canSave = normalize(storyDraft).length > 0 && normalize(displayName).length > 0;
+  const canSave = (normalize(storyDraft).length > 0 || imageDraft.length > 0) && normalize(displayName).length > 0;
   const savedCount = activePerson ? activePerson.memories.length : lastSaved ? 1 : 0;
 
   async function handleLogout() {
@@ -290,7 +291,7 @@ export default function Page() {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 pt-2 sm:pt-4 flex-1 flex flex-col overflow-hidden">
+          <div className="p-6 sm:p-8 pt-12 sm:pt-16 flex-1 flex flex-col overflow-hidden">
             {toast ? <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-stone-900 text-white px-4 py-2 rounded-full text-sm font-sans font-medium shadow-lg animate-fade-in z-50">{toast}</div> : null}
 
             {user && (
@@ -354,15 +355,18 @@ export default function Page() {
             )}
 
             {step === "WRITE" && (
-              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-8 sm:pt-0">
-                <div className="text-center space-y-1 mb-4 sm:mb-8 flex-shrink-0">
+              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
+                <div className="text-center space-y-3 mb-6 sm:mb-8 flex-shrink-0">
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">
                     {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : `Chapter ${starterProgressIndex} of ${starterTotal}`}
                   </div>
-                  <h2 className="text-lg sm:text-2xl font-serif font-bold leading-tight sm:leading-relaxed text-stone-900 px-6">
+                  <h2
+                    key={displayQuestion.text}
+                    className="text-xl sm:text-2xl font-serif leading-tight sm:leading-relaxed text-stone-900 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  >
                     {renderWithBoldName(displayQuestion.text)}
                   </h2>
-                  <div className="min-h-[24px] flex items-center justify-center pt-1">
+                  <div className="min-h-[28px] flex items-center justify-center pt-3">
                     {!allStarterUsed && !editingId && (
                       <button
                         onClick={() => {
@@ -371,7 +375,7 @@ export default function Page() {
                           const example = QUESTION_EXAMPLES[lang][idx];
                           setInspiration(example);
                         }}
-                        className={`text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-2 py-1 px-3 bg-stone-50 rounded-full border border-stone-100 ${inspiration ? "text-stone-600" : "text-stone-400 hover:text-stone-600"}`}
+                        className={`text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-2 py-1.5 px-4 bg-stone-50 rounded-full border border-stone-100 ${inspiration ? "text-stone-600 bg-stone-100" : "text-stone-400 hover:text-stone-600 hover:bg-stone-100"}`}
                       >
                         <span>✨ {t.inspireMe}</span>
                       </button>
@@ -379,7 +383,7 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="h-48 sm:h-auto sm:flex-1 relative flex flex-col min-h-0 mb-6 bg-stone-50/50 rounded-2xl border border-stone-200 shadow-inner overflow-hidden">
+                <div className="h-48 sm:h-auto sm:flex-1 relative flex flex-col min-h-0 mb-8 bg-stone-50/50 rounded-2xl border border-stone-200 shadow-inner overflow-hidden">
                   {imageDraft && (
                     <div className="h-20 sm:h-48 w-full relative flex-shrink-0">
                       <img src={imageDraft} className="w-full h-full object-cover opacity-60 absolute inset-0" />
@@ -428,17 +432,17 @@ export default function Page() {
 
                   {!editingId && (
                     <>
-                      <div className="absolute -left-2 sm:-left-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity">
+                      <div className="absolute left-0 sm:-left-5 top-1/2 -translate-y-1/2 z-30 pointer-events-auto transition-opacity">
                         <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
                       </div>
-                      <div className="absolute -right-2 sm:-right-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity">
+                      <div className="absolute right-0 sm:-right-5 top-1/2 -translate-y-1/2 z-30 pointer-events-auto transition-opacity">
                         <ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} />
                       </div>
                     </>
                   )}
                 </div>
 
-                <div className="space-y-4 flex-shrink-0 pb-2">
+                <div className="space-y-6 flex-shrink-0 pb-8 sm:pb-4">
                   <PrimaryButton disabled={!canSave || isSaving} onClick={saveStory}>
                     {isSaving ? (
                       <div className="flex items-center justify-center gap-2">
