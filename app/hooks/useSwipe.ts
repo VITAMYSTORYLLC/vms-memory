@@ -1,16 +1,61 @@
 import { useRef } from "react";
 
 export function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
-  const touchStart = useRef<number | null>(null);
-  const touchEnd = useRef<number | null>(null);
+  const startX = useRef<number | null>(null);
+  const endX = useRef<number | null>(null);
+  const isDragging = useRef(false);
   const minSwipeDistance = 40;
-  const onTouchStart = (e: React.TouchEvent) => { touchEnd.current = null; touchStart.current = e.targetTouches[0].clientX; };
-  const onTouchMove = (e: React.TouchEvent) => { touchEnd.current = e.targetTouches[0].clientX; };
+
+  // Touch handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    endX.current = null;
+    startX.current = e.targetTouches[0].clientX;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    endX.current = e.targetTouches[0].clientX;
+  };
   const onTouchEnd = () => {
-    if (!touchStart.current || !touchEnd.current) return;
-    const distance = touchStart.current - touchEnd.current;
+    if (startX.current === null || endX.current === null) return;
+    const distance = startX.current - endX.current;
     if (distance > minSwipeDistance) onSwipeLeft();
     if (distance < -minSwipeDistance) onSwipeRight();
+    startX.current = null;
+    endX.current = null;
   };
-  return { onTouchStart, onTouchMove, onTouchEnd };
+
+  // Mouse handlers for desktop
+  const onMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.clientX;
+    endX.current = null;
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    endX.current = e.clientX;
+  };
+
+  const onMouseUp = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+
+    if (startX.current === null || endX.current === null) return;
+    const distance = startX.current - endX.current;
+    if (distance > minSwipeDistance) onSwipeLeft();
+    if (distance < -minSwipeDistance) onSwipeRight();
+
+    startX.current = null;
+    endX.current = null;
+  };
+
+  const onMouseLeave = () => {
+    if (isDragging.current) {
+      onMouseUp();
+    }
+  };
+
+  return {
+    onTouchStart, onTouchMove, onTouchEnd,
+    onMouseDown, onMouseMove, onMouseUp, onMouseLeave
+  };
 }

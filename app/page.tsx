@@ -33,6 +33,8 @@ import { AuthModal } from "./components/AuthModal";
 import { useAuth } from "./hooks/useAuth";
 import { useDictation } from "./hooks/useDictation";
 import { useSync } from "./hooks/useSync";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "./lib/firebase";
 
 export default function Page() {
   const [isHydrated, setIsHydrated] = useState(false);
@@ -57,6 +59,7 @@ export default function Page() {
   const [editingPrompt, setEditingPrompt] = useState<string>("");
   const [inspiration, setInspiration] = useState<string | null>(null);
   const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { user, loading: authLoading, error: authError, signUp, signIn, signOut, clearError } = useAuth();
 
   const { isListening, isSupported, toggleListening } = useDictation(lang, (text) => {
@@ -170,27 +173,36 @@ export default function Page() {
   function maybeAwardStoryKeeper(personId: string) { if (!personId) return false; const used = loadUsedQuestionIndexes(personId); if (used.length < QUESTIONS.length || hasBadge(personId, "story_keeper")) return false; addBadge(personId, "story_keeper"); setBadgeVersion((v) => v + 1); return true; }
   function advanceToNextUnused(personId: string) { if (!personId) return; const usedNext = new Set<number>(loadUsedQuestionIndexes(personId)); if (usedNext.size >= QUESTIONS.length) return; setQuestionIndex(nextUnusedIndex(questionIndex, 1, QUESTIONS.length, usedNext)); }
 
-  function saveStory() {
+  async function saveStory() {
     const text = normalize(storyDraft); if (!text) return;
-    if (editingId && activePerson) {
-      setPeople((prev) => prev.map((p) => (p.id !== activePerson.id ? p : { ...p, memories: p.memories.map((m) => m.id === editingId ? { ...m, text: text, imageUrl: imageDraft } : m) })));
-      setLastSaved({ personName: activePerson.name, prompt: editingPrompt, text: text, createdAt: Date.now(), personId: activePerson.id });
-      setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setStep("SAVED"); return;
+    setIsSaving(true);
+
+    // Simulate a brief delay for "premium" feel and to ensure UI feedback
+    await new Promise(r => setTimeout(r, 800));
+
+    try {
+      if (editingId && activePerson) {
+        setPeople((prev) => prev.map((p) => (p.id !== activePerson.id ? p : { ...p, memories: p.memories.map((m) => m.id === editingId ? { ...m, text: text, imageUrl: imageDraft } : m) })));
+        setLastSaved({ personName: activePerson.name, prompt: editingPrompt, text: text, createdAt: Date.now(), personId: activePerson.id });
+        setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setStep("SAVED"); return;
+      }
+      if (activePerson) {
+        const willCompleteStarter = !allStarterUsed && usedSet.size === QUESTIONS.length - 1;
+        markCurrentQuestionUsed(activePerson.id);
+        setPeople((prev) => prev.map((p) => p.id === activePerson.id ? { ...p, memories: addMemory(p.memories, promptToSave, storyDraft, undefined, imageDraft) } : p));
+        setLastSaved({ personName: displayName || activePerson.name, prompt: promptToSave, text: storyDraft, createdAt: Date.now(), personId: activePerson.id });
+        removeKey(`${LS.draftPrefix}${activePerson.id}`); setStoryDraft(""); setImageDraft(""); setInspiration(null); advanceToNextUnused(activePerson.id);
+        if (willCompleteStarter) { maybeAwardStoryKeeper(activePerson.id); setStep("BADGE"); return; }
+        setStep("SAVED"); return;
+      }
+      const normalizedName = normalize(nameDraft); if (!normalizedName) return;
+      const p: Person = { id: makeId(), name: normalizedName, memories: addMemory([], promptToSave, storyDraft, undefined, imageDraft), createdAt: Date.now() };
+      setPeople((prev) => [p, ...prev]); setActivePersonId(p.id); saveUsedQuestionIndexes(p.id, [wrapIndex(questionIndex, QUESTIONS.length)]); setUsedVersion((v) => v + 1);
+      setLastSaved({ personName: normalizedName, prompt: promptToSave, text: storyDraft, createdAt: Date.now(), personId: p.id });
+      removeKey(`${LS.draftPrefix}${p.id}`); setNameDraft(""); setStoryDraft(""); setImageDraft(""); setInspiration(null); advanceToNextUnused(p.id); setStep("SAVED");
+    } finally {
+      setIsSaving(false);
     }
-    if (activePerson) {
-      const willCompleteStarter = !allStarterUsed && usedSet.size === QUESTIONS.length - 1;
-      markCurrentQuestionUsed(activePerson.id);
-      setPeople((prev) => prev.map((p) => p.id === activePerson.id ? { ...p, memories: addMemory(p.memories, promptToSave, storyDraft, undefined, imageDraft) } : p));
-      setLastSaved({ personName: displayName || activePerson.name, prompt: promptToSave, text: storyDraft, createdAt: Date.now(), personId: activePerson.id });
-      removeKey(`${LS.draftPrefix}${activePerson.id}`); setStoryDraft(""); setImageDraft(""); setInspiration(null); advanceToNextUnused(activePerson.id);
-      if (willCompleteStarter) { maybeAwardStoryKeeper(activePerson.id); setStep("BADGE"); return; }
-      setStep("SAVED"); return;
-    }
-    const normalizedName = normalize(nameDraft); if (!normalizedName) return;
-    const p: Person = { id: makeId(), name: normalizedName, memories: addMemory([], promptToSave, storyDraft, undefined, imageDraft), createdAt: Date.now() };
-    setPeople((prev) => [p, ...prev]); setActivePersonId(p.id); saveUsedQuestionIndexes(p.id, [wrapIndex(questionIndex, QUESTIONS.length)]); setUsedVersion((v) => v + 1);
-    setLastSaved({ personName: normalizedName, prompt: promptToSave, text: storyDraft, createdAt: Date.now(), personId: p.id });
-    removeKey(`${LS.draftPrefix}${p.id}`); setNameDraft(""); setStoryDraft(""); setImageDraft(""); setInspiration(null); advanceToNextUnused(p.id); setStep("SAVED");
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -202,6 +214,38 @@ export default function Page() {
     } catch (err) {
       console.error(err);
       showToast("Error uploading image");
+    }
+  }
+
+  async function shareProfile() {
+    if (!activePerson) return;
+    try {
+      showToast(lang === "es" ? "Preparando enlace..." : "Preparing link...");
+      const shareId = activePerson.id;
+      const ref = doc(db, "shared_profiles", shareId);
+      await setDoc(ref, {
+        ...activePerson,
+        sharedAt: Date.now(),
+        // We include a version check or flag if needed
+        isPublic: true
+      });
+
+      const shareUrl = `${window.location.origin}/story/${shareId}`;
+      const shareMsg = t.inviteMsg(activePerson.name);
+
+      if (navigator.share) {
+        await navigator.share({
+          title: `VitaMyStory - ${activePerson.name}`,
+          text: shareMsg,
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(`${shareMsg} ${shareUrl}`);
+        showToast(t.copied);
+      }
+    } catch (err) {
+      console.error("Error sharing profile:", err);
+      showToast(lang === "es" ? "Error al compartir" : "Error sharing");
     }
   }
 
@@ -221,7 +265,9 @@ export default function Page() {
   if (!isHydrated) return <div className="min-h-screen flex items-center justify-center bg-stone-50 text-stone-900"></div>;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50 text-stone-900 selection:bg-stone-200">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] text-stone-900 selection:bg-stone-200">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_top_right,rgba(231,229,228,0.4),transparent_50%)] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(231,229,228,0.4),transparent_50%)] pointer-events-none" />
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
         :root { --font-sans: 'Inter', sans-serif; --font-serif: 'Libre Baskerville', serif; }
@@ -231,10 +277,18 @@ export default function Page() {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="w-full max-w-lg px-4 font-sans">
+      <div className="w-full max-w-lg sm:px-4 font-sans h-full sm:h-auto">
 
-        <div className="bg-white rounded-3xl shadow-xl shadow-stone-200/50 overflow-hidden relative border border-stone-100 min-h-[600px] flex flex-col">
-          <div className="p-8 flex-1 flex flex-col">
+        <div className="bg-white sm:rounded-[2.5rem] shadow-2xl shadow-stone-200/60 overflow-hidden relative sm:border border-stone-100 min-h-screen sm:min-h-[850px] flex flex-col h-[100dvh] sm:h-auto">
+          {/* Global Header */}
+          <div className={`${step === "WRITE" ? "hidden sm:flex" : "flex"} pt-6 sm:pt-8 px-8 justify-center items-center relative h-16 flex-shrink-0`}>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-stone-900 rounded-lg flex items-center justify-center text-white font-serif font-bold text-lg shadow-lg">V</div>
+              <span className="font-serif font-bold text-stone-900 tracking-tight text-xl">VitaMyStory</span>
+            </div>
+          </div>
+
+          <div className="p-6 sm:p-8 pt-2 sm:pt-4 flex-1 flex flex-col overflow-hidden">
             {toast ? <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-stone-900 text-white px-4 py-2 rounded-full text-sm font-sans font-medium shadow-lg animate-fade-in z-50">{toast}</div> : null}
 
             {user && (
@@ -245,10 +299,10 @@ export default function Page() {
             )}
 
             {step === "WELCOME" && (
-              <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500 relative">
-                <div className="absolute top-6 right-6 flex gap-3 text-xs font-bold tracking-widest z-10 font-sans">
-                  <button onClick={() => setLang("es")} className={`transition-colors ${lang === "es" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}>ES</button>
-                  <button onClick={() => setLang("en")} className={`transition-colors ${lang === "en" ? "text-stone-900 underline decoration-2 underline-offset-4" : "text-stone-300 hover:text-stone-500"}`}>EN</button>
+              <div className="flex-1 flex flex-col justify-center text-center space-y-10 animate-in fade-in zoom-in-95 duration-700 relative pb-12">
+                <div className="absolute top-2 right-2 flex gap-3 text-[10px] font-bold tracking-[0.2em] z-10 font-sans">
+                  <button onClick={() => setLang("es")} className={`transition-colors py-1 ${lang === "es" ? "text-stone-900 border-b-2 border-stone-900" : "text-stone-300 hover:text-stone-500"}`}>ES</button>
+                  <button onClick={() => setLang("en")} className={`transition-colors py-1 ${lang === "en" ? "text-stone-900 border-b-2 border-stone-900" : "text-stone-300 hover:text-stone-500"}`}>EN</button>
                 </div>
                 <div className="space-y-4">
                   <h1 className="text-4xl font-serif font-bold tracking-tight text-stone-900">{t.welcomeTitle}</h1>
@@ -280,30 +334,41 @@ export default function Page() {
             )}
 
             {step === "INTRO" && (
-              <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                <div className="space-y-6 px-4">
-                  <div className="text-5xl animate-pulse">🕯️</div>
-                  <h2 className="text-3xl font-serif text-stone-900 leading-tight">{t.introTitle}</h2>
-                  <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line font-serif">{renderWithBoldName(t.introBody(nameDraft))}</p>
+              <div className="flex-1 flex flex-col justify-center text-center space-y-10 animate-in fade-in zoom-in-95 duration-700 pb-12">
+                <div className="space-y-8 px-6">
+                  <div className="relative inline-block mx-auto mb-4">
+                    <div className="text-5xl animate-pulse">🕯️</div>
+                    <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                  </div>
+                  <h2 className="text-3xl font-serif font-bold text-stone-900 leading-tight">{t.introTitle}</h2>
+                  <div className="space-y-6">
+                    <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line font-serif">{renderWithBoldName(t.introBody(nameDraft))}</p>
+                  </div>
                 </div>
-                <div className="pt-4"><PrimaryButton onClick={() => setStep("WRITE")}>{t.startWriting}</PrimaryButton></div>
+                <div className="pt-6 px-4">
+                  <PrimaryButton onClick={() => setStep("WRITE")}>{t.startWriting}</PrimaryButton>
+                </div>
               </div>
             )}
 
             {step === "WRITE" && (
-              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 touch-pan-y">
-                <div className="text-center space-y-2 mb-8">
-                  <div className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">
-                    {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : t.starterProgress(starterProgressIndex, starterTotal)}
+              <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden">
+                {!editingId && !allStarterUsed && (
+                  <div className="w-full bg-stone-100 h-1.5 rounded-full mb-6 overflow-hidden flex-shrink-0">
+                    <div
+                      className="bg-stone-900 h-full transition-all duration-700 ease-out"
+                      style={{ width: `${(starterProgressIndex / starterTotal) * 100}%` }}
+                    />
                   </div>
-
-
-
-                  <h2 className="text-xl font-serif font-normal leading-relaxed text-stone-800">
+                )}
+                <div className="text-center space-y-2 mb-6 flex-shrink-0">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">
+                    {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : `Chapter ${starterProgressIndex} of ${starterTotal}`}
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-serif font-normal leading-relaxed text-stone-800 px-2">
                     {renderWithBoldName(displayQuestion.text)}
                   </h2>
-
-                  <div className="mt-6 mb-6 min-h-[40px] flex items-center justify-center">
+                  <div className="min-h-[32px] flex items-center justify-center">
                     {!allStarterUsed && !editingId && (
                       <button
                         onClick={() => {
@@ -312,24 +377,29 @@ export default function Page() {
                           const example = QUESTION_EXAMPLES[lang][idx];
                           setInspiration(example);
                         }}
-                        className={`text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 py-2 ${inspiration ? "text-stone-600" : "text-stone-400 hover:text-stone-600"}`}
+                        className={`text-[10px] font-bold uppercase tracking-widest transition-colors flex items-center gap-2 py-1 ${inspiration ? "text-stone-600" : "text-stone-400 hover:text-stone-600"}`}
                       >
                         <span>✨ {t.inspireMe}</span>
                       </button>
                     )}
                   </div>
                 </div>
-                <div className="flex-1 relative mb-4 -mt-2">
-                  <div className="absolute inset-0 bg-stone-50 rounded-xl border border-stone-200 shadow-inner z-0 overflow-hidden">
-                    {imageDraft && (
-                      <div className="h-48 w-full relative">
-                        <img src={imageDraft} className="w-full h-full object-cover opacity-50 absolute inset-0" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-stone-50"></div>
-                        <button onClick={() => setImageDraft("")} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1 hover:bg-black/70 z-30"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                      </div>
-                    )}
-                  </div>
-                  <textarea value={storyDraft} onChange={(e) => setStoryDraft(e.target.value)} placeholder={inspiration || t.writePlaceholder} className={`absolute inset-0 w-full h-full resize-none bg-transparent p-6 text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-xl placeholder:text-stone-300 focus:outline-none z-10 ${imageDraft ? "pt-32" : ""}`} />
+
+                <div className="flex-1 relative flex flex-col min-h-0 mb-6 bg-stone-50/50 rounded-2xl border border-stone-100 shadow-inner overflow-hidden">
+                  {imageDraft && (
+                    <div className="h-32 sm:h-48 w-full relative flex-shrink-0">
+                      <img src={imageDraft} className="w-full h-full object-cover opacity-60 absolute inset-0" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-stone-50/50"></div>
+                      <button onClick={() => setImageDraft("")} className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1.5 hover:bg-black/70 z-30 backdrop-blur-sm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                    </div>
+                  )}
+
+                  <textarea
+                    value={storyDraft}
+                    onChange={(e) => setStoryDraft(e.target.value)}
+                    placeholder={inspiration || t.writePlaceholder}
+                    className="w-full flex-1 resize-none bg-transparent p-6 text-xl sm:text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-lg placeholder:text-stone-300 focus:outline-none z-10"
+                  />
 
                   {isSupported && (
                     <div className="absolute bottom-4 right-4 z-20 flex gap-2">
@@ -362,31 +432,58 @@ export default function Page() {
                     </div>
                   )}
 
-                  {!editingId && (<><div className="absolute -left-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto"><ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} /></div><div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto"><ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} /></div></>)}
+                  {!editingId && (
+                    <>
+                      <div className="absolute -left-2 sm:-left-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity">
+                        <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
+                      </div>
+                      <div className="absolute -right-2 sm:-right-5 top-1/2 -translate-y-1/2 z-20 pointer-events-auto opacity-40 hover:opacity-100 transition-opacity">
+                        <ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} />
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div className="space-y-4">
-                  <PrimaryButton disabled={!canSave} onClick={saveStory}>{editingId ? t.updateStory : t.saveStory}</PrimaryButton>
-                  {people.length > 0 && (<div className="text-center"><button onClick={() => { if (editingId) { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); } setStep("HOME") }} className="text-sm text-stone-400 hover:text-stone-600 font-sans">{editingId ? "Cancel editing" : t.viewStories}</button></div>)}
+
+                <div className="space-y-4 flex-shrink-0 pb-2">
+                  <PrimaryButton disabled={!canSave || isSaving} onClick={saveStory}>
+                    {isSaving ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>{t.saving || 'Saving...'}</span>
+                      </div>
+                    ) : (
+                      editingId ? t.updateStory : t.saveStory
+                    )}
+                  </PrimaryButton>
+                  {people.length > 0 && (<div className="text-center"><button onClick={() => { if (editingId) { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); } setStep("HOME") }} className="text-sm font-bold tracking-widest text-stone-400 hover:text-stone-600 font-sans uppercase">{editingId ? "Cancel editing" : t.viewStories}</button></div>)}
                 </div>
               </div>
             )}
 
             {step === "SAVED" && (
-              <div className="flex-1 flex flex-col justify-center space-y-8 animate-in zoom-in-95 duration-300">
-                <div className="text-center space-y-4">
-                  <div className="flex justify-center">
-                    {savedCount === 1 ? (<div className="text-6xl animate-bounce mb-2">✨</div>) : savedCount === 2 ? (<div className="text-6xl animate-bounce mb-2">🗝️</div>) : (<div className="bg-green-50 text-green-600 p-3 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>)}
+              <div className="flex-1 flex flex-col justify-center space-y-10 animate-in zoom-in-95 duration-500 pb-8">
+                <div className="text-center space-y-6">
+                  <div className="flex justify-center relative">
+                    <div className="absolute inset-0 bg-stone-100 blur-3xl rounded-full scale-150 opacity-50" />
+                    {savedCount === 1 ? (<div className="text-7xl animate-bounce mb-2 relative z-10">✨</div>) : savedCount === 2 ? (<div className="text-7xl animate-bounce mb-2 relative z-10">🗝️</div>) : (<div className="bg-green-50 text-green-600 p-4 rounded-full relative z-10 shadow-sm border border-green-100/50"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>)}
                   </div>
-                  <h2 className="text-3xl font-serif text-stone-900 leading-tight">{savedCount === 1 ? t.firstStoryTitle : savedCount === 2 ? t.secondStoryTitle : t.storySavedTitle}</h2>
-                  <p className="text-stone-500 px-6 font-sans">{savedCount === 1 ? t.firstStoryBody : savedCount === 2 ? t.secondStoryBody : t.storySavedBody}</p>
+                  <div className="space-y-2">
+                    <h2 className="text-3xl font-serif font-bold text-stone-900 leading-tight">{savedCount === 1 ? t.firstStoryTitle : savedCount === 2 ? t.secondStoryTitle : t.storySavedTitle}</h2>
+                    <p className="text-stone-500 px-6 font-sans text-sm leading-relaxed">{savedCount === 1 ? t.firstStoryBody : savedCount === 2 ? t.secondStoryBody : t.storySavedBody}</p>
+                  </div>
                 </div>
-                <div className="bg-stone-50 rounded-xl p-8 text-center relative shadow-inner">
-                  <span className="absolute top-4 left-4 text-4xl text-stone-200 font-serif leading-none">“</span>
-                  <p className="text-lg font-serif italic text-stone-700 leading-relaxed">{lastSaved?.text}</p>
-                  <span className="absolute bottom-[-10px] right-4 text-4xl text-stone-200 font-serif leading-none">”</span>
+                <div className="bg-stone-50/50 rounded-2xl p-8 text-center relative border border-stone-100/50 shadow-sm">
+                  <span className="absolute top-2 left-4 text-5xl text-stone-100 font-serif leading-none select-none">“</span>
+                  <p className="text-lg font-serif italic text-stone-700 leading-relaxed relative z-10">
+                    {lastSaved?.text.length && lastSaved.text.length > 200 ? lastSaved.text.substring(0, 180) + "..." : lastSaved?.text}
+                  </p>
+                  <span className="absolute bottom-[-10px] right-4 text-5xl text-stone-100 font-serif leading-none select-none">”</span>
                 </div>
-                <div className="space-y-3 pt-4"><PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton><SecondaryButton onClick={() => setStep("HOME")}>{t.viewAllStories(displayName)}</SecondaryButton></div>
-                <div className="text-center"><button onClick={inviteFamily} className="text-xs text-stone-400 hover:text-stone-600 underline font-sans">{t.invite}</button></div>
+                <div className="space-y-4 pt-4 px-2">
+                  <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
+                  <SecondaryButton onClick={() => setStep("HOME")}>{t.viewStories}</SecondaryButton>
+                </div>
+                <div className="text-center"><button onClick={shareProfile} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 font-sans">{lang === "es" ? "Share with family" : "Share with family"}</button></div>
               </div>
             )}
 
@@ -420,12 +517,12 @@ export default function Page() {
                   </div>
                 )}
 
-                <div className="mb-6 text-left pl-1">
-                  <div className="flex items-center justify-between mb-1">
+                <div className="mb-4 text-left pl-1">
+                  <div className="flex items-center justify-between mb-2">
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">{activeMemories.length === 1 ? t.storyOf : t.storiesOf}</div>
                     {storyKeeperEarned && (
                       <button
-                        className="text-2xl cursor-pointer hover:scale-110 transition-transform"
+                        className="p-2 bg-stone-50 rounded-full hover:bg-stone-100 transition-colors"
                         title={t.storyKeeperTooltip}
                         onClick={() => setShowBadgeModal(true)}
                       >
@@ -433,16 +530,28 @@ export default function Page() {
                       </button>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 leading-none">{safeName}</h1>
-                    {people.length > 1 && (<button onClick={() => setStep("PEOPLE")} className="self-end mb-1 text-[10px] uppercase font-bold tracking-wider text-stone-300 hover:text-stone-500 transition-colors font-sans">({t.change})</button>)}
+                  <div className="flex items-center justify-between">
+                    <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-900 leading-tight">{safeName}</h1>
+                    {people.length > 1 && (
+                      <button
+                        onClick={() => setStep("PEOPLE")}
+                        className="text-[10px] uppercase font-bold tracking-widest text-stone-600 px-3 py-1.5 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors font-sans"
+                      >
+                        {t.change}
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="flex-1">
                   {activeMemories.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-stone-100 rounded-2xl">
-                      <div className="text-stone-200 mb-4"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg></div>
-                      <p className="text-stone-400 font-serif italic">{t.emptyHome}</p>
+                    <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-stone-50/50 border-2 border-dashed border-stone-200 rounded-[2rem] space-y-6">
+                      <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-stone-100 flex items-center justify-center text-stone-300">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="font-serif font-bold text-stone-900 text-xl">{t.emptyHomeTitle || 'Start your legacy'}</h3>
+                        <p className="text-stone-400 font-sans text-sm max-w-[200px] leading-relaxed italic">{t.emptyHome}</p>
+                      </div>
                     </div>
                   ) : (<StoryCarousel items={[...activeMemories].reverse()} lang={lang} onDelete={deleteMemory} onEdit={startEditing} />)}
                 </div>
@@ -450,7 +559,9 @@ export default function Page() {
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
                   <div className="flex gap-3">
                     <SecondaryButton className="flex-1" onClick={startNewPerson}>{t.newPerson}</SecondaryButton>
-                    <div className="relative flex-1 group"><SecondaryButton onClick={downloadBackup}>{t.saveBackup}</SecondaryButton></div>
+                    <SecondaryButton className="flex-1" onClick={shareProfile}>
+                      {lang === "es" ? "Compartir Perfil" : "Share Profile"}
+                    </SecondaryButton>
                   </div>
                 </div>
               </div>

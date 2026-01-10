@@ -49,6 +49,7 @@ export const TEXT = {
     storiesOf: "THE STORIES OF",
     storyOf: "THE STORY OF",
     change: "Change",
+    emptyHomeTitle: "Start your legacy",
     emptyHome: "A blank page waiting for memories. Start whenever you’re ready.",
     writeAStory: "Write a story",
     newPerson: "New person",
@@ -105,6 +106,7 @@ export const TEXT = {
     datePlaceholder: "e.g. 1985, Summer '92, When I was 10...",
     inspireMe: "Inspire me",
     imagePrompt: "What does this remind you of?",
+    saving: "Saving...",
   },
   es: {
     welcomeTitle: "VitaMyStory",
@@ -154,6 +156,7 @@ export const TEXT = {
     storiesOf: "LAS HISTORIAS DE",
     storyOf: "LA HISTORIA DE",
     change: "Cambiar",
+    emptyHomeTitle: "Inicia tu legado",
     emptyHome: "Una página en blanco esperando recuerdos. Empieza cuando quieras.",
     writeAStory: "Escribir historia",
     newPerson: "Nueva persona",
@@ -210,23 +213,24 @@ export const TEXT = {
     datePlaceholder: "ej. 1985, Verano del '92, Cuando tenía 10...",
     inspireMe: "Inspirame",
     imagePrompt: "¿Qué te recuerda esto?",
+    saving: "Guardando...",
   },
 };
 
 export const QUESTION_EXAMPLES = {
   en: {
-    0: "\"I remember the sound of her laugh during Sunday dinners...\"", // q1: First memory
-    1: "\"I want them to know she was the strongest person I knew...\"", // q2: What everyone should know
-    2: "\"She was known for her incredible cherry pies...\"", // q3: Known for
-    3: "\"Radiant.\"", // q4: One word description
-    4: "\"Her family was everything to her...\"", // q5: Mattered most
+    0: "I remember the sound of her laugh during Sunday dinners...", // q1: First memory
+    1: "I want them to know she was the strongest person I knew...", // q2: What everyone should know
+    2: "She was known for her incredible cherry pies...", // q3: Known for
+    3: "Radiant.", // q4: One word description
+    4: "Her family was everything to her...", // q5: Mattered most
   },
   es: {
-    0: "\"Recuerdo el sonido de su risa durante las cenas del domingo...\"",
-    1: "\"Quiero que sepan que fue la persona más fuerte que conocí...\"",
-    2: "\"Era conocida por sus increíbles pasteles de cereza...\"",
-    3: "\"Radiante.\"",
-    4: "\"Su familia lo era todo para ella...\"",
+    0: "Recuerdo el sonido de su risa durante las cenas del domingo...",
+    1: "Quiero que sepan que fue la persona más fuerte que conocí...",
+    2: "Era conocida por sus increíbles pasteles de cereza...",
+    3: "Radiante.",
+    4: "Su familia lo era todo para ella...",
   }
 };
 
