@@ -547,7 +547,7 @@ export default function Page() {
                         <p className="text-stone-400 font-sans text-sm max-w-[200px] leading-relaxed italic">{t.emptyHome}</p>
                       </div>
                     </div>
-                  ) : (<StoryCarousel items={[...activeMemories].reverse()} lang={lang} onDelete={deleteMemory} onEdit={startEditing} />)}
+                  ) : (<StoryCarousel items={[...activeMemories].reverse()} lang={lang} onDelete={deleteMemory} onEdit={startEditing} onAdd={() => setStep("WRITE")} />)}
                 </div>
                 <div className="mt-10 space-y-3">
                   <PrimaryButton onClick={() => setStep("WRITE")}>{t.writeAStory}</PrimaryButton>
