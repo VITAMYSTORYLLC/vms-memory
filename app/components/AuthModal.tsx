@@ -38,76 +38,80 @@ export function AuthModal({
     const isValid = email.includes("@") && password.length >= 6;
 
     return (
-        <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
-            <div className="space-y-4">
-                <h1 className="text-3xl font-serif font-bold tracking-tight text-stone-900">
-                    {mode === "login" ? t.login : t.register}
-                </h1>
-                <p className="text-stone-500 text-base leading-relaxed max-w-xs mx-auto font-sans">
-                    {mode === "login" ? t.loginSubtitle : t.registerSubtitle}
-                </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-4">
-                    <div className="space-y-2 text-left">
-                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">
-                            {t.email}
-                        </label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => { setEmail(e.target.value); onClearError(); }}
-                            placeholder="you@example.com"
-                            className="w-full bg-stone-50 border border-stone-200 rounded-lg p-3 text-lg font-sans text-stone-800 placeholder:text-stone-300 focus:outline-none focus:border-stone-400 focus:ring-2 focus:ring-stone-100 transition-all"
-                            autoFocus
-                        />
-                    </div>
-
-                    <div className="space-y-2 text-left">
-                        <label className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">
-                            {t.password}
-                        </label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => { setPassword(e.target.value); onClearError(); }}
-                            placeholder="••••••••"
-                            className="w-full bg-stone-50 border border-stone-200 rounded-lg p-3 text-lg font-sans text-stone-800 placeholder:text-stone-300 focus:outline-none focus:border-stone-400 focus:ring-2 focus:ring-stone-100 transition-all"
-                        />
-                        {mode === "register" && (
-                            <p className="text-xs text-stone-400 font-sans">{t.passwordHint}</p>
-                        )}
-                    </div>
+        <div className="fixed inset-0 z-[100] bg-[#F9F8F6] flex flex-col p-6 overflow-y-auto animate-in fade-in duration-300">
+            <div className="max-w-md mx-auto w-full flex-1 flex flex-col justify-center space-y-8">
+                <div className="space-y-4 text-center">
+                    <h1 className="text-3xl font-serif font-bold tracking-tight text-stone-900">
+                        {mode === "login" ? t.login : t.register}
+                    </h1>
+                    <p className="text-stone-500 text-base leading-relaxed max-w-xs mx-auto font-sans">
+                        {mode === "login" ? t.loginSubtitle : t.registerSubtitle}
+                    </p>
                 </div>
 
-                {error && (
-                    <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-sm text-red-600 font-sans">
-                        {error}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="space-y-2 text-left">
+                            <label className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">
+                                {t.email}
+                            </label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => { setEmail(e.target.value); onClearError(); }}
+                                placeholder="you@example.com"
+                                className="w-full bg-white border border-stone-200 rounded-lg p-3 text-lg font-sans text-stone-800 placeholder:text-stone-300 focus:outline-none focus:border-stone-400 focus:ring-2 focus:ring-stone-100 transition-all shadow-sm"
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="space-y-2 text-left">
+                            <label className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">
+                                {t.password}
+                            </label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => { setPassword(e.target.value); onClearError(); }}
+                                placeholder="••••••••"
+                                className="w-full bg-white border border-stone-200 rounded-lg p-3 text-lg font-sans text-stone-800 placeholder:text-stone-300 focus:outline-none focus:border-stone-400 focus:ring-2 focus:ring-stone-100 transition-all shadow-sm"
+                            />
+                            {mode === "register" && (
+                                <p className="text-xs text-stone-400 font-sans">{t.passwordHint}</p>
+                            )}
+                        </div>
                     </div>
-                )}
 
-                <div className="space-y-3">
-                    <PrimaryButton disabled={!isValid || loading}>
-                        {loading ? t.loading : mode === "login" ? t.loginBtn : t.registerBtn}
-                    </PrimaryButton>
+                    {error && (
+                        <div className="bg-red-50 border border-red-100 rounded-lg p-3 text-sm text-red-600 font-sans text-center">
+                            {error}
+                        </div>
+                    )}
 
+                    <div className="space-y-3">
+                        <PrimaryButton disabled={!isValid || loading}>
+                            {loading ? t.loading : mode === "login" ? t.loginBtn : t.registerBtn}
+                        </PrimaryButton>
+
+                        <button
+                            type="button"
+                            onClick={onToggleMode}
+                            className="w-full py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors font-sans"
+                        >
+                            {mode === "login" ? t.noAccount : t.hasAccount}
+                        </button>
+                    </div>
+                </form>
+
+                <div className="pt-4">
                     <button
-                        type="button"
-                        onClick={onToggleMode}
-                        className="text-sm text-stone-400 hover:text-stone-600 transition-colors font-sans"
+                        onClick={onClose}
+                        className="w-full py-4 text-sm text-stone-300 hover:text-stone-500 transition-colors font-sans font-medium uppercase tracking-[0.2em]"
                     >
-                        {mode === "login" ? t.noAccount : t.hasAccount}
+                        {t.back || "Go Back"}
                     </button>
                 </div>
-            </form>
-
-            <button
-                onClick={onClose}
-                className="text-sm text-stone-300 hover:text-stone-500 transition-colors font-sans"
-            >
-                {t.back}
-            </button>
+            </div>
         </div>
     );
 }
