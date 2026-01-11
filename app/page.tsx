@@ -182,10 +182,10 @@ export default function Page() {
           {step === "WRITE" && (
             <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
               <div className="text-center space-y-3 mb-6 sm:mb-8 flex-shrink-0">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">
+                <div className="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 font-sans">
                   {editingId ? "EDITING" : allStarterUsed ? t.freeChapter : `Chapter ${starterProgressIndex} of ${starterTotal}`}
                 </div>
-                <h2 className="text-xl sm:text-2xl font-serif leading-tight sm:leading-relaxed text-stone-900 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <h2 className="text-2xl sm:text-3xl font-serif leading-tight sm:leading-relaxed text-stone-900 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                   {renderWithBoldName(displayQuestion.text)}
                 </h2>
                 <div className="min-h-[28px] flex items-center justify-center pt-3">
@@ -197,7 +197,7 @@ export default function Page() {
                         const example = QUESTION_EXAMPLES[lang][idx];
                         setInspiration(example);
                       }}
-                      className={`text-[10px] font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-2 py-1.5 px-4 bg-stone-50 rounded-full border border-stone-100 ${inspiration ? "text-stone-600 bg-stone-100" : "text-stone-400 hover:text-stone-600 hover:bg-stone-100"}`}
+                      className={`text-xs font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-2 py-2 px-5 bg-stone-50 rounded-full border border-stone-100 ${inspiration ? "text-stone-600 bg-stone-100" : "text-stone-400 hover:text-stone-600 hover:bg-stone-100"}`}
                     >
                       <span>✨ {t.inspireMe}</span>
                     </button>
@@ -219,7 +219,7 @@ export default function Page() {
                   value={storyDraft}
                   onChange={(e) => setStoryDraft(e.target.value)}
                   placeholder={inspiration || t.writePlaceholder}
-                  className="w-full h-full resize-none bg-transparent p-5 text-base sm:text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-stone-300 focus:outline-none z-10"
+                  className="w-full h-full resize-none bg-transparent p-5 text-lg sm:text-2xl font-serif leading-relaxed text-stone-800 placeholder:font-serif placeholder:italic placeholder:text-stone-300 focus:outline-none z-10"
                 />
 
                 {isSupported && (
