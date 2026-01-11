@@ -197,7 +197,7 @@ export default function Page() {
                         const example = QUESTION_EXAMPLES[lang][idx];
                         setInspiration(example);
                       }}
-                      className={`text-xs font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-2 py-2 px-5 bg-stone-50 rounded-full border border-stone-100 ${inspiration ? "text-stone-600 bg-stone-100" : "text-stone-400 hover:text-stone-600 hover:bg-stone-100"}`}
+                      className={`text-xs font-bold uppercase tracking-[0.1em] transition-colors flex items-center gap-2 py-2.5 px-6 bg-stone-50 rounded-full border border-stone-100 ${inspiration ? "text-stone-600 bg-stone-100" : "text-stone-400 hover:text-stone-600 hover:bg-stone-100"}`}
                     >
                       <span>✨ {t.inspireMe}</span>
                     </button>
@@ -254,6 +254,9 @@ export default function Page() {
           {/* SAVED SUCCESS */}
           {step === "SAVED" && (
             <div className="flex-1 flex flex-col justify-center space-y-10 animate-in zoom-in-95 duration-500 pb-8">
+              <div className="text-center pt-8">
+                <span className="text-stone-300 text-xs uppercase tracking-widest">Version Alpha 1.0</span>
+              </div>
               <div className="text-center space-y-6">
                 <div className="text-7xl animate-bounce mb-2">✨</div>
                 <h2 className="text-3xl font-serif font-bold text-stone-900 leading-tight">{t.storySavedTitle}</h2>

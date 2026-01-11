@@ -39,7 +39,7 @@ export default function BottomNav() {
                                 </div>
                             )}
                         </div>
-                        <span className="text-[10px] mt-1 uppercase tracking-wide">{item.label}</span>
+                        <span className="text-xs mt-1 uppercase tracking-wide">{item.label}</span>
                     </Link>
                 );
             })}

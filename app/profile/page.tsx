@@ -147,7 +147,7 @@ export default function ProfilePage() {
                     )}
 
                     <div className="text-center pt-8">
-                        <span className="text-stone-300 text-[10px] uppercase tracking-widest">Version Alpha 1.0</span>
+                        <span className="text-stone-300 text-xs uppercase tracking-widest">Version Alpha 1.0</span>
                     </div>
 
                 </div>

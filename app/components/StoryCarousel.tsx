@@ -194,7 +194,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
                           </button>
                         )}
                       </div>
-                      <div className="text-[10px] font-bold text-stone-400 tracking-[0.2em] uppercase font-sans">
+                      <div className="text-xs font-bold text-stone-400 tracking-[0.2em] uppercase font-sans">
                         {formatWhen(item.createdAt, lang)}
                       </div>
                       {item.prompt ? (
