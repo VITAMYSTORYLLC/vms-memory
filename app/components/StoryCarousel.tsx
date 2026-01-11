@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { MemoryItem, Lang } from "../types";
 import { TEXT } from "../constants";
 import { formatWhen } from "../utils";
-import { renderWithBoldName } from "../utils/text";
+import { renderWithBoldName, stripBoldMarkers } from "../utils/text";
 import { useSwipe } from "../hooks/useSwipe";
+import { toPng } from "html-to-image";
+import { ShareCard } from "./ShareCard";
+import { useMemory } from "../context/MemoryContext";
 
 interface StoryCarouselProps {
   items: MemoryItem[];
@@ -14,9 +17,52 @@ interface StoryCarouselProps {
 }
 
 export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCarouselProps) {
+  const { userName } = useMemory();
   const [index, setIndex] = useState(0);
+  const [isCapturing, setIsCapturing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const t = TEXT[lang];
+
+  async function shareAsImage(item: MemoryItem) {
+    const el = document.getElementById("share-card-content");
+    if (!el) return;
+
+    setIsCapturing(true);
+    // Give browser a moment to render hidden div if we were toggling it
+    await new Promise(r => setTimeout(r, 100));
+
+    try {
+      const dataUrl = await toPng(el, {
+        width: 1080,
+        height: 1080,
+        style: {
+          transform: 'scale(1)',
+          left: '0',
+          top: '0'
+        }
+      });
+
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], `memory-${item.id}.png`, { type: "image/png" });
+
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "VitaMyStory Memory",
+        });
+      } else {
+        // Fallback: Download
+        const link = document.createElement("a");
+        link.download = `memory-${item.id}.png`;
+        link.href = dataUrl;
+        link.click();
+      }
+    } catch (err) {
+      console.error("Failed to share image:", err);
+    } finally {
+      setIsCapturing(false);
+    }
+  }
 
   function prev() {
     if (index > 0) {
@@ -107,11 +153,26 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
                     <div className="bg-stone-50 w-full px-6 py-6 flex flex-col items-center space-y-4 border-b border-stone-100 relative flex-shrink-0">
                       <div className="absolute top-4 right-4 flex gap-3 text-stone-300">
                         <button
+                          disabled={isCapturing}
                           onClick={(e) => {
                             e.stopPropagation();
-                            const textToShare = `${renderWithBoldName(item.prompt)}\n\n"${item.text}"\n\n— via VitaMyStory`;
+                            shareAsImage(item);
+                          }}
+                          className={`${isCapturing ? 'opacity-50' : 'hover:text-stone-600'} transition-colors p-1`}
+                          title="Share as Image"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const cleanPrompt = stripBoldMarkers(item.prompt);
+                            const textToShare = cleanPrompt
+                              ? `${cleanPrompt}\n\n"${item.text}"\n\n— via VitaMyStory 🕯️`
+                              : `"${item.text}"\n\n— via VitaMyStory 🕯️`;
+
                             if (navigator.share) {
-                              navigator.share({ title: "VitaMyStory", text: textToShare }).catch(console.error);
+                              navigator.share({ title: "VitaMyStory Memory", text: textToShare }).catch(console.error);
                             } else {
                               navigator.clipboard.writeText(textToShare);
                               alert(t.shareSuccess);
@@ -194,6 +255,13 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       )}
+
+      {/* Hidden container for image generation */}
+      <div className="fixed -left-[2000px] top-0 pointer-events-none">
+        {items[index] && (
+          <ShareCard item={items[index]} lang={lang} userName={userName} />
+        )}
+      </div>
     </div>
   );
 }
