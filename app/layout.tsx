@@ -1,4 +1,7 @@
 import "./globals.css";
+import BottomNav from "./components/BottomNav";
+
+import { MemoryProvider } from "./context/MemoryContext";
 
 export default function RootLayout({
   children,
@@ -7,7 +10,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="pb-16 mobile-safe-area"><MemoryProvider>{children}<BottomNav /></MemoryProvider></body>
     </html>
   );
 }

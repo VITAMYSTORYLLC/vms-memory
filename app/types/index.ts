@@ -29,3 +29,14 @@ export type AuthUser = {
   uid: string;
   email: string | null;
 };
+
+export type NotificationType = "info" | "success" | "feature";
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  date: number;
+  read: boolean;
+}

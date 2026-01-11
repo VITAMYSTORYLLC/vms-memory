@@ -1,0 +1,64 @@
+VITA_MY_STORY_APP_STRUCTURE
+├── APP_OVERVIEW
+│   ├── Name: VitaMyStory
+│   ├── Platform: Web (Mobile-First PWA)
+│   ├── CoreValue: Legacy Preservation
+│   └── UserBase: Families / Storytellers
+│
+├── AUTHENTICATION
+│   ├── Provider: Firebase Auth
+│   ├── Methods
+│   │   ├── Email/Password
+│   │   └── Guest Mode (Local Storage)
+│   └── States
+│       ├── Unauthenticated (Welcome Flow)
+│       └── Authenticated (Cloud Sync)
+│
+├── USER_FLOW
+│   ├── Onboarding
+│   │   ├── Language Selection (EN/ES)
+│   │   ├── Subject Selection (Who is this for?)
+│   │   └── Value Proposition (Intro Animation)
+│   │
+│   ├── Content_Creation (The "Write" Step)
+│   │   ├── Dynamic Prompts (5 Core Questions + Freeform)
+│   │   ├── Inspiration Engine (Example answers)
+│   │   ├── Writing Interface (Minimalist Editor)
+│   │   └── Navigation (Swipe / Arrow Buttons)
+│   │
+│   └── Review_and_Reflect
+│       ├── Story Carousel
+│       └── Milestone Badges
+│
+├── CORE_FEATURES
+│   ├── Memory_Capture
+│   │   ├── Text Input
+│   │   ├── Voice Dictation (Speech-to-Text)
+│   │   ├── Photo Upload (Image Compression)
+│   │   └── Photo-Only Stories
+│   │
+│   ├── Smart_Prompts
+│   │   ├── Context-Aware Names (e.g., "Grandma")
+│   │   ├── "Inspire Me" Examples
+│   │   └── Sequential Chapter Logic
+│   │
+│   ├── Gamification
+│   │   ├── Progress Tracking (Chapter X of 5)
+│   │   └── "Story Keeper" Badge System
+│   │
+│   └── Sharing
+│       ├── Public Profile Links
+│       └── Native Share Sheet Integration
+│
+└── SETTINGS_&_TOOLS
+    ├── Data_Management
+    │   ├── Cloud Sync (Firebase Firestore)
+    │   ├── Local Backup (JSON Export)
+    │   └── Reset App (Clear Cache)
+    │
+    ├── Localization
+    │   ├── English
+    │   └── Spanish
+    │
+    └── Session
+        └── Logout
