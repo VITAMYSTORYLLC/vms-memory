@@ -34,6 +34,8 @@ interface MemoryContextType {
     lang: Lang;
     setLang: (lang: Lang) => void;
     isHydrated: boolean;
+    theme: "light" | "dark";
+    setTheme: (theme: "light" | "dark") => void;
 
     // Derived
     activePerson: Person | null;
@@ -88,32 +90,7 @@ interface MemoryContextType {
 
 const MemoryContext = createContext<MemoryContextType | undefined>(undefined);
 
-const INITIAL_NOTIFICATIONS: Notification[] = [
-    {
-        id: "welcome-info",
-        type: "info",
-        title: "Welcome to VitaMyStory ✨",
-        message: "We're so glad you're here. This is a place to capture and cherish the stories that matter most.",
-        date: Date.now(),
-        read: false
-    },
-    {
-        id: "account-achievement",
-        type: "success",
-        title: "The first of many ✍️",
-        message: "You've taken the first step in building a digital legacy. We're honored to help you preserve these memories.",
-        date: Date.now() - 1000 * 60,
-        read: false
-    },
-    {
-        id: "profile-tip",
-        type: "info",
-        title: "Make it yours",
-        message: "You can now customize your profile picture and display name in the Profile tab.",
-        date: Date.now() - 1000 * 60 * 60 * 24,
-        read: true
-    }
-];
+const INITIAL_NOTIFICATIONS: Notification[] = [];
 
 export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // --- State Initialization ---
@@ -121,6 +98,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     const [people, setPeople] = useState<Person[]>([]);
     const [activePersonId, setActivePersonId] = useState<string>("");
     const [lang, setLang] = useState<Lang>("en");
+    const [theme, setTheme] = useState<"light" | "dark">("light");
 
     // Drafts
     const [nameDraft, setNameDraft] = useState("");
@@ -166,6 +144,11 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         const storedName = loadString("vms_user_name");
         if (storedName) setUserName(storedName);
 
+        const storedTheme = loadString("vms_theme");
+        if (storedTheme === "light" || storedTheme === "dark") {
+            setTheme(storedTheme);
+        }
+
         // Load notifications
         try {
             const storedNotes = window.localStorage.getItem("vms_notifications");
@@ -183,30 +166,38 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     // --- Persistence Effects ---
-    useEffect(() => { if (isHydrated) saveJSON(LS.people, people); }, [people, isHydrated]);
-    useEffect(() => { if (isHydrated) saveString(LS.activePersonId, activePersonId); }, [activePersonId, isHydrated]);
-    useEffect(() => { if (isHydrated) saveString(LS.lang, lang); }, [lang, isHydrated]);
-    useEffect(() => { if (isHydrated) saveString("vms_onboarded", String(isOnboarded)); }, [isOnboarded, isHydrated]);
-    useEffect(() => { if (isHydrated) saveString("vms_user_name", userName); }, [userName, isHydrated]);
-    useEffect(() => { if (isHydrated) saveString("vms_notifications", JSON.stringify(notifications)); }, [notifications, isHydrated]);
-
-    // Social Simulation
     useEffect(() => {
-        if (!isHydrated || !isOnboarded) return;
+        if (!isHydrated) return;
+        saveJSON(LS.people, people);
+        saveString(LS.activePersonId, activePersonId);
+        saveString(LS.lang, lang);
+        saveString("vms_onboarded", String(isOnboarded));
+        saveString("vms_user_name", userName);
+        saveString("vms_notifications", JSON.stringify(notifications));
+        saveString("vms_theme", theme);
+    }, [people, activePersonId, lang, isOnboarded, userName, notifications, theme, isHydrated]);
 
-        // Random check every 2-5 minutes to add a "someone shared a story" notification
-        const interval = setInterval(() => {
-            if (Math.random() > 0.7) { // 30% chance every check
-                addNotification(
-                    t.notificationNew,
-                    lang === "es" ? "Una nueva historia ha sido añadida a la comunidad." : "A new story has been added to the community.",
-                    "info"
-                );
-            }
-        }, 1000 * 60 * 3); // Every 3 minutes
+    // --- theme sync (aggressive) ---
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const root = window.document.documentElement;
+        if (theme === "dark") {
+            root.classList.add("dark");
+        } else {
+            root.classList.remove("dark");
+        }
+    }, [theme, isHydrated]);
 
-        return () => clearInterval(interval);
-    }, [isHydrated, isOnboarded, t, lang]);
+
+    // Welcome Notification
+    useEffect(() => {
+        if (!user || !user.uid || !isHydrated) return;
+        const key = `vms_welcome_shown_${user.uid}`;
+        if (loadString(key) !== "true") {
+            addNotification(t.notificationWelcomeTitle, t.notificationWelcomeBody, "success");
+            saveString(key, "true");
+        }
+    }, [user, isHydrated, t]);
 
     // Auto-select person logic
     useEffect(() => {
@@ -297,6 +288,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             window.localStorage.removeItem(LS.activePersonId);
             window.localStorage.removeItem(LS.questionState);
             window.localStorage.removeItem("vms_onboarded");
+            window.localStorage.removeItem("vms_theme");
             window.localStorage.removeItem("vms_user_name");
             window.localStorage.removeItem("vms_user_photo");
             window.localStorage.removeItem("vms_notifications");
@@ -312,6 +304,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setPeople([]); setActivePersonId(""); setNameDraft(""); setStoryDraft("");
         setImageDraft(""); setInspiration(null); setEditingId(null); setEditingPrompt("");
         setIsOnboarded(false); setUserName(""); setNotifications(INITIAL_NOTIFICATIONS);
+        setTheme("light");
     }
 
     async function handleLogout() {
@@ -372,10 +365,22 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             // However, we can handle the data update here.
             // The calling component should handle the "Question Index" advancement.
 
-            setPeople((prev) => prev.map((p) => p.id === activePerson.id ? {
-                ...p,
-                memories: addMemory(p.memories, promptToSave, storyDraft, undefined, imageDraft)
-            } : p));
+            setPeople((prev) => prev.map((p) => {
+                if (p.id !== activePerson.id) return p;
+                const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, imageDraft);
+
+                // Milestone Check: 5 Stories
+                if (newMemories.length === 5 && !hasBadge(p.id, "story_keeper")) {
+                    addBadge(p.id, "story_keeper");
+                    addNotification(
+                        t.notificationMilestoneTitle,
+                        t.milestoneMsg(p.name),
+                        "feature"
+                    );
+                }
+
+                return { ...p, memories: newMemories };
+            }));
 
             removeKey(`${LS.draftPrefix}${activePerson.id}_${draftKey}`);
             const id = activePerson.id;
@@ -396,6 +401,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
         setPeople((prev) => [p, ...prev]);
         setActivePersonId(p.id);
+
+        // Notify: Person Created
+        addNotification(t.notificationPersonCreatedTitle, t.notificationPersonCreatedBody, "success");
 
         // Note: The "Used Question" logic for new person needs to happen, but we don't have access to current question index here easily 
         // without lifting that too. 
@@ -443,7 +451,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             addNotification,
             markAsRead,
             markAllAsRead,
-            deleteNotification
+            deleteNotification,
+            theme,
+            setTheme
         }}>
             {!isHydrated ? <div className="min-h-screen bg-[#F9F8F6]" /> : !isOnboarded ? <LandingScreen /> : children}
         </MemoryContext.Provider>

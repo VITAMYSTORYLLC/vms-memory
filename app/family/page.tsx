@@ -49,22 +49,22 @@ export default function FamilyPage() {
 
     if (mode === "LIST") {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] safe-top safe-bottom pb-24">
+            <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-stone-950 safe-top safe-bottom pb-24 transition-colors duration-500">
                 <div className="w-full max-w-lg font-sans h-full sm:h-auto overflow-y-auto">
                     <div className="p-6 pt-12">
-                        <h1 className="text-3xl font-serif font-bold text-stone-900 mb-8">{t.familyTitle}</h1>
+                        <h1 className="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-8">{t.familyTitle}</h1>
 
                         <div className="space-y-4">
                             {people.map((p) => (
                                 <button
                                     key={p.id}
                                     onClick={() => handleSelect(p.id)}
-                                    className={`w-full text-left p-5 rounded-2xl transition-all border ${p.id === activePersonId ? "bg-stone-900 text-white border-stone-900 shadow-lg scale-[1.02]" : "bg-white text-stone-600 border-stone-200 hover:border-stone-300"}`}
+                                    className={`w-full text-left p-5 rounded-2xl transition-all border ${p.id === activePersonId ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-lg scale-[1.02]" : "bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700"}`}
                                 >
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <div className="text-2xl font-serif leading-none mb-2 font-bold">{p.name}</div>
-                                            <div className={`text-sm uppercase tracking-wider font-sans ${p.id === activePersonId ? "text-stone-400" : "text-stone-400 font-bold"}`}>
+                                            <div className={`text-sm uppercase tracking-wider font-sans ${p.id === activePersonId ? "text-stone-400 dark:text-stone-500" : "text-stone-400 dark:text-stone-600 font-bold"}`}>
                                                 {p.memories.length} {plural(p.memories.length, lang === "es" ? "historia" : "story")}
                                             </div>
                                         </div>
@@ -86,13 +86,13 @@ export default function FamilyPage() {
 
     // WELCOME / INTRO FLOW (Ported from page.tsx)
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] text-stone-900 safe-top safe-bottom pb-24">
+        <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-stone-950 text-stone-900 dark:text-stone-100 safe-top safe-bottom pb-24 transition-colors duration-500">
             <div className="w-full max-w-lg sm:px-4 font-sans h-full sm:h-auto">
                 <div className="p-6 sm:p-8 pt-12 sm:pt-16 flex-1 flex flex-col overflow-hidden h-full">
 
                     {/* Back button if we have people and are just cancelling creation */}
                     {people.length > 0 && mode === "WELCOME" && (
-                        <button onClick={() => setMode("LIST")} className="absolute top-6 left-6 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 font-sans z-20">
+                        <button onClick={() => setMode("LIST")} className="absolute top-6 left-6 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 dark:text-stone-600 dark:hover:text-stone-400 font-sans z-20">
                             ← {t.back}
                         </button>
                     )}
@@ -101,13 +101,13 @@ export default function FamilyPage() {
                         <div className="flex-1 flex flex-col justify-center text-center space-y-10 animate-in fade-in zoom-in-95 duration-700 relative pb-12">
 
                             <div className="space-y-4">
-                                <h1 className="text-4xl font-serif font-bold tracking-tight text-stone-900">{t.welcomeTitle}</h1>
-                                <p className="text-stone-500 text-lg leading-relaxed max-w-xs mx-auto font-serif italic">{t.welcomeBody}</p>
+                                <h1 className="text-4xl font-serif font-bold tracking-tight text-stone-900 dark:text-stone-100">{t.welcomeTitle}</h1>
+                                <p className="text-stone-500 dark:text-stone-400 text-lg leading-relaxed max-w-xs mx-auto font-serif italic">{t.welcomeBody}</p>
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-stone-300 font-sans">{t.whoFor}</label>
-                                    <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 p-2 text-center text-3xl font-serif text-stone-800 placeholder:text-stone-200 focus:outline-none focus:border-stone-400 transition-colors" autoFocus />
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-stone-300 dark:text-stone-700 font-sans">{t.whoFor}</label>
+                                    <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 dark:border-stone-800 p-2 text-center text-3xl font-serif text-stone-800 dark:text-stone-200 placeholder:text-stone-200 dark:placeholder:text-stone-800 focus:outline-none focus:border-stone-400 dark:focus:border-stone-600 transition-colors" autoFocus />
                                 </div>
                             </div>
                             <div className="pt-4 space-y-3">
@@ -115,8 +115,8 @@ export default function FamilyPage() {
                             </div>
                             {!user && (
                                 <div className="mt-4 flex justify-center gap-4">
-                                    <button onClick={() => setMode("login")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.login}</button>
-                                    <button onClick={() => setMode("register")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.register}</button>
+                                    <button onClick={() => setMode("login")} className="text-xs font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 underline font-sans">{t.login}</button>
+                                    <button onClick={() => setMode("register")} className="text-xs font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 underline font-sans">{t.register}</button>
                                 </div>
                             )}
                         </div>
@@ -128,9 +128,9 @@ export default function FamilyPage() {
                                 <div className="relative inline-block mx-auto mb-4">
                                     <div className="text-5xl animate-breathing">✍️</div>
                                 </div>
-                                <h2 className="text-3xl font-serif font-bold text-stone-900 leading-tight">{t.introTitle}</h2>
+                                <h2 className="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 leading-tight">{t.introTitle}</h2>
                                 <div className="space-y-6">
-                                    <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line font-serif italic">{renderWithBoldName(t.introBody(nameDraft))}</p>
+                                    <p className="text-stone-500 dark:text-stone-400 text-lg leading-relaxed whitespace-pre-line font-serif italic">{renderWithBoldName(t.introBody(nameDraft))}</p>
                                 </div>
                             </div>
                             <div className="pt-6 px-4">

@@ -1,11 +1,11 @@
 import React from "react";
 
-export function ArrowButton({ direction, onClick, disabled }: { direction: "left" | "right", onClick: () => void, disabled: boolean }) {
+export function ArrowButton({ direction, onClick, disabled, shouldPulse }: { direction: "left" | "right", onClick: () => void, disabled: boolean, shouldPulse?: boolean }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`p-3 sm:p-4 bg-white/80 backdrop-blur-sm shadow-sm border border-stone-200/50 rounded-full text-stone-600 hover:text-stone-900 hover:scale-110 disabled:opacity-0 transition-all ${direction === "left" ? "ml-2" : "mr-2"}`}
+      className={`relative p-3 sm:p-4 bg-white/80 dark:bg-stone-900/80 backdrop-blur-sm shadow-sm border border-stone-200/50 dark:border-stone-800/50 rounded-full text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:scale-110 disabled:opacity-0 transition-all ${direction === "left" ? "ml-2" : "mr-2"} ${shouldPulse ? "animate-pulse ring-2 ring-stone-300 dark:ring-stone-600" : ""}`}
     >
       <svg
         width="20"
