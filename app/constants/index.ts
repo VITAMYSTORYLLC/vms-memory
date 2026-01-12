@@ -72,15 +72,15 @@ export const TEXT = {
     freeChapter: "The story continues",
     q1: "What’s the first memory that comes to mind when you think of them?",
     q2: "What’s something you want everyone to know about them?",
-    q3: "What were they known for?",
+    q3: "What are they best known for?",
     q4: "In one word, how would you describe this person?",
-    q5: "What do you think mattered most to them?",
+    q5: "What matters most to them?",
     qFree: "Share a story or picture, anything you want.",
-    qKnownFor: (name: string) => `What is something |||${name}||| was known for?`,
+    qKnownFor: (name: string) => `What is something |||${name}||| is known for?`,
     qDescribe: (name: string) => `In one word, how would you describe |||${name}|||?`,
     qFirstMemory: (name: string) => `What’s the first memory that comes to mind when you think of |||${name}|||?`,
     qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
-    qMatteredMost: (name: string) => `What do you think mattered most to |||${name}|||?`,
+    qMatteredMost: (name: string) => `What matters most to |||${name}|||?`,
     starterComplete: "Starter questions complete. The rest of the book is yours to write.",
     // Auth
     login: "Log in",
@@ -220,15 +220,15 @@ export const TEXT = {
     freeChapter: "La historia continúa",
     q1: "¿Cuál es el primer recuerdo que te viene a la mente cuando piensas en ellos?",
     q2: "¿Qué es algo que quieres que todos sepan sobre ellos?",
-    q3: "¿Por qué cosa eran conocidos?",
-    q4: "En una palabra, ¿cómo describirías a esta persona?",
-    q5: "¿Qué crees que era lo que más les importaba?",
+    q3: "¿Por qué es mejor conocido/a?",
+    q4: "In una palabra, ¿cómo describirías a esta persona?",
+    q5: "¿Qué es lo que más le importa?",
     qFree: "Comparte una historia o foto, lo que desees.",
-    qKnownFor: (name: string) => `¿Qué es algo por lo que |||${name}||| era conocido/a?`,
+    qKnownFor: (name: string) => `¿Qué es algo por lo que es conocido/a |||${name}|||?`,
     qDescribe: (name: string) => `En una palabra, ¿cómo describirías a |||${name}|||?`,
     qFirstMemory: (name: string) => `¿Cuál es el primer recuerdo que te viene a la mente al pensar en |||${name}|||?`,
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
-    qMatteredMost: (name: string) => `¿Qué crees que era lo que más le importaba a |||${name}|||?`,
+    qMatteredMost: (name: string) => `¿Qué es lo que más le importa a |||${name}|||?`,
     starterComplete: "Preguntas iniciales completas. El resto del libro es tuyo.",
     // Auth
     login: "Iniciar sesión",
@@ -302,16 +302,16 @@ export const QUESTION_EXAMPLES = {
   en: {
     0: "I remember the sound of her laugh during Sunday dinners...", // q1: First memory
     1: "I want them to know she always put her family first…", // q2: What everyone should know
-    2: "She was known for her incredible cherry pies...", // q3: Known for
+    2: "She is known for her incredible cherry pies...", // q3: Known for
     3: "Protective · Energetic · Devoted", // q4: One word description
-    4: "Her family was everything to her...", // q5: Mattered most
+    4: "Her family is everything to her...", // q5: Mattered most
   },
   es: {
     0: "Recuerdo el sonido de su risa durante las cenas del domingo...",
     1: "Quiero que sepan que siempre puso a su familia primero…",
-    2: "Era conocida por sus increíbles pasteles de cereza...",
+    2: "Es conocida por sus increíbles pasteles de cereza...",
     3: "Protección · Energía · Compromiso",
-    4: "Su familia lo era todo para ella...",
+    4: "Su familia lo es todo para ella...",
   }
 };
 
