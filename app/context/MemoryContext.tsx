@@ -24,6 +24,13 @@ import {
 import { TEXT, LS } from "../constants";
 import { useAuth } from "../hooks/useAuth";
 import LandingScreen from "../components/LandingScreen";
+import Toast from "../components/Toast";
+
+interface ToastMessage {
+    title: string;
+    message: string;
+    type: NotificationType;
+}
 
 interface MemoryContextType {
     // State
@@ -61,7 +68,6 @@ interface MemoryContextType {
     setEditingPrompt: React.Dispatch<React.SetStateAction<string>>;
 
     // Actions
-    // Actions
     saveStory: (promptToSave: string) => Promise<string | null>;
     deleteMemory: (memoryId: string) => void;
     startNewPerson: () => void;
@@ -86,6 +92,10 @@ interface MemoryContextType {
     markAsRead: (id: string) => void;
     markAllAsRead: () => void;
     deleteNotification: (id: string) => void;
+
+    // Toast
+    activeToast: ToastMessage | null;
+    hideToast: () => void;
 }
 
 const MemoryContext = createContext<MemoryContextType | undefined>(undefined);
@@ -110,6 +120,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // Editing
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editingPrompt, setEditingPrompt] = useState<string>("");
+
+    // Toast
+    const [activeToast, setActiveToast] = useState<ToastMessage | null>(null);
 
     const activePerson = useMemo(() => people.find((p) => p.id === activePersonId) || null, [people, activePersonId]);
     const activeMemories = activePerson?.memories ?? [];
@@ -189,15 +202,19 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     }, [theme, isHydrated]);
 
 
-    // Welcome Notification
+    // Welcome Notification (Guest & User)
     useEffect(() => {
-        if (!user || !user.uid || !isHydrated) return;
-        const key = `vms_welcome_shown_${user.uid}`;
+        if (!isHydrated) return;
+        // Use a device-wide key so even guests see it once
+        const key = "vms_device_welcome_shown";
         if (loadString(key) !== "true") {
-            addNotification(t.notificationWelcomeTitle, t.notificationWelcomeBody, "success");
-            saveString(key, "true");
+            // Need to wrap in timer to ensure Translation is ready and hydration settled
+            setTimeout(() => {
+                addNotification(t.notificationWelcomeTitle, t.notificationWelcomeBody, "success");
+                saveString(key, "true");
+            }, 1000);
         }
-    }, [user, isHydrated, t]);
+    }, [isHydrated, t]);
 
     // Auto-select person logic
     useEffect(() => {
@@ -292,6 +309,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             window.localStorage.removeItem("vms_user_name");
             window.localStorage.removeItem("vms_user_photo");
             window.localStorage.removeItem("vms_notifications");
+            // Clear welcome flag so they see it again if reset
+            window.localStorage.removeItem("vms_device_welcome_shown");
+
             const prefixes = [LS.draftPrefix, LS.usedPrefix, LS.badgesPrefix];
             const keysToRemove: string[] = [];
             for (let i = 0; i < window.localStorage.length; i++) {
@@ -328,6 +348,11 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             read: false
         };
         setNotifications(prev => [newNote, ...prev]);
+        setActiveToast({ title, message, type });
+    }
+
+    function hideToast() {
+        setActiveToast(null);
     }
 
     function markAsRead(id: string) {
@@ -453,9 +478,16 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             markAllAsRead,
             deleteNotification,
             theme,
-            setTheme
+            setTheme,
+            activeToast,
+            hideToast
         }}>
-            {!isHydrated ? <div className="min-h-screen bg-[#F9F8F6]" /> : !isOnboarded ? <LandingScreen /> : children}
+            {!isHydrated ? <div className="min-h-screen bg-[#F9F8F6]" /> : !isOnboarded ? <LandingScreen /> : (
+                <>
+                    {children}
+                    <Toast />
+                </>
+            )}
         </MemoryContext.Provider>
     );
 }
