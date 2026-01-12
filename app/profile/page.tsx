@@ -12,10 +12,10 @@ import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser } fr
 
 export default function ProfilePage() {
     const { user, handleLogout, resetApp, lang, setLang, t, people, userName, setUserName, isHydrated } = useMemory();
-    const { loading: authLoading, error: authError, signUp, signIn, clearError } = useAuth();
+    const { loading: authLoading, error: authError, signUp, signIn, resetPassword, clearError } = useAuth();
     const router = useRouter();
 
-    const [authMode, setAuthMode] = useState<"LOGIN" | "REGISTER" | null>(null);
+    const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>(null);
     const [profileImage, setProfileImage] = useState<string>("");
     const [isEditingName, setIsEditingName] = useState(false);
 
@@ -174,7 +174,7 @@ export default function ProfilePage() {
                                     <p className="text-stone-400 text-sm font-sans px-4">{t.secureStoriesBody}</p>
                                 </div>
                                 <button
-                                    onClick={() => setAuthMode("LOGIN")}
+                                    onClick={() => setAuthMode("login")}
                                     className="w-full py-4 rounded-xl bg-white text-stone-900 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-100 transition-all"
                                 >
                                     {t.loginBtn} / {t.registerBtn}
@@ -192,17 +192,18 @@ export default function ProfilePage() {
 
             {authMode && (
                 <AuthModal
-                    mode={authMode === "LOGIN" ? "login" : "register"}
+                    mode={authMode}
                     lang={lang}
                     loading={authLoading}
                     error={authError}
                     onSubmit={async (email, password) => {
-                        const success = authMode === "LOGIN" ? await signIn(email, password) : await signUp(email, password);
+                        const success = authMode === "login" ? await signIn(email, password) : await signUp(email, password);
                         if (success) {
                             setAuthMode(null);
                         }
                     }}
-                    onToggleMode={() => setAuthMode(authMode === "LOGIN" ? "REGISTER" : "LOGIN")}
+                    onReset={resetPassword}
+                    onToggleMode={(newMode) => setAuthMode(newMode)}
                     onClose={() => setAuthMode(null)}
                     onClearError={clearError}
                 />

@@ -9,8 +9,8 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function LandingScreen() {
     const { completeOnboarding, lang, setLang, t } = useMemory();
-    const { loading: authLoading, error: authError, signUp, signIn, clearError } = useAuth();
-    const [authMode, setAuthMode] = useState<"LOGIN" | "REGISTER" | null>(null);
+    const { loading: authLoading, error: authError, signUp, signIn, resetPassword, clearError } = useAuth();
+    const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>(null);
 
     return (
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] flex flex-col overflow-y-auto">
@@ -39,7 +39,7 @@ export default function LandingScreen() {
                             <h3 className="font-bold text-stone-900 text-base uppercase tracking-wider mb-1">Recommended</h3>
                             <p className="text-stone-500 text-sm">Save your stories to the cloud and access them anywhere.</p>
                         </div>
-                        <PrimaryButton onClick={() => setAuthMode("LOGIN")}>
+                        <PrimaryButton onClick={() => setAuthMode("login")}>
                             Log In / Sign Up
                         </PrimaryButton>
                     </div>
@@ -58,17 +58,18 @@ export default function LandingScreen() {
 
             {authMode && (
                 <AuthModal
-                    mode={authMode === "LOGIN" ? "login" : "register"}
+                    mode={authMode}
                     lang={lang}
                     loading={authLoading}
                     error={authError}
                     onSubmit={async (email, password) => {
-                        const success = authMode === "LOGIN" ? await signIn(email, password) : await signUp(email, password);
+                        const success = authMode === "login" ? await signIn(email, password) : await signUp(email, password);
                         if (success) {
                             completeOnboarding();
                         }
                     }}
-                    onToggleMode={() => setAuthMode(authMode === "LOGIN" ? "REGISTER" : "LOGIN")}
+                    onReset={resetPassword}
+                    onToggleMode={(mode) => setAuthMode(mode)}
                     onClose={() => setAuthMode(null)}
                     onClearError={clearError}
                 />

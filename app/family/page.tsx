@@ -12,7 +12,7 @@ import { useAuth } from "../hooks/useAuth";
 export default function FamilyPage() {
     const { people, activePersonId, setActivePersonId, startNewPerson, t, lang, setLang, nameDraft, setNameDraft, user } = useMemory();
     const router = useRouter();
-    const { loading: authLoading, error: authError, signUp, signIn, clearError } = useAuth();
+    const { loading: authLoading, error: authError, signUp, signIn, resetPassword, clearError } = useAuth();
 
     // Local state for creation flow
     // If we have people, we default to showing the list. If not, we show the welcome screen to create the first one.
@@ -22,7 +22,7 @@ export default function FamilyPage() {
     // So "Family" tab -> List of people. Button "Add Person" -> "Ask Name" screen.
     // If 0 people -> "Ask Name" screen directly? Yes.
 
-    const [mode, setMode] = React.useState<"LIST" | "WELCOME" | "INTRO" | "LOGIN" | "REGISTER">(
+    const [mode, setMode] = React.useState<"LIST" | "WELCOME" | "INTRO" | "login" | "register" | "reset">(
         people.length === 0 ? "WELCOME" : "LIST"
     );
 
@@ -115,8 +115,8 @@ export default function FamilyPage() {
                             </div>
                             {!user && (
                                 <div className="mt-4 flex justify-center gap-4">
-                                    <button onClick={() => setMode("LOGIN")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.login}</button>
-                                    <button onClick={() => setMode("REGISTER")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.register}</button>
+                                    <button onClick={() => setMode("login")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.login}</button>
+                                    <button onClick={() => setMode("register")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.register}</button>
                                 </div>
                             )}
                         </div>
@@ -139,17 +139,18 @@ export default function FamilyPage() {
                         </div>
                     )}
 
-                    {(mode === "LOGIN" || mode === "REGISTER") && (
+                    {(mode === "login" || mode === "register" || mode === "reset") && (
                         <AuthModal
-                            mode={mode === "LOGIN" ? "login" : "register"}
+                            mode={mode}
                             lang={lang}
                             loading={authLoading}
                             error={authError}
                             onSubmit={async (email, password) => {
-                                const success = mode === "LOGIN" ? await signIn(email, password) : await signUp(email, password);
+                                const success = mode === "login" ? await signIn(email, password) : await signUp(email, password);
                                 if (success) setMode(people.length > 0 ? "LIST" : "WELCOME");
                             }}
-                            onToggleMode={() => setMode(mode === "LOGIN" ? "REGISTER" : "LOGIN")}
+                            onReset={resetPassword}
+                            onToggleMode={(newMode) => setMode(newMode)}
                             onClose={() => setMode("WELCOME")}
                             onClearError={clearError}
                         />

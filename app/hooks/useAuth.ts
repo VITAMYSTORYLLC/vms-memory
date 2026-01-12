@@ -6,6 +6,7 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut as firebaseSignOut,
+    sendPasswordResetEmail,
     User,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
@@ -62,6 +63,21 @@ export function useAuth() {
         }
     };
 
+    const resetPassword = async (email: string): Promise<boolean> => {
+        setError(null);
+        setLoading(true);
+        try {
+            await sendPasswordResetEmail(auth, email);
+            return true;
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Reset failed";
+            setError(message);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const signOut = async (): Promise<void> => {
         setError(null);
         try {
@@ -80,6 +96,7 @@ export function useAuth() {
         error,
         signUp,
         signIn,
+        resetPassword,
         signOut,
         clearError,
     };
