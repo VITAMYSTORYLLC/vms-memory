@@ -17,7 +17,7 @@ interface StoryCarouselProps {
 }
 
 export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCarouselProps) {
-  const { userName } = useMemory();
+  const { userName, addNotification } = useMemory();
   const [index, setIndex] = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -50,6 +50,17 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
           files: [file],
           title: "VitaMyStory Memory",
         });
+        // Simulate social feedback
+        setTimeout(() => {
+          const type = Math.random() > 0.5 ? "saw" : "liked";
+          addNotification(
+            type === "saw" ? t.notificationSaw : t.notificationLike,
+            lang === "es"
+              ? (type === "saw" ? "Alguien acaba de ver el recuerdo que compartiste." : "¡A alguien le encantó tu historia!")
+              : (type === "saw" ? "Someone just viewed the memory you shared." : "Someone loved your story!"),
+            "success"
+          );
+        }, 1000 * (3 + Math.random() * 5)); // 3-8 seconds later
       } else {
         // Fallback: Download
         const link = document.createElement("a");
@@ -168,11 +179,23 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
                             e.stopPropagation();
                             const cleanPrompt = stripBoldMarkers(item.prompt);
                             const textToShare = cleanPrompt
-                              ? `${cleanPrompt}\n\n"${item.text}"\n\n— via VitaMyStory 🕯️`
-                              : `"${item.text}"\n\n— via VitaMyStory 🕯️`;
+                              ? `${cleanPrompt}\n\n"${item.text}"\n\n— via VitaMyStory ✍️`
+                              : `"${item.text}"\n\n— via VitaMyStory ✍️`;
 
                             if (navigator.share) {
-                              navigator.share({ title: "VitaMyStory Memory", text: textToShare }).catch(console.error);
+                              navigator.share({ title: "VitaMyStory Memory", text: textToShare }).then(() => {
+                                // Simulate social feedback
+                                setTimeout(() => {
+                                  const type = Math.random() > 0.5 ? "saw" : "liked";
+                                  addNotification(
+                                    type === "saw" ? t.notificationSaw : t.notificationLike,
+                                    lang === "es"
+                                      ? (type === "saw" ? "Alguien acaba de ver el recuerdo que compartiste." : "¡A alguien le encantó tu historia!")
+                                      : (type === "saw" ? "Someone just viewed the memory you shared." : "Someone loved your story!"),
+                                    "success"
+                                  );
+                                }, 1000 * (3 + Math.random() * 5));
+                              }).catch(console.error);
                             } else {
                               navigator.clipboard.writeText(textToShare);
                               alert(t.shareSuccess);

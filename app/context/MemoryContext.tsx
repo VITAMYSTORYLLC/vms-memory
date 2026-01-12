@@ -49,6 +49,8 @@ interface MemoryContextType {
     setNameDraft: React.Dispatch<React.SetStateAction<string>>;
     inspiration: string | null;
     setInspiration: React.Dispatch<React.SetStateAction<string | null>>;
+    draftKey: string;
+    setDraftKey: (key: string) => void;
 
     // Editing
     editingId: string | null;
@@ -88,27 +90,27 @@ const MemoryContext = createContext<MemoryContextType | undefined>(undefined);
 
 const INITIAL_NOTIFICATIONS: Notification[] = [
     {
-        id: "1",
+        id: "welcome-info",
         type: "info",
-        title: "Welcome to Alpha 1.0",
-        message: "Thanks for being an early tester! Your feedback helps us shape the future of family memories.",
-        date: Date.now() - 1000 * 60 * 60 * 2,
+        title: "Welcome to VitaMyStory ✨",
+        message: "We're so glad you're here. This is a place to capture and cherish the stories that matter most.",
+        date: Date.now(),
         read: false
     },
     {
-        id: "2",
+        id: "account-achievement",
         type: "success",
-        title: "Profile Updated",
+        title: "The first of many ✍️",
+        message: "You've taken the first step in building a digital legacy. We're honored to help you preserve these memories.",
+        date: Date.now() - 1000 * 60,
+        read: false
+    },
+    {
+        id: "profile-tip",
+        type: "info",
+        title: "Make it yours",
         message: "You can now customize your profile picture and display name in the Profile tab.",
         date: Date.now() - 1000 * 60 * 60 * 24,
-        read: false
-    },
-    {
-        id: "3",
-        type: "feature",
-        title: "Coming Soon: Sharing",
-        message: "We're working on ways to let you share these stories with your family. Stay tuned!",
-        date: Date.now() - 1000 * 60 * 60 * 48,
         read: true
     }
 ];
@@ -124,6 +126,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     const [nameDraft, setNameDraft] = useState("");
     const [storyDraft, setStoryDraft] = useState("");
     const [imageDraft, setImageDraft] = useState<string>("");
+    const [draftKey, setDraftKey] = useState("default");
     const [inspiration, setInspiration] = useState<string | null>(null);
 
     // Editing
@@ -187,6 +190,24 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => { if (isHydrated) saveString("vms_user_name", userName); }, [userName, isHydrated]);
     useEffect(() => { if (isHydrated) saveString("vms_notifications", JSON.stringify(notifications)); }, [notifications, isHydrated]);
 
+    // Social Simulation
+    useEffect(() => {
+        if (!isHydrated || !isOnboarded) return;
+
+        // Random check every 2-5 minutes to add a "someone shared a story" notification
+        const interval = setInterval(() => {
+            if (Math.random() > 0.7) { // 30% chance every check
+                addNotification(
+                    t.notificationNew,
+                    lang === "es" ? "Una nueva historia ha sido añadida a la comunidad." : "A new story has been added to the community.",
+                    "info"
+                );
+            }
+        }, 1000 * 60 * 3); // Every 3 minutes
+
+        return () => clearInterval(interval);
+    }, [isHydrated, isOnboarded, t, lang]);
+
     // Auto-select person logic
     useEffect(() => {
         if (people.length === 0) {
@@ -205,26 +226,40 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // Autosave Draft
     useEffect(() => {
         if (!activePersonId || typeof window === "undefined" || editingId) return;
-        const key = `${LS.draftPrefix}${activePersonId}`;
+        const key = `${LS.draftPrefix}${activePersonId}_${draftKey}`;
         if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current);
 
         autosaveTimer.current = window.setTimeout(() => {
-            const val = storyDraft;
-            if (!normalize(val)) removeKey(key);
+            const val = JSON.stringify({ text: storyDraft, image: imageDraft });
+            if (!normalize(storyDraft) && !imageDraft) removeKey(key);
             else saveString(key, val);
         }, 350);
         return () => { if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current); };
-    }, [storyDraft, activePersonId, editingId]);
+    }, [storyDraft, imageDraft, activePersonId, editingId, draftKey]);
 
     // Restore Draft on Switch
     useEffect(() => {
-        if (!activePersonId) return;
-        const key = `${LS.draftPrefix}${activePersonId}`;
-        const saved = loadString(key);
-        // Only restore if we don't have a current draft (or maybe we should overwrite? Use caution)
-        // Current logic: if empty, try restore
-        if (saved && !normalize(storyDraft) && !editingId) setStoryDraft(saved);
-    }, [activePersonId, editingId, storyDraft]); // Added storyDraft dep to be safe, but logic checks if empty
+        if (!activePersonId || editingId) return;
+
+        // First, immediately clear the current draft state to prevent text bleeding between questions
+        setStoryDraft("");
+        setImageDraft("");
+
+        // Then, restore the saved draft for this specific question (if any)
+        const key = `${LS.draftPrefix}${activePersonId}_${draftKey}`;
+        const savedRaw = loadString(key);
+        if (savedRaw) {
+            try {
+                const { text, image } = JSON.parse(savedRaw);
+                setStoryDraft(text || "");
+                setImageDraft(image || "");
+            } catch (e) {
+                // Fallback for old simple string drafts
+                setStoryDraft(savedRaw);
+                setImageDraft("");
+            }
+        }
+    }, [activePersonId, draftKey, editingId]);
 
     // --- Actions ---
 
@@ -276,7 +311,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         suppressAutoSelectRef.current = true;
         setPeople([]); setActivePersonId(""); setNameDraft(""); setStoryDraft("");
         setImageDraft(""); setInspiration(null); setEditingId(null); setEditingPrompt("");
-        setIsOnboarded(false); setUserName(""); setNotifications([]);
+        setIsOnboarded(false); setUserName(""); setNotifications(INITIAL_NOTIFICATIONS);
     }
 
     async function handleLogout() {
@@ -286,6 +321,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setNameDraft("");
         setStoryDraft("");
         setImageDraft("");
+        setIsOnboarded(false);
     }
 
     // Notifications Actions
@@ -341,7 +377,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                 memories: addMemory(p.memories, promptToSave, storyDraft, undefined, imageDraft)
             } : p));
 
-            removeKey(`${LS.draftPrefix}${activePerson.id}`);
+            removeKey(`${LS.draftPrefix}${activePerson.id}_${draftKey}`);
             const id = activePerson.id;
             setStoryDraft(""); setImageDraft(""); setInspiration(null);
             return id;
@@ -387,6 +423,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             imageDraft, setImageDraft,
             nameDraft, setNameDraft,
             inspiration, setInspiration,
+            draftKey, setDraftKey,
             editingId, setEditingId,
             editingPrompt, setEditingPrompt,
             saveStory,

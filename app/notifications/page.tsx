@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { FiBell, FiInfo, FiStar, FiCheckCircle } from "react-icons/fi"; // Removed FiCheck as it was unused
+import { FiBell, FiInfo, FiStar, FiCheckCircle, FiTrash2 } from "react-icons/fi";
 import { useMemory } from "../context/MemoryContext";
 import { NotificationType } from "../types";
 
 export default function NotificationsPage() {
-    const { notifications, markAsRead, markAllAsRead, deleteNotification, isHydrated } = useMemory();
+    const { notifications, markAsRead, markAllAsRead, deleteNotification, isHydrated, t } = useMemory();
 
     const getIcon = (type: NotificationType) => {
         switch (type) {
@@ -27,17 +27,17 @@ export default function NotificationsPage() {
     if (!isHydrated) return null;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] safe-top safe-bottom pb-24">
-            <div className="w-full max-w-lg font-sans h-full sm:h-auto min-h-screen sm:min-h-0 bg-[#F9F8F6] sm:bg-transparent">
+        <div className="min-h-screen bg-[#F9F8F6] safe-top safe-bottom pb-24">
+            <div className="w-full max-w-lg mx-auto font-sans h-full sm:h-auto min-h-screen sm:min-h-0">
                 <div className="p-6 pt-12">
                     <div className="flex items-center justify-between mb-8">
-                        <h1 className="text-3xl font-serif font-bold text-stone-900">Notifications</h1>
+                        <h1 className="text-3xl font-serif font-bold text-stone-900">{t.notificationsTitle}</h1>
                         {unreadCount > 0 && (
                             <button
                                 onClick={markAllAsRead}
-                                className="text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 transition-colors"
+                                className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 transition-colors"
                             >
-                                Mark all read
+                                {t.markAllRead}
                             </button>
                         )}
                     </div>
@@ -48,7 +48,7 @@ export default function NotificationsPage() {
                                 <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4 text-stone-300">
                                     <FiBell size={24} />
                                 </div>
-                                <p className="text-stone-400 text-sm">No notifications yet.</p>
+                                <p className="text-stone-400 text-sm font-serif italic text-lg">{t.noNotifications}</p>
                             </div>
                         ) : (
                             notifications.map((n) => (
@@ -56,8 +56,8 @@ export default function NotificationsPage() {
                                     key={n.id}
                                     onClick={() => markAsRead(n.id)}
                                     className={`relative p-4 rounded-xl border transition-all cursor-pointer group ${n.read
-                                            ? "bg-white border-stone-100 opacity-70 hover:opacity-100"
-                                            : "bg-white border-stone-200 shadow-sm"
+                                        ? "bg-white border-stone-100 opacity-70 hover:opacity-100"
+                                        : "bg-white border-stone-200 shadow-sm"
                                         }`}
                                 >
                                     <div className="flex gap-4">
@@ -66,15 +66,15 @@ export default function NotificationsPage() {
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex justify-between items-start">
-                                                <h3 className={`text-sm font-bold mb-1 ${n.read ? "text-stone-600" : "text-stone-900"}`}>
+                                                <h3 className={`text-lg font-sans font-semibold mb-1 ${n.read ? "text-stone-500" : "text-stone-900"}`}>
                                                     {n.title}
                                                 </h3>
                                                 {!n.read && (
-                                                    <span className="w-2 h-2 rounded-full bg-red-400 block mt-1.5"></span>
+                                                    <span className="w-2 h-2 rounded-full bg-stone-900 block mt-1.5 animate-pulse"></span>
                                                 )}
                                             </div>
-                                            <p className="text-xs text-stone-500 leading-relaxed pr-6">{n.message}</p>
-                                            <p className="text-[10px] text-stone-300 mt-2">
+                                            <p className="text-sm text-stone-500 leading-relaxed pr-6">{n.message}</p>
+                                            <p className="text-xs text-stone-400 mt-2 font-medium tracking-wide">
                                                 {new Date(n.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                                             </p>
                                         </div>
@@ -83,7 +83,7 @@ export default function NotificationsPage() {
                                             onClick={(e) => handleDelete(n.id, e)}
                                             className="absolute top-2 right-2 p-2 text-stone-300 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                            <FiTrash2 size={14} />
                                         </button>
                                     </div>
                                 </div>
@@ -92,6 +92,6 @@ export default function NotificationsPage() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

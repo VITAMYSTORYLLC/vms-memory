@@ -22,7 +22,7 @@ export function ShareCard({ item, lang, userName }: ShareCardProps) {
         >
             {/* Decorative Elements */}
             <div className="absolute top-0 left-0 w-full h-4 bg-stone-900" />
-            <div className="absolute top-20 right-20 text-6xl opacity-20 text-stone-300">🕯️</div>
+            <div className="absolute top-20 right-20 text-6xl opacity-20 text-stone-300">✍️</div>
 
             <div className="flex-1 flex flex-col justify-center space-y-12">
                 {/* Header/Prompt */}

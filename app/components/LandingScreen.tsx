@@ -15,29 +15,28 @@ export default function LandingScreen() {
     return (
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] flex flex-col overflow-y-auto">
             {/* Lang Switch */}
-            <div className="absolute top-4 right-4 flex gap-3 text-[10px] font-bold tracking-[0.2em] z-10 font-sans">
-                <button onClick={() => setLang("es")} className={`transition-colors py-1 ${lang === "es" ? "text-stone-900 border-b-2 border-stone-900" : "text-stone-300 hover:text-stone-500"}`}>ES</button>
-                <button onClick={() => setLang("en")} className={`transition-colors py-1 ${lang === "en" ? "text-stone-900 border-b-2 border-stone-900" : "text-stone-300 hover:text-stone-500"}`}>EN</button>
+            <div className="absolute top-6 right-6 flex gap-6 text-xl font-bold tracking-[0.2em] z-10 font-sans">
+                <button onClick={() => setLang("es")} className={`transition-colors py-1 px-1 ${lang === "es" ? "text-stone-900 border-b-2 border-stone-900" : "text-stone-300 hover:text-stone-500"}`}>ES</button>
+                <button onClick={() => setLang("en")} className={`transition-colors py-1 px-1 ${lang === "en" ? "text-stone-900 border-b-2 border-stone-900" : "text-stone-300 hover:text-stone-500"}`}>EN</button>
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center p-6 text-center max-w-lg mx-auto w-full animate-in fade-in zoom-in-95 duration-700">
                 <div className="mb-8 relative">
-                    <div className="text-6xl animate-pulse">🕯️</div>
-                    <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full scale-150 animate-pulse" />
+                    <div className="text-6xl animate-breathing">✍️</div>
                 </div>
 
                 <h1 className="text-4xl font-serif font-bold text-stone-900 mb-2">VitaMyStory</h1>
-                <div className="text-xs font-bold uppercase tracking-[0.3em] text-stone-400 mb-8 font-sans">Alpha 1.0</div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-300 mb-8 font-sans">Established 2026</div>
 
                 <p className="text-stone-600 font-serif text-lg leading-relaxed mb-10 max-w-xs">
-                    Welcome, Early Adopter. <br />
+                    Begin your legacy. <br />
                     Preserve the stories that matter most.
                 </p>
 
                 <div className="w-full space-y-4">
                     <div className="p-5 bg-white rounded-2xl border border-stone-100 shadow-sm space-y-4">
                         <div className="text-left">
-                            <h3 className="font-bold text-stone-900 text-sm uppercase tracking-wider mb-1">Recommended</h3>
+                            <h3 className="font-bold text-stone-900 text-base uppercase tracking-wider mb-1">Recommended</h3>
                             <p className="text-stone-500 text-sm">Save your stories to the cloud and access them anywhere.</p>
                         </div>
                         <PrimaryButton onClick={() => setAuthMode("LOGIN")}>
@@ -47,8 +46,8 @@ export default function LandingScreen() {
 
                     <div className="p-5 bg-transparent space-y-4">
                         <div className="text-left px-1">
-                            {/* <h3 className="font-bold text-stone-400 text-xs uppercase tracking-wider mb-1">Guest Mode</h3> */}
-                            <p className="text-stone-400 text-xs">Try it out on this device only. Your data will be lost if you clear your browser cache.</p>
+                            {/* <h3 className="font-bold text-stone-400 text-sm uppercase tracking-wider mb-1">Guest Mode</h3> */}
+                            <p className="text-stone-400 text-sm">Try it out on this device only. Your data will be lost if you clear your browser cache.</p>
                         </div>
                         <SecondaryButton onClick={completeOnboarding}>
                             Continue as Guest

@@ -52,7 +52,7 @@ export default function FamilyPage() {
             <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] safe-top safe-bottom pb-24">
                 <div className="w-full max-w-lg font-sans h-full sm:h-auto overflow-y-auto">
                     <div className="p-6 pt-12">
-                        <h1 className="text-3xl font-serif font-bold text-stone-900 mb-8">{t.choosePerson || "Family"}</h1>
+                        <h1 className="text-3xl font-serif font-bold text-stone-900 mb-8">{t.familyTitle}</h1>
 
                         <div className="space-y-4">
                             {people.map((p) => (
@@ -63,9 +63,9 @@ export default function FamilyPage() {
                                 >
                                     <div className="flex justify-between items-center">
                                         <div>
-                                            <div className="text-xl font-serif leading-none mb-2 font-bold">{p.name}</div>
-                                            <div className={`text-xs uppercase tracking-wider font-sans ${p.id === activePersonId ? "text-stone-400" : "text-stone-400"}`}>
-                                                {p.memories.length} {plural(p.memories.length, "story", lang === "es" ? "historias" : "stories")}
+                                            <div className="text-2xl font-serif leading-none mb-2 font-bold">{p.name}</div>
+                                            <div className={`text-sm uppercase tracking-wider font-sans ${p.id === activePersonId ? "text-stone-400" : "text-stone-400 font-bold"}`}>
+                                                {p.memories.length} {plural(p.memories.length, lang === "es" ? "historia" : "story")}
                                             </div>
                                         </div>
                                     </div>
@@ -75,7 +75,7 @@ export default function FamilyPage() {
 
                         <div className="mt-8">
                             <PrimaryButton onClick={handleStartCreating}>
-                                {t.newPerson || "Add New Person"}
+                                {t.newPerson}
                             </PrimaryButton>
                         </div>
                     </div>
@@ -92,8 +92,8 @@ export default function FamilyPage() {
 
                     {/* Back button if we have people and are just cancelling creation */}
                     {people.length > 0 && mode === "WELCOME" && (
-                        <button onClick={() => setMode("LIST")} className="absolute top-6 left-6 text-sm text-stone-400 hover:text-stone-600 font-sans z-20">
-                            ← {t.cancel || "Back"}
+                        <button onClick={() => setMode("LIST")} className="absolute top-6 left-6 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 font-sans z-20">
+                            ← {t.back}
                         </button>
                     )}
 
@@ -102,11 +102,11 @@ export default function FamilyPage() {
 
                             <div className="space-y-4">
                                 <h1 className="text-4xl font-serif font-bold tracking-tight text-stone-900">{t.welcomeTitle}</h1>
-                                <p className="text-stone-500 text-lg leading-relaxed max-w-xs mx-auto font-serif">{t.welcomeBody}</p>
+                                <p className="text-stone-500 text-lg leading-relaxed max-w-xs mx-auto font-serif italic">{t.welcomeBody}</p>
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-stone-400 font-sans">{t.whoFor}</label>
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-stone-300 font-sans">{t.whoFor}</label>
                                     <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 p-2 text-center text-3xl font-serif text-stone-800 placeholder:text-stone-200 focus:outline-none focus:border-stone-400 transition-colors" autoFocus />
                                 </div>
                             </div>
@@ -115,8 +115,8 @@ export default function FamilyPage() {
                             </div>
                             {!user && (
                                 <div className="mt-4 flex justify-center gap-4">
-                                    <button onClick={() => setMode("LOGIN")} className="text-sm text-stone-400 hover:text-stone-600 underline font-sans">{t.login}</button>
-                                    <button onClick={() => setMode("REGISTER")} className="text-sm text-stone-400 hover:text-stone-600 underline font-sans">{t.register}</button>
+                                    <button onClick={() => setMode("LOGIN")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.login}</button>
+                                    <button onClick={() => setMode("REGISTER")} className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 underline font-sans">{t.register}</button>
                                 </div>
                             )}
                         </div>
@@ -126,12 +126,11 @@ export default function FamilyPage() {
                         <div className="flex-1 flex flex-col justify-center text-center space-y-10 animate-in fade-in zoom-in-95 duration-700 pb-12">
                             <div className="space-y-8 px-6">
                                 <div className="relative inline-block mx-auto mb-4">
-                                    <div className="text-5xl animate-pulse">🕯️</div>
-                                    <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                                    <div className="text-5xl animate-breathing">✍️</div>
                                 </div>
                                 <h2 className="text-3xl font-serif font-bold text-stone-900 leading-tight">{t.introTitle}</h2>
                                 <div className="space-y-6">
-                                    <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line font-serif">{renderWithBoldName(t.introBody(nameDraft))}</p>
+                                    <p className="text-stone-500 text-lg leading-relaxed whitespace-pre-line font-serif italic">{renderWithBoldName(t.introBody(nameDraft))}</p>
                                 </div>
                             </div>
                             <div className="pt-6 px-4">

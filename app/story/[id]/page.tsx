@@ -97,8 +97,8 @@ export default function StoryViewer() {
                             <h1 className="text-4xl font-serif font-bold text-stone-900 leading-tight mb-4">{person.name}</h1>
                             <p className="text-stone-500 font-serif italic text-lg leading-relaxed max-w-sm mx-auto p-4 border-y border-stone-50">
                                 {lang === "es"
-                                    ? `Celebrando la vida y las historias de ${person.name}. Una colección de recuerdos preservada para siempre.`
-                                    : `Celebrating the life and stories of ${person.name}. A collection of memories preserved forever.`}
+                                    ? `Celebrando la vida y las historias de ${person.name}. Un lugar donde los recuerdos siguen vivos.`
+                                    : `Celebrating the life and stories of ${person.name}. A place where memories live on.`}
                             </p>
                         </div>
 
@@ -110,8 +110,8 @@ export default function StoryViewer() {
                             <div className="pt-8 border-t border-stone-50">
                                 <p className="text-stone-400 text-xs font-sans tracking-widest uppercase mb-6 opacity-60">
                                     {lang === "es"
-                                        ? "Preservado con VitaMyStory"
-                                        : "Preserved with VitaMyStory"}
+                                        ? "Creado con VitaMyStory"
+                                        : "Created with VitaMyStory"}
                                 </p>
                                 <Link href="/">
                                     <PrimaryButton onClick={() => { }}>
@@ -124,9 +124,9 @@ export default function StoryViewer() {
                 </div>
 
                 <div className="text-center py-8">
-                    <div className="flex justify-center gap-4 text-[10px] font-bold tracking-[0.2em] text-stone-300">
-                        <button onClick={() => setLang("en")} className={lang === "en" ? "text-stone-600 underline decoration-2 underline-offset-4" : "hover:text-stone-400 transition-colors"}>ENGLISH</button>
-                        <button onClick={() => setLang("es")} className={lang === "es" ? "text-stone-600 underline decoration-2 underline-offset-4" : "hover:text-stone-400 transition-colors"}>ESPAÑOL</button>
+                    <div className="flex justify-center gap-6 text-xs font-bold tracking-[0.2em] text-stone-300 font-sans">
+                        <button onClick={() => setLang("en")} className={`transition-colors py-2 ${lang === "en" ? "text-stone-900 border-b-2 border-stone-900" : "hover:text-stone-500"}`}>ENGLISH</button>
+                        <button onClick={() => setLang("es")} className={`transition-colors py-2 ${lang === "es" ? "text-stone-900 border-b-2 border-stone-900" : "hover:text-stone-500"}`}>ESPAÑOL</button>
                     </div>
                 </div>
             </div>
