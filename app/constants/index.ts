@@ -143,6 +143,10 @@ export const TEXT = {
     notificationSaw: "Someone saw your story",
     notificationLike: "Someone liked your story",
     notificationNew: "Someone just shared a story",
+    support: "Help & Feedback",
+    contactTitle: "Contact Us",
+    contactSubtitle: "Have a suggestion or need help? We'd love to hear from you.",
+    contactBtn: "Send us an email",
   },
   es: {
     welcomeTitle: "VitaMyStory",
@@ -287,6 +291,10 @@ export const TEXT = {
     notificationSaw: "Alguien vio tu historia",
     notificationLike: "A alguien le gustó tu historia",
     notificationNew: "Alguien acaba de compartir una historia",
+    support: "Ayuda y Comentarios",
+    contactTitle: "Contáctanos",
+    contactSubtitle: "¿Tienes una sugerencia o necesitas ayuda? Nos encantaría escucharte.",
+    contactBtn: "Envíanos un correo",
   },
 };
 

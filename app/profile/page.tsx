@@ -8,7 +8,7 @@ import { compressImage } from "../utils";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { SecondaryButton } from "../components/SecondaryButton";
 import { useRouter } from "next/navigation";
-import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser } from "react-icons/fi";
+import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail } from "react-icons/fi";
 
 export default function ProfilePage() {
     const { user, handleLogout, resetApp, lang, setLang, t, people, userName, setUserName, isHydrated } = useMemory();
@@ -154,6 +154,24 @@ export default function ProfilePage() {
                                 <FiTrash2 size={14} />
                                 <span>{t.clearData}</span>
                             </button>
+                        </div>
+                    </div>
+
+                    {/* Support Card */}
+                    <div className="bg-white rounded-3xl shadow-sm border border-stone-100 p-6 space-y-4">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 block px-1">{t.support}</label>
+                        <div className="space-y-4">
+                            <div className="px-1">
+                                <h3 className="text-stone-900 font-serif font-bold text-lg mb-1">{t.contactTitle}</h3>
+                                <p className="text-stone-500 text-sm font-sans">{t.contactSubtitle}</p>
+                            </div>
+                            <a
+                                href="mailto:hello@vitamystory.com"
+                                className="w-full py-4 rounded-xl bg-stone-50 text-stone-900 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-100 transition-all flex items-center justify-center gap-3 border border-stone-100"
+                            >
+                                <FiMail size={16} />
+                                <span>{t.contactBtn}</span>
+                            </a>
                         </div>
                     </div>
 
