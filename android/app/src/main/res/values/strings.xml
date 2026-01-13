@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VMS Memory</string>
+    <string name="title_activity_main">VMS Memory</string>
+    <string name="package_name">com.vms.memory</string>
+    <string name="custom_url_scheme">com.vms.memory</string>
+</resources>
