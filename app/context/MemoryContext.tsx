@@ -70,6 +70,8 @@ interface MemoryContextType {
     // Actions
     saveStory: (promptToSave: string) => Promise<string | null>;
     deleteMemory: (memoryId: string) => void;
+    deletePerson: (personId: string) => void;
+    updatePersonName: (personId: string, newName: string) => void;
     startNewPerson: () => void;
     resetApp: () => void;
     refreshState: () => void; // Force update if needed
@@ -290,6 +292,21 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         }));
     }
 
+    function deletePerson(personId: string) {
+        setPeople((prev) => prev.filter((p) => p.id !== personId));
+        if (activePersonId === personId) {
+            setActivePersonId("");
+            setStoryDraft("");
+            setImageDraft("");
+        }
+        removeKey(`${LS.draftPrefix}${personId}`);
+        // Also clean up used questions if we wanted to go deep, but leaving them is safe enough
+    }
+
+    function updatePersonName(personId: string, newName: string) {
+        setPeople((prev) => prev.map((p) => p.id === personId ? { ...p, name: newName } : p));
+    }
+
     function completeOnboarding() {
         setIsOnboarded(true);
     }
@@ -461,6 +478,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             editingPrompt, setEditingPrompt,
             saveStory,
             deleteMemory,
+            deletePerson,
+            updatePersonName,
             startNewPerson,
 
             resetApp,
