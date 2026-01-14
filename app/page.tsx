@@ -242,7 +242,7 @@ export default function Page() {
                   value={storyDraft}
                   onChange={(e) => setStoryDraft(e.target.value)}
                   placeholder={inspiration ? `${t.inspirationPrefix} "${inspiration}"` : t.writePlaceholder}
-                  className="w-full h-full resize-none bg-transparent p-6 text-2xl sm:text-3xl font-serif leading-relaxed text-stone-800 dark:text-stone-200 placeholder:font-serif placeholder:italic placeholder:text-stone-200 dark:placeholder:text-stone-800 focus:outline-none z-10"
+                  className="w-full h-full resize-none bg-transparent p-6 text-2xl sm:text-3xl font-serif leading-relaxed text-stone-800 dark:text-stone-200 placeholder:font-serif placeholder:italic placeholder:text-stone-200 dark:placeholder:text-stone-600 focus:outline-none z-10"
                 />
 
                 <div className="absolute bottom-4 right-4 z-20 flex gap-2">
