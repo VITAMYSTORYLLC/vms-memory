@@ -8,6 +8,7 @@ import { toPng } from "html-to-image";
 import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
+import { FiCamera, FiMic, FiPlus } from "react-icons/fi";
 
 interface StoryCarouselProps {
   items: MemoryItem[];
@@ -15,9 +16,11 @@ interface StoryCarouselProps {
   onDelete?: (id: string) => void;
   onEdit?: (item: MemoryItem) => void;
   onAdd?: () => void;
+  onAddPhoto?: () => void;
+  onAddAudio?: () => void;
 }
 
-export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCarouselProps) {
+export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(0);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -137,7 +140,9 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
   }
 
   function next() {
-    const maxIndex = items.length; // +1 for the "Add New Story" card
+    const extraCards = (onAdd ? 1 : 0) + (onAddPhoto ? 1 : 0) + (onAddAudio ? 1 : 0);
+    const maxIndex = items.length + extraCards - 1;
+
     if (index < maxIndex) {
       Haptics.light();
       setShowDeleteConfirm(false);
@@ -163,6 +168,14 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
 
   if (items.length === 0 && !onAdd) return null; // If no items and no add functionality, return null
 
+  // Build the list of extra cards
+  const extraCards = [];
+  if (onAdd) extraCards.push({ id: "add_card" });
+  if (onAddPhoto) extraCards.push({ id: "add_photo" });
+  if (onAddAudio) extraCards.push({ id: "add_audio" });
+
+  const allItems = items.concat(extraCards as any);
+
   return (
     <div className="relative w-full overflow-hidden py-2 h-[580px] group transition-colors duration-500">
       <div
@@ -173,10 +186,14 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
           width: '100%'
         }}
       >
-        {items.concat(onAdd ? [{ id: "add_card" } as any] : []).map((item, i) => {
+        {allItems.map((item, i) => {
           const isAddCard = item.id === "add_card";
+          const isPhotoCard = item.id === "add_photo";
+          const isAudioCard = item.id === "add_audio";
+          const isActionCard = isAddCard || isPhotoCard || isAudioCard;
+
           const isActive = i === index;
-          const isLong = !isAddCard && item.text.length > 70;
+          const isLong = !isActionCard && item.text.length > 70;
 
           return (
             <div
@@ -187,20 +204,34 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
                   setIndex(i);
                 } else if (isAddCard && onAdd) {
                   onAdd();
+                } else if (isPhotoCard && onAddPhoto) {
+                  onAddPhoto();
+                } else if (isAudioCard && onAddAudio) {
+                  onAddAudio();
                 }
               }}
               className={`flex-shrink-0 w-[90%] px-2 h-full transition-all duration-500 ease-out cursor-pointer ${isActive ? "scale-100 opacity-100 cursor-default" : "scale-[0.92] opacity-60 hover:opacity-80"}`}
               style={{ flex: "0 0 90%" }}
             >
               <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xl rounded-[2rem] h-full flex flex-col relative overflow-hidden transition-colors">
-                {isAddCard ? (
+                {isActionCard ? (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center animate-in fade-in duration-500">
-                    <div className="w-20 h-20 rounded-full bg-stone-50 dark:bg-stone-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 group-hover:scale-110 transition-transform duration-500">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <div className={`w-20 h-20 rounded-full bg-stone-50 dark:bg-stone-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 group-hover:scale-110 transition-transform duration-500 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' : isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' : ''}`}>
+                      {isAddCard && <FiPlus size={32} />}
+                      {isPhotoCard && <FiCamera size={32} />}
+                      {isAudioCard && <FiMic size={32} />}
                     </div>
                     <div className="space-y-1">
-                      <h4 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-xl">{lang === "es" ? "Nueva Historia" : "Add a new story"}</h4>
-                      <p className="text-stone-400 dark:text-stone-600 font-sans text-sm italic">{lang === "es" ? "Empieza el próximo capítulo" : "Start the next chapter"}</p>
+                      <h4 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-xl">
+                        {isAddCard && t.newStoryTitle}
+                        {isPhotoCard && t.newPhotoTitle}
+                        {isAudioCard && t.newAudioTitle}
+                      </h4>
+                      <p className="text-stone-400 dark:text-stone-600 font-sans text-sm italic">
+                        {isAddCard && t.newStorySubtitle}
+                        {isPhotoCard && t.newPhotoSubtitle}
+                        {isAudioCard && t.newAudioSubtitle}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -279,9 +310,9 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
                   </>
                 )}
 
-                {isActive && (items.length + (onAdd ? 1 : 0)) > 1 && (
+                {isActive && (allItems.length) > 1 && (
                   <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
-                    {items.concat(onAdd ? [{ id: "add_card" } as any] : []).map((_, dotIdx) => (
+                    {allItems.map((_, dotIdx) => (
                       <div key={dotIdx} className={`h-1 w-1 rounded-full transition-all duration-300 ${dotIdx === i ? "bg-stone-800 dark:bg-stone-100 w-4" : "bg-stone-200 dark:bg-stone-800"}`} />
                     ))}
                   </div>
@@ -302,7 +333,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd }: StoryCar
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
       )}
-      {index < items.length && (
+      {index < allItems.length - 1 && (
         <button
           onClick={(e) => { e.stopPropagation(); next(); }}
           className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/90 dark:bg-stone-800/90 backdrop-blur-sm rounded-full shadow-xl text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:scale-110 hidden sm:flex items-center justify-center border border-stone-200 dark:border-stone-700 opacity-0 group-hover:opacity-100"
