@@ -46,6 +46,8 @@ export default function StoriesPage() {
                                 onDelete={deleteMemory}
                                 onEdit={startEditing}
                                 onAdd={() => router.push("/")}
+                                onAddPhoto={() => router.push("/")}
+                                onAddAudio={() => router.push("/")}
                             />
                         )}
                     </div>
