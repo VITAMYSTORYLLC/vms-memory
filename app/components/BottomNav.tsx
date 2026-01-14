@@ -13,7 +13,6 @@ export default function BottomNav() {
     const unreadCount = notifications.filter(n => !n.read).length;
 
     const navItems = [
-        { href: '/', label: t.navHome, icon: <FiHome size={24} /> },
         { href: '/family', label: t.navFamily, icon: <FiUsers size={24} /> },
         { href: '/stories', label: t.navStories, icon: <FiBook size={24} /> },
         { href: '/notifications', label: t.navNotifications, icon: <FiBell size={24} /> },
