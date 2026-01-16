@@ -71,22 +71,22 @@ export function RefineModal({ isOpen, onClose, originalText, prompt, lang, t, on
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-stone-900/60 backdrop-blur-md"
+                        className="absolute inset-0 bg-midnight-900/60 backdrop-blur-md"
                     />
 
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-2xl bg-white dark:bg-stone-900 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-stone-100 dark:border-stone-800"
+                        className="relative w-full max-w-2xl bg-white dark:bg-midnight-900 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-stone-100 dark:border-stone-800"
                     >
                         {/* Header */}
-                        <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50/50 dark:bg-stone-950/50">
+                        <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center bg-stone-50/50 dark:bg-midnight-950/50">
                             <div className="flex items-center gap-3">
                                 <span className="text-2xl">✨</span>
                                 <div>
                                     <h3 className="text-xl font-serif font-bold text-stone-900 dark:text-stone-100">{t.refineTitle}</h3>
-                                    <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600">Gemini 2.0 AI</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600">Gemini 2.0 Flash</p>
                                 </div>
                             </div>
                             <button onClick={onClose} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-2">
@@ -100,7 +100,7 @@ export function RefineModal({ isOpen, onClose, originalText, prompt, lang, t, on
                                 {/* Original */}
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600 block px-1">{t.original}</label>
-                                    <div className="p-5 bg-stone-50 dark:bg-stone-950/30 rounded-2xl border border-stone-100 dark:border-stone-800 text-stone-600 dark:text-stone-400 font-serif italic leading-relaxed text-sm">
+                                    <div className="p-5 bg-stone-50 dark:bg-midnight-950/30 rounded-2xl border border-stone-100 dark:border-stone-800 text-stone-600 dark:text-stone-400 font-serif italic leading-relaxed text-sm">
                                         {originalText}
                                     </div>
                                 </div>
@@ -110,7 +110,7 @@ export function RefineModal({ isOpen, onClose, originalText, prompt, lang, t, on
                                     <div className="flex justify-between items-center px-1">
                                         <label className="text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600 block">{t.refined}</label>
                                         {refinements.length > 1 && (
-                                            <div className="flex gap-1 bg-stone-100 dark:bg-stone-800 rounded-full p-0.5">
+                                            <div className="flex gap-1 bg-stone-100 dark:bg-midnight-800 rounded-full p-0.5">
                                                 {refinements.map((_, idx) => (
                                                     <button
                                                         key={idx}
@@ -124,7 +124,7 @@ export function RefineModal({ isOpen, onClose, originalText, prompt, lang, t, on
                                         )}
                                     </div>
 
-                                    <div className="p-5 bg-stone-50 dark:bg-stone-950/50 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 font-serif leading-relaxed text-base min-h-[150px] flex flex-col justify-center relative transition-all">
+                                    <div className="p-5 bg-stone-50 dark:bg-midnight-950/50 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 font-serif leading-relaxed text-base min-h-[150px] flex flex-col justify-center relative transition-all">
                                         {loading ? (
                                             <div className="flex flex-col items-center justify-center space-y-4 py-8">
                                                 <div className="w-8 h-8 border-2 border-stone-200 dark:border-stone-700 border-t-stone-900 dark:border-t-stone-100 rounded-full animate-spin" />
@@ -167,7 +167,7 @@ export function RefineModal({ isOpen, onClose, originalText, prompt, lang, t, on
 
                         {/* Footer */}
                         {!loading && !error && currentRefinedText && (
-                            <div className="p-6 bg-stone-50/50 dark:bg-stone-950/50 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-3">
+                            <div className="p-6 bg-stone-50/50 dark:bg-midnight-950/50 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-3">
                                 <PrimaryButton onClick={() => { onAccept(currentRefinedText); onClose(); }}>
                                     {refinements.length > 1 ? (lang === 'es' ? `Usar Versión ${activeRefinementIndex + 1}` : `Use Version ${activeRefinementIndex + 1}`) : t.useRefinement}
                                 </PrimaryButton>
@@ -176,7 +176,7 @@ export function RefineModal({ isOpen, onClose, originalText, prompt, lang, t, on
                                     {refinements.length < 2 && (
                                         <button
                                             onClick={handleRefine}
-                                            className="flex-1 px-4 py-4 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 font-bold rounded-2xl hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm whitespace-nowrap"
+                                            className="flex-1 px-4 py-4 bg-white dark:bg-midnight-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 font-bold rounded-2xl hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors flex items-center justify-center gap-2 text-xs sm:text-sm whitespace-nowrap"
                                         >
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 12c0-4.4 3.6-8 8-8 3.3 0 6 2.1 7.2 5M22 12c0 4.4-3.6 8-8 8-3.3 0-6-2.1-7.2-5" /></svg>
                                             {t.refineAgain}
@@ -184,7 +184,7 @@ export function RefineModal({ isOpen, onClose, originalText, prompt, lang, t, on
                                     )}
                                     <button
                                         onClick={onClose}
-                                        className="flex-1 px-4 py-4 bg-transparent border border-stone-200 dark:border-stone-700 text-stone-500 dark:text-stone-400 font-bold rounded-2xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-xs sm:text-sm whitespace-nowrap"
+                                        className="flex-1 px-4 py-4 bg-transparent border border-stone-200 dark:border-stone-700 text-stone-500 dark:text-stone-400 font-bold rounded-2xl hover:bg-stone-100 dark:hover:bg-midnight-800 transition-colors text-xs sm:text-sm whitespace-nowrap"
                                     >
                                         {t.keepOriginal}
                                     </button>

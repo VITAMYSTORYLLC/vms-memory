@@ -181,7 +181,7 @@ export default function Page() {
   if (!isHydrated) return <div className="min-h-screen bg-[#F9F8F6]"></div>;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-stone-950 text-stone-900 dark:text-stone-100 selection:bg-stone-200 dark:selection:bg-stone-800 safe-top safe-bottom pb-24 transition-colors duration-500">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-midnight-950 text-stone-900 dark:text-stone-100 selection:bg-stone-200 dark:selection:bg-stone-800 safe-top safe-bottom pb-24 transition-colors duration-500">
       <div className="w-full max-w-lg sm:px-4 font-sans h-full sm:h-auto">
         <div className="p-6 sm:p-8 pt-12 sm:pt-16 flex-1 flex flex-col overflow-hidden">
 
@@ -215,7 +215,7 @@ export default function Page() {
                           const example = QUESTION_EXAMPLES[lang][idx];
                           setInspiration(example);
                         }}
-                        className={`absolute w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-2.5 bg-white/50 dark:bg-stone-900/50 rounded-full border border-stone-100 dark:border-stone-800 animate-in fade-in duration-300 ${inspiration ? "text-stone-900 dark:text-stone-100 bg-white dark:bg-stone-900 shadow-sm border-white dark:border-stone-700" : "text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 hover:bg-white dark:hover:bg-stone-900"}`}
+                        className={`absolute w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-2.5 bg-white/50 dark:bg-midnight-900/50 rounded-full border border-stone-100 dark:border-stone-800 animate-in fade-in duration-300 ${inspiration ? "text-stone-900 dark:text-stone-100 bg-white dark:bg-midnight-900 shadow-sm border-white dark:border-stone-700" : "text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 hover:bg-white dark:hover:bg-stone-900"}`}
                       >
                         <span className="flex items-center gap-2">
                           <span className="text-stone-300 dark:text-stone-700">💡</span>
@@ -227,11 +227,11 @@ export default function Page() {
                 </div>
               </div>
 
-              <div className="h-96 relative flex flex-col min-h-0 mb-8 bg-white dark:bg-stone-900 rounded-3xl border border-stone-100 dark:border-stone-800 shadow-sm overflow-hidden transition-colors">
+              <div className="h-96 relative flex flex-col min-h-0 mb-8 bg-white dark:bg-midnight-900 rounded-3xl border border-stone-100 dark:border-stone-800 shadow-sm overflow-hidden transition-colors">
                 {imageDraft && (
                   <div className="h-20 sm:h-48 w-full relative flex-shrink-0">
                     <img src={imageDraft} className="w-full h-full object-cover opacity-60 absolute inset-0" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white dark:to-stone-900"></div>
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white dark:to-midnight-900"></div>
                     <button onClick={() => setImageDraft("")} className="absolute top-4 right-4 bg-stone-900/10 dark:bg-white/10 text-stone-400 dark:text-stone-500 rounded-full p-2 hover:bg-stone-900/20 dark:hover:bg-white/20 z-30 transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
@@ -247,11 +247,11 @@ export default function Page() {
 
                 <div className="absolute bottom-4 right-4 z-20 flex gap-2">
                   <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleImageUpload} />
-                  <button onClick={() => fileInputRef.current?.click()} className={`p-3 rounded-full shadow-lg border transition-all ${imageDraft ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100" : "bg-white dark:bg-stone-800 text-stone-400 dark:text-stone-500 border-stone-100 dark:border-stone-700 hover:text-stone-600 dark:hover:text-stone-300 hover:scale-105"}`}>
+                  <button onClick={() => fileInputRef.current?.click()} className={`p-3 rounded-full shadow-lg border transition-all ${imageDraft ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100" : "bg-white dark:bg-midnight-800 text-stone-400 dark:text-stone-500 border-stone-100 dark:border-stone-700 hover:text-stone-600 dark:hover:text-stone-300 hover:scale-105"}`}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                   </button>
                   {isSupported && (
-                    <button onClick={toggleListening} className={`p-3 rounded-full shadow-lg border transition-all ${isListening ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 animate-pulse scale-110" : "bg-white dark:bg-stone-800 text-stone-400 dark:text-stone-500 border-stone-100 dark:border-stone-700 hover:text-stone-600 dark:hover:text-stone-300 hover:scale-105"}`}>
+                    <button onClick={toggleListening} className={`p-3 rounded-full shadow-lg border transition-all ${isListening ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 animate-pulse scale-110" : "bg-white dark:bg-midnight-800 text-stone-400 dark:text-stone-500 border-stone-100 dark:border-stone-700 hover:text-stone-600 dark:hover:text-stone-300 hover:scale-105"}`}>
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
                     </button>
                   )}
@@ -265,7 +265,7 @@ export default function Page() {
                     <div className="absolute right-2 sm:-right-5 top-1/2 -translate-y-1/2 z-30 pointer-events-auto transition-opacity flex items-center">
                       {showNudge && (
                         <div className="mr-3 animate-in fade-in slide-in-from-right-4 duration-700 hidden sm:block">
-                          <span className="text-xs font-bold uppercase tracking-widest text-stone-400 dark:text-stone-500 whitespace-nowrap bg-white/80 dark:bg-stone-900/80 px-3 py-1.5 rounded-full backdrop-blur-sm shadow-sm border border-stone-100 dark:border-stone-800">
+                          <span className="text-xs font-bold uppercase tracking-widest text-stone-400 dark:text-stone-500 whitespace-nowrap bg-white/80 dark:bg-midnight-900/80 px-3 py-1.5 rounded-full backdrop-blur-sm shadow-sm border border-stone-100 dark:border-stone-800">
                             {t.nudgeTryAnother}
                           </span>
                         </div>

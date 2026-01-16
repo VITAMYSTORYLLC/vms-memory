@@ -5,12 +5,18 @@ import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
 import { useMemory } from "../context/MemoryContext";
 import { AuthModal } from "./AuthModal";
+import { AuthForm } from "./AuthForm";
 import { useAuth } from "../hooks/useAuth";
 
 export default function LandingScreen() {
-    const { completeOnboarding, lang, setLang, t } = useMemory();
-    const { loading: authLoading, error: authError, signUp, signIn, resetPassword, clearError } = useAuth();
-    const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>(null);
+    const { completeOnboarding, lang, setLang, t, setTheme } = useMemory();
+    const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
+    const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>("login");
+
+    // Enforce Light Mode on Landing Screen
+    React.useEffect(() => {
+        setTheme("light");
+    }, []);
 
     return (
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] dark:bg-stone-950 flex flex-col overflow-y-auto transition-colors duration-500">
@@ -33,46 +39,45 @@ export default function LandingScreen() {
                     Preserve the stories that matter most.
                 </p>
 
-                <div className="w-full space-y-4">
-                    <div className="p-5 bg-white dark:bg-stone-900 rounded-2xl border border-stone-100 dark:border-stone-800 shadow-sm space-y-4">
-                        <div className="text-left font-sans">
-                            <h3 className="font-bold text-stone-900 dark:text-stone-100 text-base uppercase tracking-wider mb-1">Recommended</h3>
-                            <p className="text-stone-500 dark:text-stone-400 text-sm">Save your stories to the cloud and access them anywhere.</p>
-                        </div>
-                        <PrimaryButton onClick={() => setAuthMode("login")}>
-                            Log In / Sign Up
-                        </PrimaryButton>
+                <div className="w-full space-y-8">
+                    <div className="p-6 bg-white dark:bg-midnight-900 rounded-2xl border border-stone-100 dark:border-stone-800 shadow-sm">
+                        {authMode && (
+                            <AuthForm
+                                mode={authMode}
+                                lang={lang}
+                                loading={authLoading}
+                                error={authError}
+                                onSubmit={async (email, password) => {
+                                    const success = authMode === "login" ? await signIn(email, password) : await signUp(email, password);
+                                    if (success) {
+                                        completeOnboarding();
+                                    }
+                                }}
+                                onReset={resetPassword}
+                                onToggleMode={(mode) => setAuthMode(mode)}
+                                onClearError={clearError} // This isn't required by AuthForm, but good to have if props match
+                                onGoogleSignIn={async () => {
+                                    const success = await signInWithGoogle();
+                                    if (success) {
+                                        completeOnboarding();
+                                    }
+                                }}
+                            />
+                        )}
                     </div>
 
-                    <div className="p-5 bg-transparent space-y-4 font-sans">
-                        <div className="text-left px-1">
-                            <p className="text-stone-400 dark:text-stone-600 text-sm">Try it out on this device only. Your data will be lost if you clear your browser cache.</p>
-                        </div>
+                    <div className="p-2 bg-transparent space-y-4 font-sans text-center">
+                        <p className="text-stone-400 dark:text-stone-600 text-xs max-w-xs mx-auto">
+                            {t.guestNote || "Guest mode is for trial only. Log in is recommended to save your stories forever."}
+                        </p>
                         <SecondaryButton onClick={completeOnboarding}>
-                            Continue as Guest
+                            {t.continue || "Continue as Guest"}
                         </SecondaryButton>
                     </div>
                 </div>
             </div>
 
-            {authMode && (
-                <AuthModal
-                    mode={authMode}
-                    lang={lang}
-                    loading={authLoading}
-                    error={authError}
-                    onSubmit={async (email, password) => {
-                        const success = authMode === "login" ? await signIn(email, password) : await signUp(email, password);
-                        if (success) {
-                            completeOnboarding();
-                        }
-                    }}
-                    onReset={resetPassword}
-                    onToggleMode={(mode) => setAuthMode(mode)}
-                    onClose={() => setAuthMode(null)}
-                    onClearError={clearError}
-                />
-            )}
+            {/* Modal removed as it is now embedded */}
         </div>
     );
 }

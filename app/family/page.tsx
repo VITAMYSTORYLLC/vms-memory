@@ -28,7 +28,7 @@ export default function FamilyPage() {
         addNotification
     } = useMemory();
     const router = useRouter();
-    const { loading: authLoading, error: authError, signUp, signIn, resetPassword, clearError } = useAuth();
+    const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -112,7 +112,7 @@ export default function FamilyPage() {
 
     if (mode === "LIST") {
         return (
-            <div className={`min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-stone-950 safe-top safe-bottom pb-24 transition-colors duration-500`}>
+            <div className={`min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-midnight-950 safe-top safe-bottom pb-24 transition-colors duration-500`}>
                 <div className="w-full max-w-lg font-sans h-full sm:h-auto overflow-y-auto" onClick={() => setActionMenuOpen(null)}>
                     <div className="p-6 pt-12 pb-48">
                         <h1 className="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-8">{t.familyTitle}</h1>
@@ -122,7 +122,7 @@ export default function FamilyPage() {
                                 <div key={p.id} className="relative group">
                                     <div
                                         onClick={() => handleSelect(p.id)}
-                                        className={`w-full text-left p-5 pr-14 rounded-2xl transition-all border cursor-pointer relative z-10 ${p.id === activePersonId ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-lg scale-[1.02]" : "bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700"}`}
+                                        className={`w-full text-left p-5 pr-14 rounded-2xl transition-all border cursor-pointer relative z-10 ${p.id === activePersonId ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-lg scale-[1.02]" : "bg-white dark:bg-midnight-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700"}`}
                                     >
                                         <div className="flex justify-between items-center">
                                             <div>
@@ -138,7 +138,7 @@ export default function FamilyPage() {
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 z-20">
                                         <button
                                             onClick={(e) => toggleMenu(e, p.id)}
-                                            className={`p-3 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors ${p.id === activePersonId ? "text-stone-400 dark:text-stone-500 hover:text-white dark:hover:text-stone-900" : "text-stone-400 dark:text-stone-600"}`}
+                                            className={`p-3 rounded-full hover:bg-stone-100 dark:hover:bg-midnight-800 transition-colors ${p.id === activePersonId ? "text-stone-400 dark:text-stone-500 hover:text-white dark:hover:text-stone-900" : "text-stone-400 dark:text-stone-600"}`}
                                         >
                                             <FiMoreVertical size={20} />
                                         </button>
@@ -146,16 +146,16 @@ export default function FamilyPage() {
 
                                     {/* Dropdown Menu */}
                                     {actionMenuOpen === p.id && (
-                                        <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-stone-900 rounded-xl shadow-xl border border-stone-100 dark:border-stone-800 p-1 z-30 animate-in fade-in zoom-in-95 duration-200">
+                                        <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-midnight-900 rounded-xl shadow-xl border border-stone-100 dark:border-stone-800 p-1 z-30 animate-in fade-in zoom-in-95 duration-200">
                                             <button
                                                 onClick={(e) => handleShare(e, p)}
-                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
+                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
                                             >
                                                 <FiShare2 size={16} /> {t.shareProfile}
                                             </button>
                                             <button
                                                 onClick={(e) => handleEditClick(e, p)}
-                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
+                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
                                             >
                                                 <FiEdit2 size={16} /> {t.editName}
                                             </button>
@@ -182,14 +182,14 @@ export default function FamilyPage() {
                 {/* Edit Modal */}
                 {editingId && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm animate-in fade-in duration-300">
-                        <div className="bg-white dark:bg-stone-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-300 border border-stone-100 dark:border-stone-800">
+                        <div className="bg-white dark:bg-midnight-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-300 border border-stone-100 dark:border-stone-800">
                             <h3 className="text-xl font-bold font-serif mb-4 text-stone-900 dark:text-stone-100">{t.renameTitle}</h3>
                             <input
                                 autoFocus
                                 value={editNameValue}
                                 onChange={(e) => setEditNameValue(e.target.value)}
                                 placeholder={t.renamePlaceholder}
-                                className="w-full bg-stone-50 dark:bg-stone-950 border-b-2 border-stone-200 dark:border-stone-800 p-3 text-lg font-serif mb-6 focus:outline-none focus:border-stone-900 dark:focus:border-stone-100 transition-colors"
+                                className="w-full bg-stone-50 dark:bg-midnight-950 border-b-2 border-stone-200 dark:border-stone-800 p-3 text-lg font-serif mb-6 focus:outline-none focus:border-stone-900 dark:focus:border-stone-100 transition-colors"
                             />
                             <div className="flex gap-3">
                                 <SecondaryButton onClick={() => setEditingId(null)} className="flex-1 justify-center">{t.cancel}</SecondaryButton>
@@ -202,7 +202,7 @@ export default function FamilyPage() {
                 {/* Delete Modal */}
                 {deletingId && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm animate-in fade-in duration-300">
-                        <div className="bg-white dark:bg-stone-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-300 border border-stone-100 dark:border-stone-800 text-center">
+                        <div className="bg-white dark:bg-midnight-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-300 border border-stone-100 dark:border-stone-800 text-center">
                             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
                                 <FiTrash2 size={32} />
                             </div>
@@ -228,7 +228,7 @@ export default function FamilyPage() {
 
     // WELCOME / INTRO FLOW (Unchanged, but re-included for full file validity)
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-stone-950 text-stone-900 dark:text-stone-100 safe-top safe-bottom pb-24 transition-colors duration-500">
+        <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-midnight-950 text-stone-900 dark:text-stone-100 safe-top safe-bottom pb-24 transition-colors duration-500">
             <div className="w-full max-w-lg sm:px-4 font-sans h-full sm:h-auto">
                 <div className="p-6 sm:p-8 pt-12 sm:pt-16 flex-1 flex flex-col overflow-hidden h-full">
 
@@ -293,6 +293,10 @@ export default function FamilyPage() {
                             onReset={resetPassword}
                             onToggleMode={(newMode) => setMode(newMode)}
                             onClose={() => setMode("WELCOME")}
+                            onGoogleSignIn={async () => {
+                                await signInWithGoogle();
+                                setMode(people.length > 0 ? "LIST" : "WELCOME");
+                            }}
                             onClearError={clearError}
                         />
                     )}
