@@ -20,7 +20,7 @@ export default function StoriesPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-stone-950 safe-top safe-bottom pb-24 transition-colors duration-500">
+        <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-midnight-950 safe-top safe-bottom pb-24 transition-colors duration-500">
             <div className="w-full max-w-lg font-sans h-full sm:h-auto">
                 <div className="p-4 pt-8 flex-1 flex flex-col h-screen sm:h-auto">
 
@@ -35,7 +35,7 @@ export default function StoriesPage() {
                         </div>
 
                         {activeMemories.length === 0 ? (
-                            <div className="text-center p-8 border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-2xl mx-4 bg-stone-50 dark:bg-stone-900/50">
+                            <div className="text-center p-8 border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-2xl mx-4 bg-stone-50 dark:bg-midnight-900/50">
                                 <p className="text-stone-400 dark:text-stone-600 mb-4 font-serif italic text-lg">{t.noStories}</p>
                                 <PrimaryButton onClick={() => router.push("/")}>{t.writeFirstStory}</PrimaryButton>
                             </div>
@@ -46,6 +46,8 @@ export default function StoriesPage() {
                                 onDelete={deleteMemory}
                                 onEdit={startEditing}
                                 onAdd={() => router.push("/")}
+                                onAddPhoto={() => router.push("/")}
+                                onAddAudio={() => router.push("/")}
                             />
                         )}
                     </div>

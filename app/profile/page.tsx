@@ -12,7 +12,7 @@ import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiM
 
 export default function ProfilePage() {
     const { user, handleLogout, resetApp, lang, setLang, theme, setTheme, t, people, userName, setUserName, isHydrated } = useMemory();
-    const { loading: authLoading, error: authError, signUp, signIn, resetPassword, clearError } = useAuth();
+    const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const router = useRouter();
 
     const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>(null);
@@ -48,7 +48,7 @@ export default function ProfilePage() {
     if (!isHydrated) return null;
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#F9F8F6] dark:bg-stone-950 safe-top safe-bottom pb-24 transition-colors duration-500">
+        <div className="min-h-screen flex flex-col bg-[#F9F8F6] dark:bg-midnight-950 safe-top safe-bottom pb-24 transition-colors duration-500">
             <div className="w-full max-w-lg mx-auto font-sans">
                 <div className="p-6 pt-12 space-y-6">
 
@@ -56,7 +56,7 @@ export default function ProfilePage() {
                     <div className="flex flex-col items-center text-center space-y-4 mb-4">
                         <div className="relative group">
                             <input type="file" accept="image/*" className="hidden" id="profile-upload" onChange={handleImageUpload} />
-                            <label htmlFor="profile-upload" className="block w-24 h-24 rounded-full overflow-hidden bg-stone-100 dark:bg-stone-900 shadow-inner border border-stone-200 dark:border-stone-800 transition-all cursor-pointer relative group-hover:ring-4 group-hover:ring-stone-200 dark:group-hover:ring-stone-800">
+                            <label htmlFor="profile-upload" className="block w-24 h-24 rounded-full overflow-hidden bg-stone-100 dark:bg-midnight-900 shadow-inner border border-stone-200 dark:border-stone-800 transition-all cursor-pointer relative group-hover:ring-4 group-hover:ring-stone-200 dark:group-hover:ring-stone-800">
                                 {profileImage ? (
                                     <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
@@ -68,7 +68,7 @@ export default function ProfilePage() {
                                     <FiCamera className="text-white" size={24} />
                                 </div>
                             </label>
-                            <label htmlFor="profile-upload" className="absolute bottom-0 right-0 bg-white dark:bg-stone-800 p-2 rounded-full shadow-lg border border-stone-100 dark:border-stone-700 cursor-pointer transform translate-x-1/4 translate-y-1/4">
+                            <label htmlFor="profile-upload" className="absolute bottom-0 right-0 bg-white dark:bg-midnight-800 p-2 rounded-full shadow-lg border border-stone-100 dark:border-stone-700 cursor-pointer transform translate-x-1/4 translate-y-1/4">
                                 <FiEdit2 size={12} className="text-stone-600 dark:text-stone-300" />
                             </label>
                         </div>
@@ -81,7 +81,7 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Settings Card */}
-                    <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 overflow-hidden divide-y divide-stone-50 dark:divide-stone-800/50">
+                    <div className="bg-white dark:bg-midnight-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 overflow-hidden divide-y divide-stone-50 dark:divide-stone-800/50">
                         {/* Display Name Section */}
                         <div className="p-6 pb-8 space-y-4">
                             <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 block px-1">{t.identity}</label>
@@ -98,7 +98,7 @@ export default function ProfilePage() {
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter") setIsEditingName(false);
                                             }}
-                                            className="w-full bg-stone-50 dark:bg-stone-950 border-b-2 border-stone-900 dark:border-stone-100 px-0 py-2 text-3xl font-serif text-stone-900 dark:text-stone-100 placeholder:text-stone-200 dark:placeholder:text-stone-800 focus:outline-none transition-all"
+                                            className="w-full bg-stone-50 dark:bg-midnight-950 border-b-2 border-stone-900 dark:border-stone-100 px-0 py-2 text-3xl font-serif text-stone-900 dark:text-stone-100 placeholder:text-stone-200 dark:placeholder:text-stone-800 focus:outline-none transition-all"
                                         />
                                         <button onClick={() => setIsEditingName(false)} className="absolute right-0 bottom-3 text-stone-900 dark:text-stone-100">
                                             <FiCheck size={20} />
@@ -120,9 +120,9 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Theme Section */}
-                        <div className="p-6 space-y-4 bg-stone-50/30 dark:bg-stone-950/20">
+                        <div className="p-6 space-y-4 bg-stone-50/30 dark:bg-midnight-950/20">
                             <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 block px-1">{t.theme}</label>
-                            <div className="flex bg-stone-100 dark:bg-stone-950 rounded-xl p-1 shadow-inner border border-stone-200/50 dark:border-stone-800/50">
+                            <div className="flex bg-stone-100 dark:bg-midnight-950 rounded-xl p-1 shadow-inner border border-stone-200/50 dark:border-stone-800/50">
                                 <button
                                     onClick={() => setTheme("light")}
                                     className={`flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${theme === "light" ? "bg-white dark:bg-stone-100 text-stone-900 shadow-sm" : "text-stone-400 hover:text-stone-600 dark:text-stone-600 dark:hover:text-stone-400"}`}
@@ -139,9 +139,9 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Language Section */}
-                        <div className="p-6 space-y-4 bg-stone-50/30 dark:bg-stone-950/20">
+                        <div className="p-6 space-y-4 bg-stone-50/30 dark:bg-midnight-950/20">
                             <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 block px-1">{t.experience}</label>
-                            <div className="flex bg-stone-100 dark:bg-stone-950 rounded-xl p-1 shadow-inner border border-stone-200/50 dark:border-stone-800/50">
+                            <div className="flex bg-stone-100 dark:bg-midnight-950 rounded-xl p-1 shadow-inner border border-stone-200/50 dark:border-stone-800/50">
                                 <button
                                     onClick={() => setLang("en")}
                                     className={`flex-1 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${lang === "en" ? "bg-white dark:bg-stone-100 text-stone-900 shadow-sm" : "text-stone-400 hover:text-stone-600 dark:text-stone-600 dark:hover:text-stone-400"}`}
@@ -159,7 +159,7 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Management Card */}
-                    <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 p-6 space-y-4">
+                    <div className="bg-white dark:bg-midnight-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 p-6 space-y-4">
                         <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 block px-1">{t.collection}</label>
                         <div className="space-y-3">
                             <SecondaryButton onClick={downloadBackup} className="!py-3 !text-sm flex items-center justify-center gap-2">
@@ -177,7 +177,7 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Support Card */}
-                    <div className="bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 p-6 space-y-4">
+                    <div className="bg-white dark:bg-midnight-900 rounded-3xl shadow-sm border border-stone-100 dark:border-stone-800 p-6 space-y-4">
                         <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 block px-1">{t.support}</label>
                         <div className="space-y-4">
                             <div className="px-1">
@@ -186,7 +186,7 @@ export default function ProfilePage() {
                             </div>
                             <a
                                 href="mailto:hello@vitamystory.com"
-                                className="w-full py-4 rounded-xl bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-100 dark:hover:bg-stone-900 transition-all flex items-center justify-center gap-3 border border-stone-100 dark:border-stone-800 font-sans"
+                                className="w-full py-4 rounded-xl bg-stone-50 dark:bg-midnight-950 text-stone-900 dark:text-stone-100 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-100 dark:hover:bg-stone-900 transition-all flex items-center justify-center gap-3 border border-stone-100 dark:border-stone-800 font-sans"
                             >
                                 <FiMail size={16} />
                                 <span>{t.contactBtn}</span>
@@ -212,7 +212,7 @@ export default function ProfilePage() {
                                 </div>
                                 <button
                                     onClick={() => setAuthMode("login")}
-                                    className="w-full py-4 rounded-xl bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-stone-100 transition-all font-sans"
+                                    className="w-full py-4 rounded-xl bg-white dark:bg-midnight-900 text-stone-900 dark:text-stone-100 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-stone-100 transition-all font-sans"
                                 >
                                     {t.loginBtn} / {t.registerBtn}
                                 </button>
@@ -242,6 +242,10 @@ export default function ProfilePage() {
                     onReset={resetPassword}
                     onToggleMode={(newMode) => setAuthMode(newMode)}
                     onClose={() => setAuthMode(null)}
+                    onGoogleSignIn={async () => {
+                        await signInWithGoogle();
+                        setAuthMode(null);
+                    }}
                     onClearError={clearError}
                 />
             )}

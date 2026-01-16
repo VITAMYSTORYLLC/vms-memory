@@ -5,6 +5,13 @@ const config: Config = {
   darkMode: 'class',
   theme: {
     extend: {
+      colors: {
+        midnight: {
+          950: '#202124', // Google Dark Background
+          900: '#303134', // Google Dark Surface
+          800: '#3c4043', // Google Dark Surface Variant / Hover
+        }
+      },
       keyframes: {
         breathing: {
           '0%, 100%': { transform: 'scale(1)' },

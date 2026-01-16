@@ -7,6 +7,7 @@ import { db } from "../../lib/firebase";
 import { Person, Lang } from "../../types";
 import { StoryCarousel } from "../../components/StoryCarousel";
 import { PrimaryButton } from "../../components/PrimaryButton";
+import { CommentSection } from "../../components/CommentSection";
 import Link from "next/link";
 
 export default function StoryViewer() {
@@ -104,6 +105,7 @@ export default function StoryViewer() {
 
                         <div className="flex-1">
                             <StoryCarousel items={[...person.memories].reverse()} lang={lang} />
+                            {person.id && <CommentSection personId={person.id} lang={lang} />}
                         </div>
 
                         <div className="mt-12 text-center space-y-6">

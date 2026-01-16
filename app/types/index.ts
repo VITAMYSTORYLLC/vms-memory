@@ -28,6 +28,7 @@ export type Person = {
 export type AuthUser = {
   uid: string;
   email: string | null;
+  displayName?: string | null;
 };
 
 export type NotificationType = "info" | "success" | "feature";
@@ -39,4 +40,13 @@ export interface Notification {
   message: string;
   date: number;
   read: boolean;
+}
+
+export interface Comment {
+  id: string;
+  personId: string;
+  text: string;
+  authorName: string;
+  authorId?: string;
+  createdAt: number;
 }

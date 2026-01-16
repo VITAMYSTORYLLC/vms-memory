@@ -7,8 +7,6 @@ import { useMemory } from '../context/MemoryContext';
 import { Haptics } from '../utils/haptics';
 import { motion } from 'framer-motion';
 
-// ... (NavItem interface remains same)
-
 export default function BottomNav() {
     const pathname = usePathname();
     const { notifications, t } = useMemory();

@@ -7,6 +7,9 @@ import {
     signInWithEmailAndPassword,
     signOut as firebaseSignOut,
     sendPasswordResetEmail,
+    sendEmailVerification,
+    GoogleAuthProvider,
+    signInWithPopup,
     User,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
@@ -23,6 +26,7 @@ export function useAuth() {
                 setUser({
                     uid: firebaseUser.uid,
                     email: firebaseUser.email,
+                    displayName: firebaseUser.displayName,
                 });
             } else {
                 setUser(null);
@@ -37,7 +41,8 @@ export function useAuth() {
         setError(null);
         setLoading(true);
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await sendEmailVerification(userCredential.user);
             return true;
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Registration failed";
@@ -56,6 +61,22 @@ export function useAuth() {
             return true;
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Login failed";
+            setError(message);
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const signInWithGoogle = async (): Promise<boolean> => {
+        setError(null);
+        setLoading(true);
+        try {
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+            return true;
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Google sign-in failed";
             setError(message);
             return false;
         } finally {
@@ -96,6 +117,7 @@ export function useAuth() {
         error,
         signUp,
         signIn,
+        signInWithGoogle,
         resetPassword,
         signOut,
         clearError,

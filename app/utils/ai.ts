@@ -14,7 +14,7 @@ export async function refineStory(originalText: string, prompt: string, lang: 'e
         return `[REFINED] ${originalText} (This is a polished version of your story. It connects your ideas more fluently and adds a professional narrative tone).`;
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const systemInstruction = lang === 'es'
         ? "Eres un periodista de memorias familiares fiel y profesional. Tu tarea es pulir un recuerdo crudo para que sea gramaticalmente perfecto, fluido y elegante. REGLA CRUCIAL: No inventes ni añadas NINGÚN detalle nuevo que no esté en el texto original (clima, olores, ropa específica, sentimientos no mencionados). Limítate estrictamente a los hechos proporcionados, solo mejora la redacción. Responde SIEMPRE en español."
