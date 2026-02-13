@@ -113,13 +113,20 @@ export async function compressImage(file: File): Promise<string> {
 
   // Check for HEIC
   if (file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif") || file.type === "image/heic" || file.type === "image/heif") {
-    // console.log("Detected HEIC file:", file.name);
     try {
-      const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
+      // Create a fresh blob from array buffer to ensure clean data
+      const buffer = await file.arrayBuffer();
+      const blob = new Blob([buffer], { type: "image/heic" });
+
+      const converted = await heic2any({
+        blob,
+        toType: "image/jpeg",
+        quality: 0.8
+      });
+
       sourceBlob = Array.isArray(converted) ? converted[0] : converted;
-      // console.log("Converted HEIC to:", sourceBlob.type, sourceBlob.size);
-    } catch (e) {
-      console.error("HEIC conversion failed:", e);
+    } catch (e: any) {
+      console.error("HEIC conversion failed:", e?.message || e);
     }
   }
 
