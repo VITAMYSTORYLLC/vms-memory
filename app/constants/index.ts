@@ -214,6 +214,8 @@ export const TEXT = {
     milestoneProfilePhoto: "Profile Photo",
     aiQuestionsUnlockedTitle: "AI Questions Unlocked!",
     aiQuestionsUnlockedBody: "Get personalized questions based on the stories you've shared!",
+    generateMoreQuestions: "Generate More Questions",
+    generatingQuestions: "Generating...",
   },
   es: {
     heroTagline: "Comienza tu legado.",
@@ -429,6 +431,8 @@ export const TEXT = {
     milestoneProfilePhoto: "Foto de Perfil",
     aiQuestionsUnlockedTitle: "¡Preguntas IA Desbloqueadas!",
     aiQuestionsUnlockedBody: "¡Obtén preguntas personalizadas basadas en las historias que has compartido!",
+    generateMoreQuestions: "Generar Más Preguntas",
+    generatingQuestions: "Generando...",
   },
 };
 

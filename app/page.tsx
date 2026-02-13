@@ -48,6 +48,7 @@ export default function Page() {
     isCustomMode, setIsCustomMode,
     isAIMode, setIsAIMode,
     aiCurrentQuestionIndex, setAICurrentQuestionIndex,
+    generateAIQuestions,
   } = useMemory();
 
   const router = useRouter();
@@ -60,6 +61,7 @@ export default function Page() {
   const [isSaving, setIsSaving] = useState(false);
   const [showRefineModal, setShowRefineModal] = useState(false);
   const [showNudge, setShowNudge] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastActivity = useRef(Date.now());
 
@@ -225,6 +227,20 @@ export default function Page() {
       setImageDraft(base64);
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  async function handleGenerateMoreQuestions() {
+    if (!activePerson) return;
+    setIsGeneratingAI(true);
+    try {
+      await generateAIQuestions(activePerson.id);
+      // Reset to first question after generating new ones
+      setAICurrentQuestionIndex(0);
+    } catch (error) {
+      console.error("Failed to generate more questions:", error);
+    } finally {
+      setIsGeneratingAI(false);
     }
   }
 
