@@ -263,7 +263,7 @@ export default function FamilyPage() {
                         type="file"
                         ref={personFileInputRef}
                         onChange={handlePhotoUpload}
-                        accept="image/*,.heic,.HEIC"
+                        accept="image/*,image/heic,image/heif,.heic,.HEIC,.heif,.HEIF"
                         className="hidden"
                     />
                 </div>
