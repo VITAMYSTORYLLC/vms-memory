@@ -252,7 +252,7 @@ export default function Page() {
                       </span>
                     </button>
                   ) : (
-                    !allStarterUsed && !editingId && (
+                    !allStarterUsed && !editingId && !isPhotoMode && !isAudioMode && (
                       <button
                         onClick={() => {
                           const idx = wrapIndex(questionIndex, QUESTIONS.length);
