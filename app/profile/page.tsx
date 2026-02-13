@@ -157,7 +157,7 @@ export default function ProfilePage() {
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter") setIsEditingName(false);
                                         }}
-                                        className="w-full bg-transparent border-b-2 border-stone-900 dark:border-stone-100 px-0 py-1 text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 placeholder:text-stone-300 dark:placeholder:text-stone-700 focus:outline-none transition-all"
+                                        className="w-full bg-transparent border-b-2 border-stone-900 dark:border-stone-100 px-0 py-1 text-xl sm:text-2xl md:text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 placeholder:text-stone-300 dark:placeholder:text-stone-700 focus:outline-none transition-all"
                                     />
                                     <button onClick={() => setIsEditingName(false)} className="absolute right-0 bottom-2 text-stone-900 dark:text-stone-100 p-1 hover:bg-stone-100 dark:hover:bg-midnight-800 rounded-full transition-colors">
                                         <FiCheck size={24} />
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                                 </div>
                             ) : (
                                 <div className="group flex items-baseline gap-3 cursor-pointer select-none" onClick={() => setIsEditingName(true)}>
-                                    <h1 className={`text-3xl font-serif font-bold leading-tight truncate ${userName ? "text-stone-900 dark:text-stone-100" : "text-stone-300 dark:text-stone-700"}`}>
+                                    <h1 className={`text-xl sm:text-2xl md:text-3xl font-serif font-bold leading-tight ${userName ? "text-stone-900 dark:text-stone-100" : "text-stone-300 dark:text-stone-700"} break-words max-w-full`}>
                                         {userName || t.tapToName}
                                     </h1>
                                     <FiEdit2 size={18} className="text-stone-300 dark:text-stone-600 group-hover:text-stone-500 dark:group-hover:text-stone-400 transition-colors shrink-0 translate-y-1" />
