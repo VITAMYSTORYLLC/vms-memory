@@ -10,10 +10,20 @@ import {
     sendEmailVerification,
     GoogleAuthProvider,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     User,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { AuthUser } from "../types";
+
+// Helper function to detect mobile devices
+function isMobileDevice(): boolean {
+    if (typeof window === "undefined") return false;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+    );
+}
 
 export function useAuth() {
     const [user, setUser] = useState<AuthUser | null>(null);
@@ -21,6 +31,19 @@ export function useAuth() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        // Check for redirect result first (for mobile Google Sign-In)
+        getRedirectResult(auth)
+            .then((result) => {
+                if (result) {
+                    // User successfully signed in via redirect
+                    console.log("Redirect sign-in successful");
+                }
+            })
+            .catch((error) => {
+                console.error("Redirect result error:", error);
+                setError(error.message || "Sign-in failed after redirect");
+            });
+
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
             if (firebaseUser) {
                 setUser({
@@ -73,8 +96,19 @@ export function useAuth() {
         setLoading(true);
         try {
             const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-            return true;
+
+            // Use redirect flow on mobile, popup on desktop
+            if (isMobileDevice()) {
+                // For mobile: redirect to Google sign-in
+                await signInWithRedirect(auth, provider);
+                // Note: This will redirect away from the page
+                // The result will be handled in the useEffect with getRedirectResult
+                return true;
+            } else {
+                // For desktop: use popup
+                await signInWithPopup(auth, provider);
+                return true;
+            }
         } catch (err: any) {
             console.error("Google Sign-In Error:", err);
             let message = "Google sign-in failed";
@@ -83,6 +117,8 @@ export function useAuth() {
                 message = "Sign-in cancelled.";
             } else if (err.code === "auth/popup-blocked") {
                 message = "Sign-in popup was blocked by your browser. Please allow popups for this site.";
+            } else if (err.code === "auth/unauthorized-domain") {
+                message = "This domain is not authorized for Google Sign-In. Please contact support.";
             } else if (err.message) {
                 message = err.message;
             }
