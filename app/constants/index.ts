@@ -2,6 +2,8 @@ import { Lang } from "../types";
 
 export const TEXT = {
   en: {
+    heroTagline: "Begin your legacy.",
+    heroSubtagline: "Preserve the stories that matter most.",
     welcomeTitle: "VitaMyStory",
     welcomeBody: "A simple place to collect the stories that matter.",
     savedDevice: "Stories live on this device.",
@@ -158,7 +160,9 @@ export const TEXT = {
     inspiredBy: "Inspired by you",
     inspirationPrefix: "Something like...",
     notificationSaw: "Someone saw your story",
+    notificationSawBody: "Someone just viewed the memory you shared.",
     notificationLike: "Someone liked your story",
+    notificationLikeBody: "Someone loved your story!",
     notificationNew: "Someone just shared a story",
     notificationWelcomeTitle: "Welcome home.",
     notificationWelcomeBody: "Your account is ready. Your stories are safe.",
@@ -187,8 +191,12 @@ export const TEXT = {
     nudgeTryAnother: "Next?",
     nudgeSwipe: "Swipe for more",
     errorTitle: "Something went wrong",
+    downloadSuccessTitle: "Memory Saved",
+    downloadSuccessBody: "This story has been saved to your device.",
   },
   es: {
+    heroTagline: "Comienza tu legado.",
+    heroSubtagline: "Preserva las historias que más importan.",
     welcomeTitle: "VitaMyStory",
     welcomeBody: "Un lugar sencillo para guardar las historias que importan.",
     savedDevice: "Las historias viven en este dispositivo.",
@@ -346,7 +354,9 @@ export const TEXT = {
     inspiredBy: "Inspirado por ti",
     inspirationPrefix: "Algo como...",
     notificationSaw: "Alguien vio tu historia",
+    notificationSawBody: "Alguien acaba de ver el recuerdo que compartiste.",
     notificationLike: "A alguien le gustó tu historia",
+    notificationLikeBody: "¡A alguien le encantó tu historia!",
     notificationNew: "Alguien acaba de compartir una historia",
     notificationWelcomeTitle: "Bienvenido a casa.",
     notificationWelcomeBody: "Tu cuenta está lista. Tus historias están seguras.",
@@ -375,6 +385,8 @@ export const TEXT = {
     nudgeTryAnother: "¿Siguiente?",
     nudgeSwipe: "Desliza para ver más",
     errorTitle: "Algo salió mal",
+    downloadSuccessTitle: "Recuerdo Guardado",
+    downloadSuccessBody: "Esta historia se ha guardado en tu dispositivo.",
   },
 };
 

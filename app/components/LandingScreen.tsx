@@ -12,6 +12,7 @@ export default function LandingScreen() {
     const { completeOnboarding, lang, setLang, t, setTheme } = useMemory();
     const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>("login");
+    const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
 
     // Enforce Light Mode on Landing Screen
     React.useEffect(() => {
@@ -21,22 +22,54 @@ export default function LandingScreen() {
     return (
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] dark:bg-stone-950 flex flex-col overflow-y-auto transition-colors duration-500">
             {/* Lang Switch */}
-            <div className="absolute top-6 right-6 flex gap-6 text-xl font-bold tracking-[0.2em] z-10 font-sans">
-                <button onClick={() => setLang("es")} className={`transition-colors py-1 px-1 ${lang === "es" ? "text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100" : "text-stone-300 dark:text-stone-700 hover:text-stone-500 dark:hover:text-stone-500"}`}>ES</button>
-                <button onClick={() => setLang("en")} className={`transition-colors py-1 px-1 ${lang === "en" ? "text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100" : "text-stone-300 dark:text-stone-700 hover:text-stone-500 dark:hover:text-stone-500"}`}>EN</button>
+            <div className="absolute top-6 right-6 z-20 font-sans">
+                <button
+                    onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                    className="flex items-center gap-2 text-sm font-black tracking-[0.2em] text-stone-900 dark:text-stone-100 hover:text-stone-600 dark:hover:text-stone-300 transition-colors uppercase bg-transparent p-2 rounded-lg"
+                >
+                    {lang === 'es' ? 'ESPAÑOL' : 'ENGLISH'}
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={3}
+                        stroke="currentColor"
+                        className={`w-4 h-4 transition-transform duration-200 ${isLangMenuOpen ? 'rotate-180' : ''}`}
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </button>
+
+                {isLangMenuOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-stone-900 rounded-xl shadow-xl border border-stone-100 dark:border-stone-800 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-200">
+                        <button
+                            onClick={() => { setLang("en"); setIsLangMenuOpen(false); }}
+                            className={`w-full text-left px-4 py-3 text-sm font-bold tracking-[0.1em] hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors flex items-center justify-between ${lang === 'en' ? 'text-stone-900 dark:text-stone-100 bg-stone-50 dark:bg-stone-800/50' : 'text-stone-500 dark:text-stone-500'}`}
+                        >
+                            ENGLISH
+                            {lang === 'en' && <div className="w-1.5 h-1.5 rounded-full bg-stone-900 dark:bg-stone-100" />}
+                        </button>
+                        <button
+                            onClick={() => { setLang("es"); setIsLangMenuOpen(false); }}
+                            className={`w-full text-left px-4 py-3 text-sm font-bold tracking-[0.1em] hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors flex items-center justify-between ${lang === 'es' ? 'text-stone-900 dark:text-stone-100 bg-stone-50 dark:bg-stone-800/50' : 'text-stone-500 dark:text-stone-500'}`}
+                        >
+                            ESPAÑOL
+                            {lang === 'es' && <div className="w-1.5 h-1.5 rounded-full bg-stone-900 dark:bg-stone-100" />}
+                        </button>
+                    </div>
+                )}
             </div>
 
-            <div className="flex-1 flex flex-col justify-center items-center p-6 text-center max-w-lg mx-auto w-full animate-in fade-in zoom-in-95 duration-700">
-                <div className="mb-2 relative flex justify-center w-full">
-                    {/* Using the transparent logo for a seamless look. Removed rounded corners and box-shadow to avoid the "card" effect. */}
-                    <img src="/logo-transparent.png" alt="VitaMyStory Logo" className="w-64 h-auto object-contain animate-in fade-in zoom-in duration-700" />
-                </div>
+            {/* Logo - Top Left */}
+            <div className="absolute top-6 left-6 z-20">
+                <img src="/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700" />
+            </div>
 
-                <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-300 dark:text-stone-700 mb-8 font-sans">Established 2026</div>
+            <div className="flex-1 flex flex-col justify-center items-center p-6 pt-24 text-center max-w-lg mx-auto w-full animate-in fade-in zoom-in-95 duration-700">
 
-                <p className="text-stone-600 dark:text-stone-400 font-serif text-lg leading-relaxed mb-10 max-w-xs">
-                    Begin your legacy. <br />
-                    Preserve the stories that matter most.
+                <p className="text-stone-600 dark:text-stone-400 font-serif text-lg leading-relaxed mb-10 max-w-xs mt-24">
+                    {t.heroTagline} <br />
+                    {t.heroSubtagline}
                 </p>
 
                 <div className="w-full space-y-8">
@@ -74,6 +107,11 @@ export default function LandingScreen() {
                             {t.continue || "Continue as Guest"}
                         </SecondaryButton>
                     </div>
+                </div>
+
+                <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-300 dark:text-stone-700 mt-auto py-6 font-sans opacity-60 text-center">
+                    <div>Established 2024</div>
+                    <div>Last updated Feb 12</div>
                 </div>
             </div>
 
