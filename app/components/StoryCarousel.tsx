@@ -316,9 +316,9 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                         )}
                         {isAIQuestionsCard && (
                           <div className="space-y-3 mt-2">
-                            <p>{t.aiQuestionsSubtitle}</p>
                             {!aiQuestionsUnlocked ? (
                               <>
+                                <p>{t.aiQuestionsSubtitle}</p>
                                 <div className="text-left space-y-2 mt-4">
                                   <p className="text-xs font-bold uppercase tracking-widest text-stone-500 dark:text-stone-500">{t.aiQuestionsLocked}</p>
                                   <div className="space-y-1.5">
@@ -349,8 +349,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                                 <p className="text-xs font-bold uppercase tracking-widest">{aiMilestonesCompleted} / {aiMilestonesTotal} {t.chaptersCompleted}</p>
                               </>
                             ) : (
-                              <div className="pt-6">
-                                {isGeneratingAI ? (
+                              (isGeneratingAI && (
+                                <div className="pt-6">
                                   <span className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
                                     <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -358,10 +358,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                                     </svg>
                                     {t.generatingQuestions || "Generating..."}
                                   </span>
-                                ) : (
-                                  <span className="text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400 pb-0.5">Unlock Now!</span>
-                                )}
-                              </div>
+                                </div>
+                              ))
                             )}
                           </div>
                         )}
