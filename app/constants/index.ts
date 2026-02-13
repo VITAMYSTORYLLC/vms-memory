@@ -186,6 +186,7 @@ export const TEXT = {
     limitReached: "Free version limit reached. Stick with one of these or upgrade.",
     nudgeTryAnother: "Next?",
     nudgeSwipe: "Swipe for more",
+    errorTitle: "Something went wrong",
   },
   es: {
     welcomeTitle: "VitaMyStory",
@@ -373,6 +374,7 @@ export const TEXT = {
     limitReached: "Límite de versión gratuita. Elige una de estas o mejora tu plan.",
     nudgeTryAnother: "¿Siguiente?",
     nudgeSwipe: "Desliza para ver más",
+    errorTitle: "Algo salió mal",
   },
 };
 

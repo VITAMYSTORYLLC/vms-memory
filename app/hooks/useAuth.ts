@@ -75,8 +75,18 @@ export function useAuth() {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
             return true;
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "Google sign-in failed";
+        } catch (err: any) {
+            console.error("Google Sign-In Error:", err);
+            let message = "Google sign-in failed";
+
+            if (err.code === "auth/popup-closed-by-user") {
+                message = "Sign-in cancelled.";
+            } else if (err.code === "auth/popup-blocked") {
+                message = "Sign-in popup was blocked by your browser. Please allow popups for this site.";
+            } else if (err.message) {
+                message = err.message;
+            }
+
             setError(message);
             return false;
         } finally {

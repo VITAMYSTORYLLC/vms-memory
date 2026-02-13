@@ -20,7 +20,7 @@ export default function BottomNav() {
     ];
 
     return (
-        <nav className="fixed bottom-0 inset-x-0 h-16 bg-white dark:bg-stone-950 border-t border-stone-100 dark:border-stone-900 shadow-t flex justify-around items-center z-50 pb-safe">
+        <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-stone-950 border-t border-stone-100 dark:border-stone-900 shadow-t flex justify-around items-center z-50 pb-safe pt-2 h-[calc(4rem+env(safe-area-inset-bottom))]">
             {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 const isNotifications = item.href === '/notifications';

@@ -19,10 +19,13 @@ import {
     wrapIndex,
     hasBadge,
     addBadge,
-    plural
+    plural,
+    base64ToBlob
 } from "../utils";
+import { uploadImage } from "../utils/storage"; // Import storage utility
 import { TEXT, LS } from "../constants";
 import { useAuth } from "../hooks/useAuth";
+import { useSync } from "../hooks/useSync";
 import LandingScreen from "../components/LandingScreen";
 import Toast from "../components/Toast";
 
@@ -68,7 +71,7 @@ interface MemoryContextType {
     setEditingPrompt: React.Dispatch<React.SetStateAction<string>>;
 
     // Actions
-    saveStory: (promptToSave: string) => Promise<string | null>;
+    saveStory: (promptToSave: string, questionId?: string) => Promise<string | null>;
     deleteMemory: (memoryId: string) => void;
     deletePerson: (personId: string) => void;
     updatePersonName: (personId: string, newName: string) => void;
@@ -141,6 +144,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
     // Notifications
     const [notifications, setNotifications] = useState<Notification[]>([]);
+
+    // --- SYNC HOOK ---
+    useSync(people, setPeople);
 
     // --- Hydration ---
     useEffect(() => {
@@ -318,24 +324,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             return;
         }
         try {
-            window.localStorage.removeItem(LS.people);
-            window.localStorage.removeItem(LS.activePersonId);
-            window.localStorage.removeItem(LS.questionState);
-            window.localStorage.removeItem("vms_onboarded");
-            window.localStorage.removeItem("vms_theme");
-            window.localStorage.removeItem("vms_user_name");
-            window.localStorage.removeItem("vms_user_photo");
-            window.localStorage.removeItem("vms_notifications");
-            // Clear welcome flag so they see it again if reset
-            window.localStorage.removeItem("vms_device_welcome_shown");
-
-            const prefixes = [LS.draftPrefix, LS.usedPrefix, LS.badgesPrefix];
-            const keysToRemove: string[] = [];
-            for (let i = 0; i < window.localStorage.length; i++) {
-                const k = window.localStorage.key(i);
-                if (k && prefixes.some((p) => k.startsWith(p))) keysToRemove.push(k);
-            }
-            keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+            // "Nuclear option" to ensure everything is wiped, as requested.
+            window.localStorage.clear();
         } catch { }
         suppressAutoSelectRef.current = true;
         setPeople([]); setActivePersonId(""); setNameDraft(""); setStoryDraft("");
@@ -386,16 +376,32 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
     // NOTE: saveStory logic is a bit tied to the "Question" state which is currently localized.
     // We might need to pass the "promptToSave" from component to here.
-    async function saveStory(promptToSave: string): Promise<string | null> {
+    async function saveStory(promptToSave: string, questionId?: string): Promise<string | null> {
         const text = normalize(storyDraft);
         if (!text && !imageDraft) return null;
+
+        // --- IMAGE UPLOAD LOGIC ---
+        let finalImageUrl = imageDraft;
+        if (imageDraft && imageDraft.startsWith("data:image")) {
+            try {
+                // It's a base64 string, so we need to upload it
+                const blob = base64ToBlob(imageDraft);
+                const path = `people/${activePersonId || "new"}/stories`; // Use a logical path
+                finalImageUrl = await uploadImage(blob, path);
+            } catch (err) {
+                console.error("Failed to upload image:", err);
+                addNotification(t.errorTitle || "Error", "Failed to upload image. Please try again.", "error");
+                return null;
+            }
+        }
+        // --------------------------
 
         // We removed the artificial delay here; components can handle UI loading state if they want
 
         if (editingId && activePerson) {
             setPeople((prev) => prev.map((p) => (p.id !== activePerson.id ? p : {
                 ...p,
-                memories: p.memories.map((m) => m.id === editingId ? { ...m, text: text, imageUrl: imageDraft } : m)
+                memories: p.memories.map((m) => m.id === editingId ? { ...m, text: text, imageUrl: finalImageUrl } : m)
             })));
             const id = activePerson.id;
             setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft("");
@@ -409,7 +415,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
             setPeople((prev) => prev.map((p) => {
                 if (p.id !== activePerson.id) return p;
-                const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, imageDraft);
+                const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, finalImageUrl, questionId);
 
                 // Milestone Check: 5 Stories
                 if (newMemories.length === 5 && !hasBadge(p.id, "story_keeper")) {
@@ -437,7 +443,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         const p: Person = {
             id: makeId(),
             name: normalizedName,
-            memories: addMemory([], promptToSave, storyDraft, undefined, imageDraft),
+            memories: addMemory([], promptToSave, storyDraft, undefined, finalImageUrl, questionId),
             createdAt: Date.now()
         };
 

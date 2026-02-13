@@ -148,7 +148,8 @@ export default function Page() {
   async function handleSave() {
     setIsSaving(true);
     await new Promise(r => setTimeout(r, 800));
-    const savedPersonId = await saveStory(promptToSave);
+    const questionIdToSave = allStarterUsed ? "free" : `q_${wrapIndex(questionIndex, QUESTIONS.length)}`;
+    const savedPersonId = await saveStory(promptToSave, questionIdToSave);
     if (!savedPersonId) {
       setIsSaving(false);
       return;

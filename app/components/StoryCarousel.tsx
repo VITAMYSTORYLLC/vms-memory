@@ -8,6 +8,7 @@ import { toPng } from "html-to-image";
 import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
+import { getQuestionText } from "../utils/questions";
 import { FiCamera, FiMic, FiPlus } from "react-icons/fi";
 
 interface StoryCarouselProps {
@@ -286,7 +287,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                       </div>
                       {item.prompt ? (
                         <div className="text-lg text-stone-600 dark:text-stone-400 italic font-medium text-center px-4 leading-relaxed max-w-sm font-serif">
-                          {renderWithBoldName(item.prompt)}
+                          {renderWithBoldName(item.questionId ? getQuestionText(item.questionId, activePerson?.name || "", t) : item.prompt)}
                         </div>
                       ) : null}
                     </div>

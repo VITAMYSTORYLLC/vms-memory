@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Haptics } from "../utils/haptics";
 
 export function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
   const startX = useRef<number | null>(null);
@@ -41,8 +42,14 @@ export function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
 
     if (startX.current === null || endX.current === null) return;
     const distance = startX.current - endX.current;
-    if (distance > minSwipeDistance) onSwipeLeft();
-    if (distance < -minSwipeDistance) onSwipeRight();
+    if (distance > minSwipeDistance) {
+      onSwipeLeft();
+      Haptics.light();
+    }
+    if (distance < -minSwipeDistance) {
+      onSwipeRight();
+      Haptics.light();
+    }
 
     startX.current = null;
     endX.current = null;

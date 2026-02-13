@@ -27,11 +27,11 @@ export default function LandingScreen() {
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center p-6 text-center max-w-lg mx-auto w-full animate-in fade-in zoom-in-95 duration-700">
-                <div className="mb-8 relative">
-                    <div className="text-6xl animate-breathing">✍️</div>
+                <div className="mb-2 relative flex justify-center w-full">
+                    {/* Using the transparent logo for a seamless look. Removed rounded corners and box-shadow to avoid the "card" effect. */}
+                    <img src="/logo-transparent.png" alt="VitaMyStory Logo" className="w-64 h-auto object-contain animate-in fade-in zoom-in duration-700" />
                 </div>
 
-                <h1 className="text-4xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-2">VitaMyStory</h1>
                 <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-300 dark:text-stone-700 mb-8 font-sans">Established 2026</div>
 
                 <p className="text-stone-600 dark:text-stone-400 font-serif text-lg leading-relaxed mb-10 max-w-xs">
