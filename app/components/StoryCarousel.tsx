@@ -19,11 +19,16 @@ interface StoryCarouselProps {
   onAdd?: () => void;
   onAddPhoto?: () => void;
   onAddAudio?: () => void;
+  initialIndex?: number;
 }
 
-export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio }: StoryCarouselProps) {
+export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0 }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(initialIndex);
+
+  useEffect(() => {
+    setIndex(initialIndex);
+  }, [initialIndex]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const t = TEXT[lang];

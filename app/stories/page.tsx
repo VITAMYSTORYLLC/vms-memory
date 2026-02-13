@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StoryCarousel } from "../components/StoryCarousel";
 import { useMemory } from "../context/MemoryContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { plural } from "../utils";
 
@@ -11,6 +11,29 @@ export default function StoriesPage() {
     const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode, setIsCustomMode } = useMemory();
 
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const isRandom = searchParams.get('random') === 'true';
+
+    // Stable items array
+    const items = React.useMemo(() => [...activeMemories].reverse(), [activeMemories]);
+
+    // Stable random index
+    const [initialIndex, setInitialIndex] = useState(0);
+
+    // Set random index once when items are available
+    useEffect(() => {
+        // Only if random requested and we haven't set a random index yet (assuming default is 0)
+        // Actually, we want to run this once.
+        if (isRandom && items.length > 0) {
+            // Use a ref to prevent re-randomizing? 
+            // Or just verify if we are at 0 (which is default). 
+            // But if specific memory is 0, we might re-randomize.
+            // Better: Just set it.
+            const rnd = Math.floor(Math.random() * items.length);
+            setInitialIndex(rnd);
+        }
+    }, [isRandom, items.length]); // Dependencies might cause re-run if items load later, which is good.
+    // If items length changes, re-randomizing is probably okay or intended.
 
     function startEditing(item: any) {
         setEditingId(item.id);
@@ -45,7 +68,8 @@ export default function StoriesPage() {
                             </div>
                         ) : (
                             <StoryCarousel
-                                items={[...activeMemories].reverse()}
+                                items={items}
+                                initialIndex={initialIndex}
                                 lang={lang}
                                 onDelete={deleteMemory}
                                 onEdit={startEditing}

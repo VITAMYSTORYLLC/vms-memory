@@ -58,7 +58,13 @@ export default function FamilyPage() {
             return;
         }
         setActivePersonId(id);
-        router.push("/");
+
+        const person = people.find(p => p.id === id);
+        if (person && person.memories.length > 0) {
+            router.push("/stories?random=true");
+        } else {
+            router.push("/");
+        }
     }
 
     function handleStartCreating() {
