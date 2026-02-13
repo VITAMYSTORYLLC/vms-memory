@@ -9,7 +9,7 @@ import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
 import { getQuestionText } from "../utils/questions";
-import { FiCamera, FiMic, FiPlus, FiLock } from "react-icons/fi";
+import { FiCamera, FiMic, FiPlus, FiLock, FiZap } from "react-icons/fi";
 
 interface StoryCarouselProps {
   items: MemoryItem[];
@@ -22,9 +22,19 @@ interface StoryCarouselProps {
   initialIndex?: number;
   lockedProgress?: { current: number; total: number };
   onUnlockClick?: () => void;
+  aiMilestones?: {
+    stories: boolean;
+    photoStory: boolean;
+    audioStory: boolean;
+    profilePhoto: boolean;
+  };
+  aiMilestonesCompleted?: number;
+  aiMilestonesTotal?: number;
+  aiQuestionsUnlocked?: boolean;
+  onAIQuestionsClick?: () => void;
 }
 
-export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0, lockedProgress, onUnlockClick }: StoryCarouselProps) {
+export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0, lockedProgress, onUnlockClick, aiMilestones, aiMilestonesCompleted = 0, aiMilestonesTotal = 4, aiQuestionsUnlocked = false, onAIQuestionsClick }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(initialIndex);
 
@@ -168,6 +178,11 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
       extraCards = (onAdd ? 1 : 0) + (onAddPhoto ? 1 : 0) + (onAddAudio ? 1 : 0);
     }
 
+    // Add AI Questions card if present
+    if (aiMilestones) {
+      extraCards += 1;
+    }
+
     const maxIndex = items.length + extraCards - 1;
 
     if (index < maxIndex) {
@@ -205,6 +220,11 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
     if (onAddAudio) extraCards.push({ id: "add_audio" });
   }
 
+  // Always add AI Questions card at the end (if milestones are being tracked)
+  if (aiMilestones) {
+    extraCards.push({ id: "ai_questions_card" });
+  }
+
   const allItems = items.concat(extraCards as any);
 
   return (
@@ -222,7 +242,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
           const isPhotoCard = item.id === "add_photo";
           const isAudioCard = item.id === "add_audio";
           const isLockedCard = item.id === "locked_card";
-          const isActionCard = isAddCard || isPhotoCard || isAudioCard || isLockedCard;
+          const isAIQuestionsCard = item.id === "ai_questions_card";
+          const isActionCard = isAddCard || isPhotoCard || isAudioCard || isLockedCard || isAIQuestionsCard;
 
           const isActive = i === index;
           const isLong = !isActionCard && item.text.length > 200;
@@ -240,6 +261,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                   onAddAudio();
                 } else if (isLockedCard && onUnlockClick) {
                   onUnlockClick();
+                } else if (isAIQuestionsCard && aiQuestionsUnlocked && onAIQuestionsClick) {
+                  onAIQuestionsClick();
                 }
               }}
               className={`flex-shrink-0 w-[90%] px-2 h-full transition-all duration-500 ease-out cursor-pointer ${isActive ? "scale-100 opacity-100 cursor-default" : "scale-[0.92] opacity-60 hover:opacity-80"}`}
@@ -248,11 +271,12 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
               <div className="bg-white dark:bg-midnight-900 border border-stone-200 dark:border-stone-800 shadow-xl rounded-[2rem] h-full flex flex-col relative overflow-hidden transition-colors">
                 {isActionCard ? (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center animate-in fade-in duration-500">
-                    <div className={`w-20 h-20 rounded-full bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 group-hover:scale-110 transition-transform duration-500 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' : isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' : isLockedCard ? 'group-hover:text-amber-400 group-hover:border-amber-200' : ''}`}>
+                    <div className={`w-20 h-20 rounded-full bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 group-hover:scale-110 transition-transform duration-500 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' : isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' : isLockedCard ? 'group-hover:text-amber-400 group-hover:border-amber-200' : isAIQuestionsCard ? 'group-hover:text-purple-400 group-hover:border-purple-200' : ''}`}>
                       {isAddCard && <FiPlus size={32} />}
                       {isPhotoCard && <FiCamera size={32} />}
                       {isAudioCard && <FiMic size={32} />}
                       {isLockedCard && <FiLock size={32} />}
+                      {isAIQuestionsCard && <FiZap size={32} />}
                     </div>
                     <div className="space-y-1 w-full">
                       <h4 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-xl">
@@ -260,6 +284,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                         {isPhotoCard && t.newPhotoTitle}
                         {isAudioCard && t.newAudioTitle}
                         {isLockedCard && t.lockedTitle}
+                        {isAIQuestionsCard && t.aiQuestionsTitle}
                       </h4>
                       <div className="text-stone-400 dark:text-stone-600 font-sans text-sm italic">
                         {isAddCard && t.newStorySubtitle}
@@ -278,6 +303,44 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                             <div className="pt-2">
                               <span className="text-xs font-bold uppercase tracking-widest text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100 pb-0.5">{t.continueJourney}</span>
                             </div>
+                          </div>
+                        )}
+                        {isAIQuestionsCard && (
+                          <div className="space-y-3 mt-2">
+                            <p>{t.aiQuestionsSubtitle}</p>
+                            <div className="text-left space-y-2 mt-4">
+                              <p className="text-xs font-bold uppercase tracking-widest text-stone-500 dark:text-stone-500">{t.aiQuestionsLocked}</p>
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className={aiMilestones?.stories ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.stories ? "✓" : "○"}</span>
+                                  <span className={aiMilestones?.stories ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestone5Stories}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className={aiMilestones?.photoStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.photoStory ? "✓" : "○"}</span>
+                                  <span className={aiMilestones?.photoStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestonePhotoStory}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className={aiMilestones?.audioStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.audioStory ? "✓" : "○"}</span>
+                                  <span className={aiMilestones?.audioStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneAudioStory}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className={aiMilestones?.profilePhoto ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.profilePhoto ? "✓" : "○"}</span>
+                                  <span className={aiMilestones?.profilePhoto ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneProfilePhoto}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="w-full bg-stone-200 dark:bg-stone-800 h-1.5 rounded-full overflow-hidden mt-3">
+                              <div
+                                className="bg-purple-600 dark:bg-purple-400 h-full transition-all duration-1000 ease-out"
+                                style={{ width: `${(aiMilestonesCompleted / aiMilestonesTotal) * 100}%` }}
+                              />
+                            </div>
+                            <p className="text-xs font-bold uppercase tracking-widest">{aiMilestonesCompleted} / {aiMilestonesTotal} {t.chaptersCompleted}</p>
+                            {aiQuestionsUnlocked && (
+                              <div className="pt-2">
+                                <span className="text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400 pb-0.5">Unlock Now!</span>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

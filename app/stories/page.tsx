@@ -46,11 +46,28 @@ export default function StoriesPage() {
         router.push("/"); // Go to home/write
     }
 
-    // Check lock status
+    // Check lock status for Photo/Audio/Custom modes
     const CHAPTER_GOAL = 5;
     const storiesCount = activeMemories.length;
     const isLocked = storiesCount < CHAPTER_GOAL;
     const lockedProgress = isLocked ? { current: storiesCount, total: CHAPTER_GOAL } : undefined;
+
+    // Calculate AI Questions milestone progress
+    const has5Stories = storiesCount >= 5;
+    const hasPhotoStory = activeMemories.some(m => m.imageUrl);
+    const hasAudioStory = false; // TODO: Track audio stories properly when audio feature is implemented
+    const hasProfilePhoto = !!activePerson?.photoUrl;
+
+    const aiMilestones = {
+        stories: has5Stories,
+        photoStory: hasPhotoStory,
+        audioStory: hasAudioStory,
+        profilePhoto: hasProfilePhoto
+    };
+
+    const aiMilestonesCompleted = Object.values(aiMilestones).filter(Boolean).length;
+    const aiMilestonesTotal = 4;
+    const aiQuestionsUnlocked = aiMilestonesCompleted === aiMilestonesTotal;
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-midnight-950 safe-top safe-bottom pb-24 transition-colors duration-500">
@@ -81,6 +98,11 @@ export default function StoriesPage() {
                                 onEdit={startEditing}
                                 lockedProgress={lockedProgress}
                                 onUnlockClick={() => router.push("/")}
+                                aiMilestones={aiMilestones}
+                                aiMilestonesCompleted={aiMilestonesCompleted}
+                                aiMilestonesTotal={aiMilestonesTotal}
+                                aiQuestionsUnlocked={aiQuestionsUnlocked}
+                                onAIQuestionsClick={() => router.push("/")} // TODO: Navigate to AI questions mode
                                 onAdd={() => { setIsPhotoMode(false); setIsAudioMode(false); setIsCustomMode(true); router.push("/"); }}
                                 onAddPhoto={() => { setIsPhotoMode(true); setIsAudioMode(false); setIsCustomMode(false); router.push("/"); }}
                                 onAddAudio={() => { setIsPhotoMode(false); setIsAudioMode(true); setIsCustomMode(false); router.push("/"); }}
