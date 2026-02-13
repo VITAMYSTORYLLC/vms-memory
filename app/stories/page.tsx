@@ -13,6 +13,7 @@ export default function StoriesPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const isRandom = searchParams.get('random') === 'true';
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // Stable items array
     const items = React.useMemo(() => [...activeMemories].reverse(), [activeMemories]);
@@ -102,12 +103,21 @@ export default function StoriesPage() {
                                 aiMilestonesCompleted={aiMilestonesCompleted}
                                 aiMilestonesTotal={aiMilestonesTotal}
                                 aiQuestionsUnlocked={aiQuestionsUnlocked}
+                                isGeneratingAI={isGenerating}
                                 onAIQuestionsClick={async () => {
-                                    if (!activePerson) return;
+                                    if (!activePerson || isGenerating) return;
 
                                     // Generate questions if not already generated
                                     if (!activePerson.aiQuestions || activePerson.aiQuestions.length === 0) {
-                                        await generateAIQuestions(activePerson.id);
+                                        setIsGenerating(true);
+                                        try {
+                                            await generateAIQuestions(activePerson.id);
+                                        } catch (e) {
+                                            console.error(e);
+                                            setIsGenerating(false);
+                                            return;
+                                        }
+                                        setIsGenerating(false);
                                     }
 
                                     // Navigate to AI mode

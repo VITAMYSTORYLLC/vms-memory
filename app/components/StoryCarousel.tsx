@@ -32,9 +32,10 @@ interface StoryCarouselProps {
   aiMilestonesTotal?: number;
   aiQuestionsUnlocked?: boolean;
   onAIQuestionsClick?: () => void;
+  isGeneratingAI?: boolean;
 }
 
-export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0, lockedProgress, onUnlockClick, aiMilestones, aiMilestonesCompleted = 0, aiMilestonesTotal = 4, aiQuestionsUnlocked = false, onAIQuestionsClick }: StoryCarouselProps) {
+export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0, lockedProgress, onUnlockClick, aiMilestones, aiMilestonesCompleted = 0, aiMilestonesTotal = 4, aiQuestionsUnlocked = false, onAIQuestionsClick, isGeneratingAI = false }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(initialIndex);
 
@@ -271,7 +272,15 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
               <div className="bg-white dark:bg-midnight-900 border border-stone-200 dark:border-stone-800 shadow-xl rounded-[2rem] h-full flex flex-col relative overflow-hidden transition-colors">
                 {isActionCard ? (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center animate-in fade-in duration-500">
-                    <div className={`w-20 h-20 rounded-full bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 group-hover:scale-110 transition-transform duration-500 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' : isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' : isLockedCard ? 'group-hover:text-amber-400 group-hover:border-amber-200' : isAIQuestionsCard ? 'group-hover:text-purple-400 group-hover:border-purple-200' : ''}`}>
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500 group-hover:scale-110 
+                      ${isAIQuestionsCard && aiQuestionsUnlocked
+                        ? 'bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-500 dark:border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)] text-purple-600 dark:text-purple-400'
+                        : `bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' :
+                          isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' :
+                            isLockedCard ? 'group-hover:text-amber-400 group-hover:border-amber-200' :
+                              isAIQuestionsCard ? 'group-hover:text-purple-400 group-hover:border-purple-200' : ''
+                        }`
+                      }`}>
                       {isAddCard && <FiPlus size={32} />}
                       {isPhotoCard && <FiCamera size={32} />}
                       {isAudioCard && <FiMic size={32} />}
@@ -338,7 +347,17 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                             <p className="text-xs font-bold uppercase tracking-widest">{aiMilestonesCompleted} / {aiMilestonesTotal} {t.chaptersCompleted}</p>
                             {aiQuestionsUnlocked && (
                               <div className="pt-2">
-                                <span className="text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400 pb-0.5">Unlock Now!</span>
+                                {isGeneratingAI ? (
+                                  <span className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                                    <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    {t.generatingQuestions || "Generating..."}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400 pb-0.5">Unlock Now!</span>
+                                )}
                               </div>
                             )}
                           </div>
