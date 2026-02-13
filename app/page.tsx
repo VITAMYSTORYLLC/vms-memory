@@ -393,7 +393,18 @@ export default function Page() {
                 {(editingId || isPhotoMode || isAudioMode || isCustomMode) && (
                   <div className="text-center">
                     <button
-                      onClick={() => { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setIsPhotoMode(false); setIsAudioMode(false); setIsCustomMode(false); }}
+                      onClick={() => {
+                        setEditingId(null);
+                        setEditingPrompt("");
+                        setStoryDraft("");
+                        setImageDraft("");
+                        setIsPhotoMode(false);
+                        setIsAudioMode(false);
+                        setIsCustomMode(false);
+                        if (activePerson && activePerson.memories.length > 0) {
+                          router.push("/stories");
+                        }
+                      }}
                       className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 font-sans transition-colors"
                     >
                       {lang === "es" ? "Cancelar" : "Cancel"}
