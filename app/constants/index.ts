@@ -278,7 +278,7 @@ export const TEXT = {
     qFirstMemory: (name: string) => `¿Cuál es el primer recuerdo que te viene a la mente al pensar en |||${name}|||?`,
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
     qMatteredMost: (name: string) => `¿Qué era lo que más le importaba a |||${name}|||?`,
-    qPhoto: (name: string) => `Aquí hay una foto que me recuerda a |||${name}|||...`,
+    qPhoto: (name: string) => `Esta foto me recuerda a |||${name}|||...`,
     starterComplete: "Preguntas iniciales completas. El resto del libro es tuyo.",
     // Auth
     login: "Iniciar sesión",
