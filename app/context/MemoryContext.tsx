@@ -79,6 +79,7 @@ interface MemoryContextType {
     deleteMemory: (memoryId: string) => void;
     deletePerson: (personId: string) => void;
     updatePersonName: (personId: string, newName: string) => void;
+    updatePersonPhoto: (personId: string, newPhotoUrl: string) => void;
     startNewPerson: () => void;
     resetApp: () => void;
     refreshState: () => void; // Force update if needed
@@ -322,6 +323,10 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setPeople((prev) => prev.map((p) => p.id === personId ? { ...p, name: newName } : p));
     }
 
+    function updatePersonPhoto(personId: string, newPhotoUrl: string) {
+        setPeople((prev) => prev.map((p) => p.id === personId ? { ...p, photoUrl: newPhotoUrl } : p));
+    }
+
     function completeOnboarding() {
         setIsOnboarded(true);
     }
@@ -511,6 +516,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             deleteMemory,
             deletePerson,
             updatePersonName,
+            updatePersonPhoto,
             startNewPerson,
 
             resetApp,

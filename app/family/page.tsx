@@ -11,7 +11,9 @@ import { plural, normalize } from "../utils";
 import { renderWithBoldName } from "../utils/text";
 import { AuthModal } from "../components/AuthModal";
 import { useAuth } from "../hooks/useAuth";
-import { FiShare2, FiMoreVertical, FiEdit2, FiTrash2, FiX, FiCheck } from "react-icons/fi";
+import { FiShare2, FiMoreVertical, FiEdit2, FiTrash2, FiX, FiCheck, FiCamera, FiUser } from "react-icons/fi";
+import { compressImage } from "../utils";
+import { uploadImage } from "../utils/storage";
 
 export default function FamilyPage() {
     const {
@@ -21,6 +23,7 @@ export default function FamilyPage() {
         startNewPerson,
         deletePerson,
         updatePersonName,
+        updatePersonPhoto,
         t,
         lang,
         setLang,
@@ -36,6 +39,8 @@ export default function FamilyPage() {
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editNameValue, setEditNameValue] = useState("");
+    const [uploadingForId, setUploadingForId] = useState<string | null>(null);
+    const personFileInputRef = React.useRef<HTMLInputElement>(null);
 
     const [mode, setMode] = React.useState<"LIST" | "WELCOME" | "INTRO" | "login" | "register" | "reset">(
         people.length === 0 ? "WELCOME" : "LIST"
@@ -113,6 +118,53 @@ export default function FamilyPage() {
         }
     }
 
+    function handlePhotoClick(e: React.MouseEvent, p: any) {
+        e.stopPropagation();
+        setActionMenuOpen(null);
+        setUploadingForId(p.id);
+        // Small timeout to allow state to settle before clicking input
+        setTimeout(() => personFileInputRef.current?.click(), 100);
+    }
+
+    async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file || !uploadingForId || !user) return;
+
+        try {
+            // Optimistic update using local object URL (optional, but let's stick to simple upload first)
+            // 1. Compress
+            const compressedBase64 = await compressImage(file);
+
+            // 2. Upload
+            // We need to convert base64 back to blob for uploadImage, or use putString
+            // But uploadImage takes a File/Blob.
+            // Let's use the helper base64ToBlob if we have it, or just upload the file directly if compression isn't strictly enforced for storage size (though it should be).
+            // Actually, compressImage returns base64. 
+            // We can upload the base64 string using uploadString in firebase, but our utility might only handle Files?
+            // Let's check imports. I didn't import base64ToBlob. I should added it.
+            // For now, let's just upload the original file to keep it simple, or use the storage utility if it handles formatting.
+            // Wait, previous turn showed `uploadImage` usage in ProfilePage: 
+            // `const url = await uploadImage(user.uid, blob, "profile");`
+            // So I need `base64ToBlob`.
+
+            const res = await fetch(compressedBase64);
+            const blob = await res.blob();
+
+            const path = `people/${uploadingForId}/profile`;
+            const downloadUrl = await uploadImage(user.uid, blob, path);
+
+            if (downloadUrl) {
+                updatePersonPhoto(uploadingForId, downloadUrl);
+                addNotification(t.success, t.photoUpdated || "Photo updated", "success");
+            }
+        } catch (error) {
+            console.error(error);
+            addNotification(t.error, "Failed to upload photo", "error");
+        }
+        setUploadingForId(null);
+        if (personFileInputRef.current) personFileInputRef.current.value = "";
+    }
+
     if (mode === "LIST") {
         return (
             <div className={`min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-midnight-950 safe-top safe-bottom pb-24 transition-colors duration-500`}>
@@ -128,10 +180,23 @@ export default function FamilyPage() {
                                         className={`w-full text-left p-5 pr-14 rounded-2xl transition-all border cursor-pointer relative z-10 ${p.id === activePersonId ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-lg scale-[1.02]" : "bg-white dark:bg-midnight-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700"}`}
                                     >
                                         <div className="flex justify-between items-center">
-                                            <div>
-                                                <div className="text-2xl font-serif leading-none mb-2 font-bold pr-4">{p.name}</div>
-                                                <div className={`text-sm uppercase tracking-wider font-sans ${p.id === activePersonId ? "text-stone-400 dark:text-stone-500" : "text-stone-400 dark:text-stone-600 font-bold"}`}>
-                                                    {p.memories.length} {plural(p.memories.length, lang === "es" ? "historia" : "story")}
+                                            <div className="flex items-center gap-4">
+                                                {/* Person Photo */}
+                                                <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-stone-100 dark:border-stone-800 bg-stone-100 dark:bg-stone-800 flex-shrink-0">
+                                                    {p.photoUrl ? (
+                                                        <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-stone-300 dark:text-stone-600">
+                                                            <FiUser size={32} />
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <div className="text-2xl font-serif leading-none mb-2 font-bold pr-4">{p.name}</div>
+                                                    <div className={`text-sm uppercase tracking-wider font-sans ${p.id === activePersonId ? "text-stone-400 dark:text-stone-500" : "text-stone-400 dark:text-stone-600 font-bold"}`}>
+                                                        {p.memories.length} {plural(p.memories.length, lang === "es" ? "historia" : "story")}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -163,6 +228,12 @@ export default function FamilyPage() {
                                                 <FiEdit2 size={16} /> {t.editName}
                                             </button>
                                             <button
+                                                onClick={(e) => handlePhotoClick(e, p)}
+                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
+                                            >
+                                                <FiCamera size={16} /> {lang === "es" ? "Cambiar foto" : "Change Photo"}
+                                            </button>
+                                            <button
                                                 onClick={(e) => handleDeleteClick(e, p.id)}
                                                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 text-sm font-bold flex items-center gap-3"
                                             >
@@ -180,6 +251,14 @@ export default function FamilyPage() {
                             </PrimaryButton>
                         </div>
                     </div>
+                    {/* Hidden File Input */}
+                    <input
+                        type="file"
+                        ref={personFileInputRef}
+                        onChange={handlePhotoUpload}
+                        accept="image/*"
+                        className="hidden"
+                    />
                 </div>
 
                 {/* Edit Modal */}

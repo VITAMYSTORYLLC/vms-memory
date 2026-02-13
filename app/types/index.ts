@@ -24,6 +24,7 @@ export type Person = {
   name: string;
   memories: MemoryItem[];
   createdAt: number;
+  photoUrl?: string;
 };
 
 export type AuthUser = {

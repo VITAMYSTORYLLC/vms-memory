@@ -195,6 +195,9 @@ export const TEXT = {
     errorTitle: "Something went wrong",
     downloadSuccessTitle: "Memory Saved",
     downloadSuccessBody: "This story has been saved to your device.",
+    success: "Success",
+    error: "Error",
+    photoUpdated: "Photo updated successfully",
   },
   es: {
     heroTagline: "Comienza tu legado.",
@@ -391,6 +394,9 @@ export const TEXT = {
     errorTitle: "Algo salió mal",
     downloadSuccessTitle: "Recuerdo Guardado",
     downloadSuccessBody: "Esta historia se ha guardado en tu dispositivo.",
+    success: "Éxito",
+    error: "Error",
+    photoUpdated: "Foto actualizada con éxito",
   },
 };
 
