@@ -367,7 +367,7 @@ export default function Page() {
                   </>
                 )}
 
-                {!editingId && (
+                {!editingId && !isCustomMode && !isPhotoMode && !isAudioMode && (
                   <>
                     <div className="absolute left-2 sm:-left-5 top-1/2 -translate-y-1/2 z-30 pointer-events-auto transition-opacity">
                       <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
