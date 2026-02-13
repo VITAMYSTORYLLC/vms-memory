@@ -45,13 +45,13 @@ export function formatWhen(ts: number, lang: Lang) {
   } catch { return ""; }
 }
 
-export function addMemory(existing: MemoryItem[], prompt: string, text: string, memoryDate?: string, imageUrl?: string, questionId?: string): MemoryItem[] {
+export function addMemory(existing: MemoryItem[], prompt: string, text: string, memoryDate?: string, imageUrl?: string, questionId?: string, isAudioStory?: boolean): MemoryItem[] {
   const p = normalize(prompt);
   const t = normalize(text);
   const md = normalize(memoryDate || "");
   const img = normalize(imageUrl || "");
   if (!t && !img) return existing;
-  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now(), memoryDate: md, imageUrl: img, questionId }];
+  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now(), memoryDate: md, imageUrl: img, questionId, isAudioStory }];
 }
 
 export function wrapIndex(index: number, length: number): number {

@@ -55,7 +55,7 @@ export default function StoriesPage() {
     // Calculate AI Questions milestone progress
     const has5Stories = storiesCount >= 5;
     const hasPhotoStory = activeMemories.some(m => m.imageUrl);
-    const hasAudioStory = false; // TODO: Track audio stories properly when audio feature is implemented
+    const hasAudioStory = activeMemories.some(m => m.audioUrl || m.isAudioStory);
     const hasProfilePhoto = !!activePerson?.photoUrl;
 
     const aiMilestones = {

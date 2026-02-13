@@ -492,7 +492,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
             setPeople((prev) => prev.map((p) => {
                 if (p.id !== activePerson.id) return p;
-                const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, finalImageUrl, questionId);
+                const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode);
 
                 // Milestone Check: 5 Stories
                 if (newMemories.length === 5 && !hasBadge(p.id, "story_keeper")) {
@@ -521,7 +521,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         const p: Person = {
             id: makeId(),
             name: normalizedName,
-            memories: addMemory([], promptToSave, storyDraft, undefined, finalImageUrl, questionId),
+            memories: addMemory([], promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode),
             createdAt: Date.now()
         };
 

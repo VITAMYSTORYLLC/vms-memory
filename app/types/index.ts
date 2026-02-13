@@ -16,6 +16,8 @@ export type MemoryItem = {
   createdAt: number;
   memoryDate?: string;
   imageUrl?: string;
+  audioUrl?: string;
+  isAudioStory?: boolean;
   questionId?: string;
 };
 
