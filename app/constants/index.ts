@@ -203,6 +203,8 @@ export const TEXT = {
     chaptersCompleted: "Chapters Completed",
     continueJourney: "Continue Journey",
     changeQuestion: "Change Question",
+    unlockedModesTitle: "New Modes Unlocked!",
+    unlockedModesBody: "You've unlocked Photo, Audio, and Custom Story modes. Continue your legacy!",
   },
   es: {
     heroTagline: "Comienza tu legado.",
@@ -407,6 +409,8 @@ export const TEXT = {
     chaptersCompleted: "Capítulos Completados",
     continueJourney: "Continuar Viaje",
     changeQuestion: "Cambiar Pregunta",
+    unlockedModesTitle: "¡Nuevos Modos Desbloqueados!",
+    unlockedModesBody: "Has desbloqueado los modos Foto, Audio e Historia Libre. ¡Continúa tu legado!",
   },
 };
 

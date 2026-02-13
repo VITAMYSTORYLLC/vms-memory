@@ -190,6 +190,7 @@ export default function Page() {
     markCurrentQuestionUsed(savedPersonId);
     advanceToNextUnused(savedPersonId);
     if (willCompleteStarter) {
+      addNotification(t.unlockedModesTitle, t.unlockedModesBody);
       setStep("BADGE");
     } else {
       setStep("SAVED");
