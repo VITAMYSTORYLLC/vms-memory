@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "browser-image-compression": "^2.0.2",
     "firebase": "^12.7.0",
     "framer-motion": "^12.26.2",
     "heic2any": "^0.0.4",

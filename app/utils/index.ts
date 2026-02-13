@@ -1,6 +1,7 @@
 import { Lang, MemoryItem } from "../types";
 import { LS } from "../constants";
 import heic2any from "heic2any";
+import imageCompression from "browser-image-compression";
 
 export function normalize(s: string): string { return (s ?? "").trim(); }
 
@@ -109,54 +110,52 @@ export function addBadge(personId: string, badgeId: string) {
 }
 
 export async function compressImage(file: File): Promise<string> {
-  let sourceBlob: Blob = file;
+  let imageFile = file;
 
-  // Check for HEIC
+  // Check for HEIC and convert if necessary
   if (file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif") || file.type === "image/heic" || file.type === "image/heif") {
     try {
-      // Create a fresh blob from array buffer to ensure clean data
+      // Use explicit blob creation for stability
       const buffer = await file.arrayBuffer();
       const blob = new Blob([buffer], { type: "image/heic" });
 
       const converted = await heic2any({
         blob,
         toType: "image/jpeg",
-        quality: 0.8
+        quality: 0.9
       });
 
-      sourceBlob = Array.isArray(converted) ? converted[0] : converted;
+      const convertedBlob = Array.isArray(converted) ? converted[0] : converted;
+      // create a new File object
+      imageFile = new File([convertedBlob], file.name.replace(/\.(heic|heif)$/i, ".jpg"), { type: "image/jpeg", lastModified: Date.now() });
     } catch (e: any) {
-      console.error("HEIC conversion failed:", e?.message || e);
+      console.error("HEIC conversion error:", e?.message || e);
+      // We continue with original file in hopes browser supports it natively or compressor handles it
     }
   }
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(sourceBlob);
-    reader.onload = (e) => {
-      const img = new Image();
-      img.src = e.target?.result as string;
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const maxWidth = 800;
-        let width = img.width;
-        let height = img.height;
+  // Use browser-image-compression for robust resizing/compression/EXIF handling
+  const options = {
+    maxSizeMB: 0.8,
+    maxWidthOrHeight: 1200,
+    useWebWorker: true,
+    fileType: "image/jpeg",
+    initialQuality: 0.8,
+  };
 
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        if (ctx) ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/jpeg", 0.6));
-      };
-      img.onerror = (err) => reject(err);
-    };
-    reader.onerror = (err) => reject(err);
-  });
+  try {
+    const compressedFile = await imageCompression(imageFile, options);
+    return await imageCompression.getDataUrlFromFile(compressedFile);
+  } catch (error) {
+    console.error("Image compression failed:", error);
+    // Fallback: try to read original/converted file directly if compression failed
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(imageFile);
+    });
+  }
 }
 
 export function base64ToBlob(base64: string, mimeType: string = "image/jpeg"): Blob {
