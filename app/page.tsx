@@ -232,10 +232,10 @@ export default function Page() {
                     {!editingId && !allStarterUsed && (
                       <button
                         onClick={goNextQuestion}
-                        className="absolute top-0 right-0 p-3 text-stone-300 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-300 transition-colors opacity-0 group-hover:opacity-100"
+                        className="absolute top-0 right-0 p-2.5 bg-stone-100 dark:bg-stone-800 rounded-full text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-all shadow-sm"
                         title={t.changeQuestion || "Change Question"}
                       >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="23 4 23 10 17 10"></polyline>
                           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
                         </svg>
