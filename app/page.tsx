@@ -121,6 +121,18 @@ export default function Page() {
     setQuestionIndex(week % QUESTIONS.length);
   }, [QUESTIONS.length]);
 
+  // Ensure we don't stay on a used question
+  useEffect(() => {
+    if (usedSet.size >= QUESTIONS.length) return;
+    const current = wrapIndex(questionIndex, QUESTIONS.length);
+    if (usedSet.has(current)) {
+      const next = nextUnusedIndex(current, 1, QUESTIONS.length, usedSet);
+      if (next !== current) {
+        setQuestionIndex(next);
+      }
+    }
+  }, [usedSet, questionIndex, QUESTIONS.length]);
+
   useEffect(() => {
     let key = "free";
     if (editingId) {
