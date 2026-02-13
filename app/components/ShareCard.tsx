@@ -41,7 +41,7 @@ export function ShareCard({ item, lang, userName }: ShareCardProps) {
                 <div className="space-y-8">
                     {item.imageUrl && (
                         <div className="w-full h-[400px] rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
-                            <img src={item.imageUrl} className="w-full h-full object-cover" alt="Memory" />
+                            <img src={item.imageUrl} className="w-full h-full object-cover" alt="Memory" crossOrigin="anonymous" />
                         </div>
                     )}
 

@@ -148,7 +148,8 @@ export default function Page() {
   async function handleSave() {
     setIsSaving(true);
     await new Promise(r => setTimeout(r, 800));
-    const savedPersonId = await saveStory(promptToSave);
+    const questionIdToSave = allStarterUsed ? "free" : `q_${wrapIndex(questionIndex, QUESTIONS.length)}`;
+    const savedPersonId = await saveStory(promptToSave, questionIdToSave);
     if (!savedPersonId) {
       setIsSaving(false);
       return;
@@ -199,11 +200,21 @@ export default function Page() {
                   {normalize(storyDraft).length > 20 ? (
                     <button
                       onClick={() => setShowRefineModal(true)}
-                      className="absolute w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-2.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-full shadow-lg hover:scale-105 active:scale-95 animate-in fade-in zoom-in duration-300"
+                      className="absolute w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-3 bg-gradient-to-r from-stone-800 to-stone-900 dark:from-stone-100 dark:to-stone-300 text-white dark:text-stone-900 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 animate-fadeInUp"
                     >
                       <span className="flex items-center gap-2">
-                        <span>✨</span>
-                        {t.refineStory}
+                        <span className="animate-pulse">✨</span>
+                        <span className="flex">
+                          {t.refineStory.split("").map((char, index) => (
+                            <span
+                              key={index}
+                              className="opacity-0 animate-fadeInUp inline-block"
+                              style={{ animationDelay: `${700 + index * 50}ms`, animationFillMode: "both" }}
+                            >
+                              {char === " " ? "\u00A0" : char}
+                            </span>
+                          ))}
+                        </span>
                       </span>
                     </button>
                   ) : (
@@ -331,6 +342,10 @@ export default function Page() {
             onAccept={(refined) => setStoryDraft(refined)}
           />
 
+
+          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-300 dark:text-stone-700 text-center py-4 opacity-30 select-none">
+            v. Feb 12
+          </div>
         </div>
       </div>
     </div>

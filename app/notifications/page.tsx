@@ -51,43 +51,62 @@ export default function NotificationsPage() {
                                 <p className="text-stone-400 dark:text-stone-600 text-sm font-serif italic text-lg">{t.noNotifications}</p>
                             </div>
                         ) : (
-                            notifications.map((n) => (
-                                <div
-                                    key={n.id}
-                                    onClick={() => markAsRead(n.id)}
-                                    className={`relative p-4 rounded-xl border transition-all cursor-pointer group ${n.read
-                                        ? "bg-white/50 dark:bg-stone-900/50 border-stone-100 dark:border-stone-800 opacity-60 hover:opacity-100"
-                                        : "bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 shadow-sm"
-                                        }`}
-                                >
-                                    <div className="flex gap-4">
-                                        <div className={`mt-1 flex-shrink-0 ${!n.read ? "scale-110" : "grayscale opacity-50"}`}>
-                                            {getIcon(n.type)}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start">
-                                                <h3 className={`text-lg font-sans font-semibold mb-1 ${n.read ? "text-stone-500 dark:text-stone-500" : "text-stone-900 dark:text-stone-100"}`}>
-                                                    {n.title}
-                                                </h3>
-                                                {!n.read && (
-                                                    <span className="w-2 h-2 rounded-full bg-red-500 block mt-1.5 animate-pulse"></span>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed pr-6">{n.message}</p>
-                                            <p className="text-xs text-stone-400 dark:text-stone-600 mt-2 font-medium tracking-wide font-sans">
-                                                {new Date(n.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                                            </p>
-                                        </div>
+                            notifications.map((n) => {
+                                let title = n.title;
+                                let message = n.message;
 
-                                        <button
-                                            onClick={(e) => handleDelete(n.id, e)}
-                                            className="absolute top-2 right-2 p-2 text-stone-300 dark:text-stone-700 hover:text-red-400 dark:hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <FiTrash2 size={14} />
-                                        </button>
+                                if (n.translationData) {
+                                    const { titleKey, bodyKey, params } = n.translationData;
+                                    const anyT = t as any;
+
+                                    if (titleKey && anyT[titleKey]) {
+                                        const val = anyT[titleKey];
+                                        title = typeof val === 'function' ? val(params?.name || "") : val;
+                                    }
+                                    if (bodyKey && anyT[bodyKey]) {
+                                        const val = anyT[bodyKey];
+                                        message = typeof val === 'function' ? val(params?.name || "") : val;
+                                    }
+                                }
+
+                                return (
+                                    <div
+                                        key={n.id}
+                                        onClick={() => markAsRead(n.id)}
+                                        className={`relative p-4 rounded-xl border transition-all cursor-pointer group ${n.read
+                                            ? "bg-white/50 dark:bg-stone-900/50 border-stone-100 dark:border-stone-800 opacity-60 hover:opacity-100"
+                                            : "bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 shadow-sm"
+                                            }`}
+                                    >
+                                        <div className="flex gap-4">
+                                            <div className={`mt-1 flex-shrink-0 ${!n.read ? "scale-110" : "grayscale opacity-50"}`}>
+                                                {getIcon(n.type)}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start">
+                                                    <h3 className={`text-lg font-sans font-semibold mb-1 ${n.read ? "text-stone-500 dark:text-stone-500" : "text-stone-900 dark:text-stone-100"}`}>
+                                                        {title}
+                                                    </h3>
+                                                    {!n.read && (
+                                                        <span className="w-2 h-2 rounded-full bg-red-500 block mt-1.5 animate-pulse"></span>
+                                                    )}
+                                                </div>
+                                                <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed pr-6">{message}</p>
+                                                <p className="text-xs text-stone-400 dark:text-stone-600 mt-2 font-medium tracking-wide font-sans">
+                                                    {new Date(n.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                                </p>
+                                            </div>
+
+                                            <button
+                                                onClick={(e) => handleDelete(n.id, e)}
+                                                className="absolute top-2 right-2 p-2 text-stone-300 dark:text-stone-700 hover:text-red-400 dark:hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <FiTrash2 size={14} />
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))
+                                )
+                            })
                         )}
                     </div>
                 </div>

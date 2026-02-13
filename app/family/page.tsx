@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import React, { useState } from "react";
 import { useMemory } from "../context/MemoryContext";
 import { PrimaryButton } from "../components/PrimaryButton";
@@ -25,7 +27,8 @@ export default function FamilyPage() {
         nameDraft,
         setNameDraft,
         user,
-        addNotification
+        addNotification,
+        theme
     } = useMemory();
     const router = useRouter();
     const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
@@ -242,13 +245,22 @@ export default function FamilyPage() {
                         <div className="flex-1 flex flex-col justify-center text-center space-y-10 animate-in fade-in zoom-in-95 duration-700 relative pb-12">
 
                             <div className="space-y-4">
-                                <h1 className="text-4xl font-serif font-bold tracking-tight text-stone-900 dark:text-stone-100">{t.welcomeTitle}</h1>
+                                <div className="flex justify-center mb-2">
+                                    <Image
+                                        src={theme === "dark" ? "/logo-white.png" : "/logo-transparent.png"}
+                                        alt="VitaMyStory Logo"
+                                        width={150}
+                                        height={150}
+                                        className="rounded-xl object-contain"
+                                    />
+                                </div>
+
                                 <p className="text-stone-500 dark:text-stone-400 text-lg leading-relaxed max-w-xs mx-auto font-serif italic">{t.welcomeBody}</p>
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold uppercase tracking-widest text-stone-300 dark:text-stone-700 font-sans">{t.whoFor}</label>
-                                    <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 dark:border-stone-800 p-2 text-center text-3xl font-serif text-stone-800 dark:text-stone-200 placeholder:text-stone-200 dark:placeholder:text-stone-800 focus:outline-none focus:border-stone-400 dark:focus:border-stone-600 transition-colors" autoFocus />
+                                    <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 dark:border-stone-800 p-2 text-center text-3xl font-serif text-stone-800 dark:text-stone-200 placeholder:text-stone-200 dark:placeholder:text-stone-600 focus:outline-none focus:border-stone-400 dark:focus:border-stone-600 transition-colors" autoFocus />
                                 </div>
                             </div>
                             <div className="pt-4 space-y-3">

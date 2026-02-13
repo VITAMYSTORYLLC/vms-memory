@@ -16,6 +16,7 @@ export type MemoryItem = {
   createdAt: number;
   memoryDate?: string;
   imageUrl?: string;
+  questionId?: string;
 };
 
 export type Person = {
@@ -31,7 +32,7 @@ export type AuthUser = {
   displayName?: string | null;
 };
 
-export type NotificationType = "info" | "success" | "feature";
+export type NotificationType = "info" | "success" | "feature" | "error";
 
 export interface Notification {
   id: string;
@@ -40,6 +41,11 @@ export interface Notification {
   message: string;
   date: number;
   read: boolean;
+  translationData?: {
+    titleKey?: string;
+    bodyKey?: string;
+    params?: any;
+  };
 }
 
 export interface Comment {

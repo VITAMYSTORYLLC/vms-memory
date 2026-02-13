@@ -44,13 +44,13 @@ export function formatWhen(ts: number, lang: Lang) {
   } catch { return ""; }
 }
 
-export function addMemory(existing: MemoryItem[], prompt: string, text: string, memoryDate?: string, imageUrl?: string): MemoryItem[] {
+export function addMemory(existing: MemoryItem[], prompt: string, text: string, memoryDate?: string, imageUrl?: string, questionId?: string): MemoryItem[] {
   const p = normalize(prompt);
   const t = normalize(text);
   const md = normalize(memoryDate || "");
   const img = normalize(imageUrl || "");
   if (!t && !img) return existing;
-  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now(), memoryDate: md, imageUrl: img }];
+  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now(), memoryDate: md, imageUrl: img, questionId }];
 }
 
 export function wrapIndex(index: number, length: number): number {
@@ -135,4 +135,14 @@ export function compressImage(file: File): Promise<string> {
     };
     reader.onerror = (err) => reject(err);
   });
+}
+
+export function base64ToBlob(base64: string, mimeType: string = "image/jpeg"): Blob {
+  const byteCharacters = atob(base64.split(",")[1]);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mimeType });
 }

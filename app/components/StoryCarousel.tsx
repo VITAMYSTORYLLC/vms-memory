@@ -8,6 +8,7 @@ import { toPng } from "html-to-image";
 import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
+import { getQuestionText } from "../utils/questions";
 import { FiCamera, FiMic, FiPlus } from "react-icons/fi";
 
 interface StoryCarouselProps {
@@ -49,6 +50,13 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
       link.download = `memory-${item.id}.png`;
       link.href = dataUrl;
       link.click();
+
+      addNotification(
+        t.downloadSuccessTitle,
+        t.downloadSuccessBody,
+        "success",
+        { titleKey: "downloadSuccessTitle", bodyKey: "downloadSuccessBody" }
+      );
     } catch (err) {
       console.error("Failed to download image:", err);
     } finally {
@@ -107,14 +115,19 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
         await navigator.share(shareData);
 
         // Simulate social feedback
+        // Simulate social feedback
         setTimeout(() => {
           const type = Math.random() > 0.5 ? "saw" : "liked";
+          const titleKey = type === "saw" ? "notificationSaw" : "notificationLike";
+          const bodyKey = type === "saw" ? "notificationSawBody" : "notificationLikeBody";
+          const title = t[titleKey] as string;
+          const body = t[bodyKey] as string;
+
           addNotification(
-            type === "saw" ? t.notificationSaw : t.notificationLike,
-            lang === "es"
-              ? (type === "saw" ? "Alguien acaba de ver el recuerdo que compartiste." : "¡A alguien le encantó tu historia!")
-              : (type === "saw" ? "Someone just viewed the memory you shared." : "Someone loved your story!"),
-            "success"
+            title,
+            body,
+            "success",
+            { titleKey, bodyKey }
           );
         }, 1000 * (3 + Math.random() * 5));
       } else {
@@ -286,7 +299,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                       </div>
                       {item.prompt ? (
                         <div className="text-lg text-stone-600 dark:text-stone-400 italic font-medium text-center px-4 leading-relaxed max-w-sm font-serif">
-                          {renderWithBoldName(item.prompt)}
+                          {renderWithBoldName(item.questionId ? getQuestionText(item.questionId, activePerson?.name || "", t) : item.prompt)}
                         </div>
                       ) : null}
                     </div>

@@ -1,65 +1,57 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useAuth } from "./useAuth";
 import { Person } from "../types";
 
 export function useSync(people: Person[], setPeople: (p: Person[]) => void) {
     const { user } = useAuth();
-    const isInitialLoad = useRef(true);
 
-    // 1. Downloading data when user logs in
+    // Safety flag to prevent infinite loops:
+    // If we just received data from the cloud, we don't want to immediately save it back.
+    const isReceivingUpdate = useRef(false);
+
+    // 1. Downloading data (Real-time Listener)
     useEffect(() => {
-        async function loadData() {
-            if (!user) {
-                // Use local storage if no user (handled in page.tsx usually, or here if we moved logic)
-                // But for sync, we only care if user exists.
-                return;
-            }
+        if (!user) return;
 
-            try {
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
+        const docRef = doc(db, "users", user.uid);
 
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.people && Array.isArray(data.people)) {
-                        // Merge strategy: Overwrite local with cloud for now to ensure consistency.
-                        // You could do smarter merging later.
-                        setPeople(data.people);
-                    }
-                } else {
-                    // First time syncing? Maybe upload local data?
-                    // For safety, let's just create the doc with current local data if it exists
-                    if (people.length > 0) {
-                        await setDoc(docRef, { people });
-                    }
+        // Listen for changes on the server
+        const unsubscribe = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.people && Array.isArray(data.people)) {
+                    // Compare? Or just overwrite?
+                    // For now, overwrite local state with server state.
+                    // IMPORTANT: Set flag so we don't trigger the save effect below
+                    isReceivingUpdate.current = true;
+                    setPeople(data.people);
+
+                    // Reset flag after a short delay (allows React to render)
+                    setTimeout(() => {
+                        isReceivingUpdate.current = false;
+                    }, 500);
                 }
-            } catch (e) {
-                console.error("Error loading data:", e);
-            } finally {
-                isInitialLoad.current = false;
+            } else {
+                // If doc doesn't exist yet, we might want to create it with current state
+                // handled by the save effect below
             }
-        }
+        }, (error) => {
+            console.error("Sync Error:", error);
+        });
 
-        if (user) {
-            loadData();
-        }
-    }, [user]); // Run only when user changes (login/out)
+        return () => unsubscribe();
+    }, [user, setPeople]);
 
     // 2. Uploading data when people change
     useEffect(() => {
-        // Don't save if it's the very first render and we haven't loaded yet
-        // simple check: if user is null, we don't save to cloud
         if (!user) return;
 
-        // We also want to avoid saving the "empty state" over cloud data during that split second of loading.
-        // However, since people is state-managed, we rely on loadData setting it first.
-        // A more robust way is debouncing.
-
-        if (isInitialLoad.current) return;
+        // If this change was caused by a cloud update, DO NOT save back to cloud.
+        if (isReceivingUpdate.current) return;
 
         const timeoutId = setTimeout(async () => {
             try {
@@ -71,10 +63,10 @@ export function useSync(people: Person[], setPeople: (p: Person[]) => void) {
             } catch (e) {
                 console.error("Error saving to cloud:", e);
             }
-        }, 2000); // 2 second debounce to avoid too many writes
+        }, 2000); // 2 second debounce
 
         return () => clearTimeout(timeoutId);
     }, [people, user]);
 
-    return null; // This hook doesn't yield UI
+    return null;
 }
