@@ -272,8 +272,8 @@ export default function Page() {
                       <button
                         onClick={toggleListening}
                         className={`p-6 rounded-full shadow-xl border-4 transition-all duration-300 transform ${isListening
-                            ? "bg-red-500 border-red-100 dark:border-red-900 text-white scale-125 animate-pulse shadow-red-500/30"
-                            : "bg-stone-900 dark:bg-stone-100 border-stone-100 dark:border-stone-800 text-white dark:text-stone-900 hover:scale-110 hover:shadow-2xl"
+                          ? "bg-red-500 border-red-100 dark:border-red-900 text-white scale-125 animate-pulse shadow-red-500/30"
+                          : "bg-stone-900 dark:bg-stone-100 border-stone-100 dark:border-stone-800 text-white dark:text-stone-900 hover:scale-110 hover:shadow-2xl"
                           }`}
                       >
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -282,6 +282,38 @@ export default function Page() {
                         </svg>
                       </button>
                     )}
+                  </div>
+                ) : isPhotoMode ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-6 animate-in fade-in duration-500 z-20">
+                    {imageDraft ? (
+                      <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-sm group">
+                        <img src={imageDraft} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="bg-white/90 text-stone-900 px-4 py-2 rounded-full font-bold text-sm shadow-lg transform hover:scale-105 transition-all"
+                          >
+                            {t.change}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-stone-300 dark:border-stone-700 rounded-2xl hover:bg-stone-50 dark:hover:bg-midnight-800/50 transition-colors group cursor-pointer"
+                      >
+                        <div className="p-6 rounded-full bg-stone-100 dark:bg-midnight-800 text-stone-400 dark:text-stone-500 group-hover:scale-110 transition-transform mb-4">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                          </svg>
+                        </div>
+                        <span className="font-serif text-lg text-stone-400 dark:text-stone-500 italic">
+                          {t.newPhotoSubtitle}
+                        </span>
+                      </button>
+                    )}
+                    <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleImageUpload} />
                   </div>
                 ) : (
                   <>
