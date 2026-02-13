@@ -317,36 +317,39 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                         {isAIQuestionsCard && (
                           <div className="space-y-3 mt-2">
                             <p>{t.aiQuestionsSubtitle}</p>
-                            <div className="text-left space-y-2 mt-4">
-                              <p className="text-xs font-bold uppercase tracking-widest text-stone-500 dark:text-stone-500">{t.aiQuestionsLocked}</p>
-                              <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 text-xs">
-                                  <span className={aiMilestones?.stories ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.stories ? "✓" : "○"}</span>
-                                  <span className={aiMilestones?.stories ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestone5Stories}</span>
+                            {!aiQuestionsUnlocked ? (
+                              <>
+                                <div className="text-left space-y-2 mt-4">
+                                  <p className="text-xs font-bold uppercase tracking-widest text-stone-500 dark:text-stone-500">{t.aiQuestionsLocked}</p>
+                                  <div className="space-y-1.5">
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className={aiMilestones?.stories ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.stories ? "✓" : "○"}</span>
+                                      <span className={aiMilestones?.stories ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestone5Stories}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className={aiMilestones?.photoStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.photoStory ? "✓" : "○"}</span>
+                                      <span className={aiMilestones?.photoStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestonePhotoStory}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className={aiMilestones?.audioStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.audioStory ? "✓" : "○"}</span>
+                                      <span className={aiMilestones?.audioStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneAudioStory}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <span className={aiMilestones?.profilePhoto ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.profilePhoto ? "✓" : "○"}</span>
+                                      <span className={aiMilestones?.profilePhoto ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneProfilePhoto}</span>
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-xs">
-                                  <span className={aiMilestones?.photoStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.photoStory ? "✓" : "○"}</span>
-                                  <span className={aiMilestones?.photoStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestonePhotoStory}</span>
+                                <div className="w-full bg-stone-200 dark:bg-stone-800 h-1.5 rounded-full overflow-hidden mt-3">
+                                  <div
+                                    className="bg-purple-600 dark:bg-purple-400 h-full transition-all duration-1000 ease-out"
+                                    style={{ width: `${(aiMilestonesCompleted / aiMilestonesTotal) * 100}%` }}
+                                  />
                                 </div>
-                                <div className="flex items-center gap-2 text-xs">
-                                  <span className={aiMilestones?.audioStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.audioStory ? "✓" : "○"}</span>
-                                  <span className={aiMilestones?.audioStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneAudioStory}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs">
-                                  <span className={aiMilestones?.profilePhoto ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.profilePhoto ? "✓" : "○"}</span>
-                                  <span className={aiMilestones?.profilePhoto ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneProfilePhoto}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="w-full bg-stone-200 dark:bg-stone-800 h-1.5 rounded-full overflow-hidden mt-3">
-                              <div
-                                className="bg-purple-600 dark:bg-purple-400 h-full transition-all duration-1000 ease-out"
-                                style={{ width: `${(aiMilestonesCompleted / aiMilestonesTotal) * 100}%` }}
-                              />
-                            </div>
-                            <p className="text-xs font-bold uppercase tracking-widest">{aiMilestonesCompleted} / {aiMilestonesTotal} {t.chaptersCompleted}</p>
-                            {aiQuestionsUnlocked && (
-                              <div className="pt-2">
+                                <p className="text-xs font-bold uppercase tracking-widest">{aiMilestonesCompleted} / {aiMilestonesTotal} {t.chaptersCompleted}</p>
+                              </>
+                            ) : (
+                              <div className="pt-6">
                                 {isGeneratingAI ? (
                                   <span className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
                                     <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
