@@ -223,11 +223,25 @@ export default function Page() {
           {/* MAIN WRITE FLOW */}
           {step === "WRITE" && (
             <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
-              <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 h-[260px] flex flex-col justify-end pb-2">
+              <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 h-[260px] flex flex-col justify-end pb-2 relative group">
                 {!(isCustomMode || isPhotoMode || isAudioMode) && (
-                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
-                    {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
-                  </div>
+                  <>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
+                      {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
+                    </div>
+                    {!editingId && !allStarterUsed && (
+                      <button
+                        onClick={goNextQuestion}
+                        className="absolute top-0 right-0 p-3 text-stone-300 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-300 transition-colors opacity-0 group-hover:opacity-100"
+                        title={t.changeQuestion || "Change Question"}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="23 4 23 10 17 10"></polyline>
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
+                      </button>
+                    )}
+                  </>
                 )}
                 <h2 className="text-2xl sm:text-3xl font-serif leading-[1.15] sm:leading-snug text-stone-900 dark:text-stone-100 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                   {isCustomMode ? (
@@ -379,23 +393,7 @@ export default function Page() {
                   </>
                 )}
 
-                {!editingId && !isCustomMode && !isPhotoMode && !isAudioMode && (
-                  <>
-                    <div className="absolute left-2 sm:-left-5 top-1/2 -translate-y-1/2 z-30 pointer-events-auto transition-opacity">
-                      <ArrowButton direction="left" onClick={goPrevQuestion} disabled={allStarterUsed} />
-                    </div>
-                    <div className="absolute right-2 sm:-right-5 top-1/2 -translate-y-1/2 z-30 pointer-events-auto transition-opacity flex items-center">
-                      {showNudge && (
-                        <div className="mr-3 animate-in fade-in slide-in-from-right-4 duration-700 hidden sm:block">
-                          <span className="text-xs font-bold uppercase tracking-widest text-stone-400 dark:text-stone-500 whitespace-nowrap bg-white/80 dark:bg-midnight-900/80 px-3 py-1.5 rounded-full backdrop-blur-sm shadow-sm border border-stone-100 dark:border-stone-800">
-                            {t.nudgeTryAnother}
-                          </span>
-                        </div>
-                      )}
-                      <ArrowButton direction="right" onClick={goNextQuestion} disabled={allStarterUsed} shouldPulse={showNudge} />
-                    </div>
-                  </>
-                )}
+
               </div>
 
               <div className="space-y-6 flex-shrink-0 pb-8 sm:pb-4">

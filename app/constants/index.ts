@@ -202,6 +202,7 @@ export const TEXT = {
     lockedSubtitle: "Complete 5 chapters to unlock Photo, Audio, and Custom stories.",
     chaptersCompleted: "Chapters Completed",
     continueJourney: "Continue Journey",
+    changeQuestion: "Change Question",
   },
   es: {
     heroTagline: "Comienza tu legado.",
@@ -405,6 +406,7 @@ export const TEXT = {
     lockedSubtitle: "Completa 5 capítulos para desbloquear modos Foto, Audio y Libre.",
     chaptersCompleted: "Capítulos Completados",
     continueJourney: "Continuar Viaje",
+    changeQuestion: "Cambiar Pregunta",
   },
 };
 
