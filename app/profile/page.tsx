@@ -37,12 +37,59 @@ export default function ProfilePage() {
         }
     }
 
-    function downloadBackup() {
+    async function downloadBackup() {
         if (people.length === 0) return;
-        const data = { app: "VitaMyStory", version: "1.0", exportedAt: new Date().toISOString(), people: people };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const href = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = href; link.download = `vita-collection-${new Date().toISOString().split("T")[0]}.json`;
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+
+        const data = {
+            app: "VitaMyStory",
+            version: "1.0",
+            exportedAt: new Date().toISOString(),
+            people: people
+        };
+
+        const jsonString = JSON.stringify(data, null, 2);
+        const filename = `vita-collection-${new Date().toISOString().split("T")[0]}.json`;
+
+        // Try Web Share API first (works on mobile/tablet)
+        if (navigator.share && navigator.canShare) {
+            try {
+                const blob = new Blob([jsonString], { type: "application/json" });
+                const file = new File([blob], filename, { type: "application/json" });
+
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: "VitaMyStory Collection",
+                        text: "Your memory collection backup"
+                    });
+                    return;
+                }
+            } catch (err) {
+                console.log("Share API failed, trying download...", err);
+                // Fall through to traditional download
+            }
+        }
+
+        // Fallback: Traditional download (for desktop browsers)
+        try {
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const href = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = href;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(href);
+        } catch (err) {
+            // Last resort: Copy to clipboard
+            try {
+                await navigator.clipboard.writeText(jsonString);
+                alert("Backup copied to clipboard! Paste it into a text file to save.");
+            } catch (clipErr) {
+                alert("Unable to export. Please try on a different browser.");
+            }
+        }
     }
 
     if (!isHydrated) return null;
