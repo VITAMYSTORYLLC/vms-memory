@@ -225,23 +225,9 @@ export default function Page() {
             <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
               <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 h-[260px] flex flex-col justify-end pb-2 relative group">
                 {!(isCustomMode || isPhotoMode || isAudioMode) && (
-                  <>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
-                      {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
-                    </div>
-                    {!editingId && !allStarterUsed && (
-                      <button
-                        onClick={goNextQuestion}
-                        className="absolute top-0 right-0 p-2.5 bg-stone-100 dark:bg-stone-800 rounded-full text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-all shadow-sm"
-                        title={t.changeQuestion || "Change Question"}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="23 4 23 10 17 10"></polyline>
-                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                        </svg>
-                      </button>
-                    )}
-                  </>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
+                    {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
+                  </div>
                 )}
                 <h2 className="text-2xl sm:text-3xl font-serif leading-[1.15] sm:leading-snug text-stone-900 dark:text-stone-100 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                   {isCustomMode ? (
@@ -256,11 +242,11 @@ export default function Page() {
                     renderWithBoldName(displayQuestion.text)
                   )}
                 </h2>
-                <div className="min-h-[44px] flex items-center justify-center pt-3 relative">
+                <div className="min-h-[44px] flex items-center justify-center pt-3 relative gap-3">
                   {normalize(storyDraft).length > 20 ? (
                     <button
                       onClick={() => setShowRefineModal(true)}
-                      className="absolute w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-3 bg-gradient-to-r from-stone-800 to-stone-900 dark:from-stone-100 dark:to-stone-300 text-white dark:text-stone-900 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 animate-fadeInUp"
+                      className="w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-3 bg-gradient-to-r from-stone-800 to-stone-900 dark:from-stone-100 dark:to-stone-300 text-white dark:text-stone-900 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 animate-fadeInUp"
                     >
                       <span className="flex items-center gap-2">
                         <span className="animate-pulse">✨</span>
@@ -279,20 +265,33 @@ export default function Page() {
                     </button>
                   ) : (
                     !allStarterUsed && !editingId && !isPhotoMode && !isAudioMode && (
-                      <button
-                        onClick={() => {
-                          const idx = wrapIndex(questionIndex, QUESTIONS.length);
-                          // @ts-ignore
-                          const example = QUESTION_EXAMPLES[lang][idx];
-                          setInspiration(example);
-                        }}
-                        className={`absolute w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-2.5 bg-white/50 dark:bg-midnight-900/50 rounded-full border border-stone-100 dark:border-stone-800 animate-in fade-in duration-300 ${inspiration ? "text-stone-900 dark:text-stone-100 bg-white dark:bg-midnight-900 shadow-sm border-white dark:border-stone-700" : "text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 hover:bg-white dark:hover:bg-stone-900"}`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="text-stone-300 dark:text-stone-700">💡</span>
-                          {t.inspireMe}
-                        </span>
-                      </button>
+                      <>
+                        <button
+                          onClick={() => {
+                            const idx = wrapIndex(questionIndex, QUESTIONS.length);
+                            // @ts-ignore
+                            const example = QUESTION_EXAMPLES[lang][idx];
+                            setInspiration(example);
+                          }}
+                          className={`flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-2.5 px-6 bg-white/50 dark:bg-midnight-900/50 rounded-full border border-stone-100 dark:border-stone-800 animate-in fade-in duration-300 ${inspiration ? "text-stone-900 dark:text-stone-100 bg-white dark:bg-midnight-900 shadow-sm border-white dark:border-stone-700" : "text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-400 hover:bg-white dark:hover:bg-stone-900"}`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-stone-300 dark:text-stone-700">💡</span>
+                            {t.inspireMe}
+                          </span>
+                        </button>
+
+                        <button
+                          onClick={goNextQuestion}
+                          className="flex items-center justify-center p-2.5 bg-white/50 dark:bg-midnight-900/50 hover:bg-white dark:hover:bg-midnight-900 rounded-full text-stone-400 dark:text-stone-600 hover:text-stone-600 dark:hover:text-stone-300 border border-stone-100 dark:border-stone-800 transition-all shadow-sm animate-in fade-in duration-300"
+                          title={t.changeQuestion || "Change Question"}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                          </svg>
+                        </button>
+                      </>
                     )
                   )}
                 </div>
