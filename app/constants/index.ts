@@ -84,6 +84,7 @@ export const TEXT = {
     qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
     qMatteredMost: (name: string) => `What mattered most to |||${name}|||?`,
     qPhoto: (name: string) => `Here is a photo that reminds me of |||${name}|||...`,
+    qAudio: (name: string) => `This audio reminds me of |||${name}|||...`,
     starterComplete: "Starter questions complete. The rest of the book is yours to write.",
     // Auth
     login: "Log in",
@@ -279,6 +280,7 @@ export const TEXT = {
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
     qMatteredMost: (name: string) => `¿Qué era lo que más le importaba a |||${name}|||?`,
     qPhoto: (name: string) => `Esta foto me recuerda a |||${name}|||...`,
+    qAudio: (name: string) => `Este audio me recuerda a |||${name}|||...`,
     starterComplete: "Preguntas iniciales completas. El resto del libro es tuyo.",
     // Auth
     login: "Iniciar sesión",

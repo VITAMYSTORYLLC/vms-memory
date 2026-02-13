@@ -8,7 +8,7 @@ import { PrimaryButton } from "../components/PrimaryButton";
 import { plural } from "../utils";
 
 export default function StoriesPage() {
-    const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode } = useMemory();
+    const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode } = useMemory();
 
     const router = useRouter();
 
@@ -17,7 +17,8 @@ export default function StoriesPage() {
         setEditingPrompt(item.prompt);
         setStoryDraft(item.text);
         setImageDraft(item.imageUrl || "");
-        setIsPhotoMode(false); // Ensure photo mode is off for edits unless needed
+        setIsPhotoMode(false);
+        setIsAudioMode(false);
         router.push("/"); // Go to home/write
     }
 
@@ -47,9 +48,9 @@ export default function StoriesPage() {
                                 lang={lang}
                                 onDelete={deleteMemory}
                                 onEdit={startEditing}
-                                onAdd={() => { setIsPhotoMode(false); router.push("/"); }}
-                                onAddPhoto={() => { setIsPhotoMode(true); router.push("/"); }}
-                                onAddAudio={() => { setIsPhotoMode(false); router.push("/"); }}
+                                onAdd={() => { setIsPhotoMode(false); setIsAudioMode(false); router.push("/"); }}
+                                onAddPhoto={() => { setIsPhotoMode(true); setIsAudioMode(false); router.push("/"); }}
+                                onAddAudio={() => { setIsPhotoMode(false); setIsAudioMode(true); router.push("/"); }}
                             />
                         )}
                     </div>

@@ -44,6 +44,7 @@ export default function Page() {
     startNewPerson,
     addNotification,
     isPhotoMode, setIsPhotoMode,
+    isAudioMode, setIsAudioMode,
   } = useMemory();
 
   const router = useRouter();
@@ -134,6 +135,7 @@ export default function Page() {
   const displayQuestion = useMemo(() => {
     if (editingId && editingPrompt) return { type: "plain" as const, text: editingPrompt };
     if (isPhotoMode) return { type: "photo" as const, text: t.qPhoto(displayName) };
+    if (isAudioMode) return { type: "audio" as const, text: t.qAudio(displayName) };
     if (allStarterUsed) return { type: "free" as const, text: t.qFree };
     const q = currentQuestion; const name = displayName;
     if (q.includes("known for") || q.includes("conocidos")) return { type: "knownFor" as const, text: t.qKnownFor(name) };
@@ -142,7 +144,7 @@ export default function Page() {
     if (q.includes("everyone to know") || q.includes("todos sepan")) return { type: "everyoneKnow" as const, text: t.qEveryoneKnow(name) };
     if (q.includes("mattered most") || q.includes("más les importaba")) return { type: "matteredMost" as const, text: t.qMatteredMost(name) };
     return { type: "plain" as const, text: q };
-  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode]);
+  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode, isAudioMode]);
 
   const promptToSave = useMemo(() => (editingId && editingPrompt) ? editingPrompt : allStarterUsed ? "" : displayQuestion.text, [allStarterUsed, displayQuestion.text, editingId, editingPrompt]);
   const usedCount = usedSet.size; const starterTotal = QUESTIONS.length;
@@ -176,6 +178,7 @@ export default function Page() {
     }
     setIsSaving(false);
     setIsPhotoMode(false);
+    setIsAudioMode(false);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -303,10 +306,10 @@ export default function Page() {
                 <PrimaryButton disabled={!canSave || isSaving} onClick={handleSave}>
                   {isSaving ? t.saving : editingId ? t.updateStory : t.saveStory}
                 </PrimaryButton>
-                {(editingId || isPhotoMode) && (
+                {(editingId || isPhotoMode || isAudioMode) && (
                   <div className="text-center">
                     <button
-                      onClick={() => { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setIsPhotoMode(false); }}
+                      onClick={() => { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setIsPhotoMode(false); setIsAudioMode(false); }}
                       className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 font-sans transition-colors"
                     >
                       {lang === "es" ? "Cancelar" : "Cancel"}

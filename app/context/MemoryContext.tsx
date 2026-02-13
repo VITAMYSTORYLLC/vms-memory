@@ -65,6 +65,8 @@ interface MemoryContextType {
     setDraftKey: (key: string) => void;
     isPhotoMode: boolean;
     setIsPhotoMode: React.Dispatch<React.SetStateAction<boolean>>;
+    isAudioMode: boolean;
+    setIsAudioMode: React.Dispatch<React.SetStateAction<boolean>>;
 
     // Editing
     editingId: string | null;
@@ -124,6 +126,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     const [storyDraft, setStoryDraft] = useState("");
     const [imageDraft, setImageDraft] = useState<string>("");
     const [isPhotoMode, setIsPhotoMode] = useState(false);
+    const [isAudioMode, setIsAudioMode] = useState(false);
     const [draftKey, setDraftKey] = useState("default");
     const [inspiration, setInspiration] = useState<string | null>(null);
 
@@ -501,6 +504,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             inspiration, setInspiration,
             draftKey, setDraftKey,
             isPhotoMode, setIsPhotoMode,
+            isAudioMode, setIsAudioMode,
             editingId, setEditingId,
             editingPrompt, setEditingPrompt,
             saveStory,
