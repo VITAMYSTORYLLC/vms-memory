@@ -212,9 +212,11 @@ export default function Page() {
           {step === "WRITE" && (
             <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
               <div className="text-center space-y-3 mb-6 sm:mb-8 flex-shrink-0">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
-                  {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
-                </div>
+                {!(isCustomMode || isPhotoMode || isAudioMode) && (
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
+                    {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
+                  </div>
+                )}
                 <h2 className="text-2xl sm:text-3xl font-serif leading-tight sm:leading-relaxed text-stone-900 dark:text-stone-100 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                   {isCustomMode ? (
                     <input
