@@ -9,7 +9,7 @@ import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
 import { getQuestionText } from "../utils/questions";
-import { FiCamera, FiMic, FiPlus } from "react-icons/fi";
+import { FiCamera, FiMic, FiPlus, FiLock } from "react-icons/fi";
 
 interface StoryCarouselProps {
   items: MemoryItem[];
@@ -20,9 +20,11 @@ interface StoryCarouselProps {
   onAddPhoto?: () => void;
   onAddAudio?: () => void;
   initialIndex?: number;
+  lockedProgress?: { current: number; total: number };
+  onUnlockClick?: () => void;
 }
 
-export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0 }: StoryCarouselProps) {
+export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0, lockedProgress, onUnlockClick }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(initialIndex);
 
@@ -188,9 +190,13 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
 
   // Build the list of extra cards
   const extraCards = [];
-  if (onAdd) extraCards.push({ id: "add_card" });
-  if (onAddPhoto) extraCards.push({ id: "add_photo" });
-  if (onAddAudio) extraCards.push({ id: "add_audio" });
+  if (lockedProgress) {
+    extraCards.push({ id: "locked_card" });
+  } else {
+    if (onAdd) extraCards.push({ id: "add_card" });
+    if (onAddPhoto) extraCards.push({ id: "add_photo" });
+    if (onAddAudio) extraCards.push({ id: "add_audio" });
+  }
 
   const allItems = items.concat(extraCards as any);
 
@@ -208,7 +214,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
           const isAddCard = item.id === "add_card";
           const isPhotoCard = item.id === "add_photo";
           const isAudioCard = item.id === "add_audio";
-          const isActionCard = isAddCard || isPhotoCard || isAudioCard;
+          const isLockedCard = item.id === "locked_card";
+          const isActionCard = isAddCard || isPhotoCard || isAudioCard || isLockedCard;
 
           const isActive = i === index;
           const isLong = !isActionCard && item.text.length > 200;
@@ -222,10 +229,10 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                   setIndex(i);
                 } else if (isAddCard && onAdd) {
                   onAdd();
-                } else if (isPhotoCard && onAddPhoto) {
-                  onAddPhoto();
                 } else if (isAudioCard && onAddAudio) {
                   onAddAudio();
+                } else if (isLockedCard && onUnlockClick) {
+                  onUnlockClick();
                 }
               }}
               className={`flex-shrink-0 w-[90%] px-2 h-full transition-all duration-500 ease-out cursor-pointer ${isActive ? "scale-100 opacity-100 cursor-default" : "scale-[0.92] opacity-60 hover:opacity-80"}`}
@@ -234,22 +241,39 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
               <div className="bg-white dark:bg-midnight-900 border border-stone-200 dark:border-stone-800 shadow-xl rounded-[2rem] h-full flex flex-col relative overflow-hidden transition-colors">
                 {isActionCard ? (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center animate-in fade-in duration-500">
-                    <div className={`w-20 h-20 rounded-full bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 group-hover:scale-110 transition-transform duration-500 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' : isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' : ''}`}>
+                    <div className={`w-20 h-20 rounded-full bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 group-hover:scale-110 transition-transform duration-500 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' : isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' : isLockedCard ? 'group-hover:text-amber-400 group-hover:border-amber-200' : ''}`}>
                       {isAddCard && <FiPlus size={32} />}
                       {isPhotoCard && <FiCamera size={32} />}
                       {isAudioCard && <FiMic size={32} />}
+                      {isLockedCard && <FiLock size={32} />}
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 w-full">
                       <h4 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-xl">
                         {isAddCard && t.newStoryTitle}
                         {isPhotoCard && t.newPhotoTitle}
                         {isAudioCard && t.newAudioTitle}
+                        {isLockedCard && t.lockedTitle}
                       </h4>
-                      <p className="text-stone-400 dark:text-stone-600 font-sans text-sm italic">
+                      <div className="text-stone-400 dark:text-stone-600 font-sans text-sm italic">
                         {isAddCard && t.newStorySubtitle}
                         {isPhotoCard && t.newPhotoSubtitle}
                         {isAudioCard && t.newAudioSubtitle}
-                      </p>
+                        {isLockedCard && (
+                          <div className="space-y-3 mt-2">
+                            <p>{t.lockedSubtitle}</p>
+                            <div className="w-full bg-stone-200 dark:bg-stone-800 h-1.5 rounded-full overflow-hidden">
+                              <div
+                                className="bg-stone-800 dark:bg-stone-100 h-full transition-all duration-1000 ease-out"
+                                style={{ width: `${(lockedProgress?.current || 0) / (lockedProgress?.total || 1) * 100}%` }}
+                              />
+                            </div>
+                            <p className="text-xs font-bold uppercase tracking-widest">{lockedProgress?.current || 0} / {lockedProgress?.total || 5} {t.chaptersCompleted}</p>
+                            <div className="pt-2">
+                              <span className="text-xs font-bold uppercase tracking-widest text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100 pb-0.5">{t.continueJourney}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : (

@@ -198,6 +198,10 @@ export const TEXT = {
     success: "Success",
     error: "Error",
     photoUpdated: "Photo updated successfully",
+    lockedTitle: "Unlock New Modes",
+    lockedSubtitle: "Complete 5 chapters to unlock Photo, Audio, and Custom stories.",
+    chaptersCompleted: "Chapters Completed",
+    continueJourney: "Continue Journey",
   },
   es: {
     heroTagline: "Comienza tu legado.",
@@ -397,6 +401,10 @@ export const TEXT = {
     success: "Éxito",
     error: "Error",
     photoUpdated: "Foto actualizada con éxito",
+    lockedTitle: "Desbloquea Nuevos Modos",
+    lockedSubtitle: "Completa 5 capítulos para desbloquear modos Foto, Audio y Libre.",
+    chaptersCompleted: "Capítulos Completados",
+    continueJourney: "Continuar Viaje",
   },
 };
 

@@ -46,6 +46,12 @@ export default function StoriesPage() {
         router.push("/"); // Go to home/write
     }
 
+    // Check lock status
+    const CHAPTER_GOAL = 5;
+    const storiesCount = activeMemories.length;
+    const isLocked = storiesCount < CHAPTER_GOAL;
+    const lockedProgress = isLocked ? { current: storiesCount, total: CHAPTER_GOAL } : undefined;
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F9F8F6] dark:bg-midnight-950 safe-top safe-bottom pb-24 transition-colors duration-500">
             <div className="w-full max-w-lg font-sans h-full sm:h-auto">
@@ -73,6 +79,8 @@ export default function StoriesPage() {
                                 lang={lang}
                                 onDelete={deleteMemory}
                                 onEdit={startEditing}
+                                lockedProgress={lockedProgress}
+                                onUnlockClick={() => router.push("/")}
                                 onAdd={() => { setIsPhotoMode(false); setIsAudioMode(false); setIsCustomMode(true); router.push("/"); }}
                                 onAddPhoto={() => { setIsPhotoMode(true); setIsAudioMode(false); setIsCustomMode(false); router.push("/"); }}
                                 onAddAudio={() => { setIsPhotoMode(false); setIsAudioMode(true); setIsCustomMode(false); router.push("/"); }}
