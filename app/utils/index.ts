@@ -1,6 +1,5 @@
 import { Lang, MemoryItem } from "../types";
 import { LS } from "../constants";
-import heic2any from "heic2any";
 import imageCompression from "browser-image-compression";
 
 export function normalize(s: string): string { return (s ?? "").trim(); }
@@ -110,31 +109,8 @@ export function addBadge(personId: string, badgeId: string) {
 }
 
 export async function compressImage(file: File): Promise<string> {
-  let imageFile = file;
-
-  // Check for HEIC and convert if necessary
-  if (file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif") || file.type === "image/heic" || file.type === "image/heif") {
-    try {
-      // Use explicit blob creation for stability
-      const buffer = await file.arrayBuffer();
-      const blob = new Blob([buffer], { type: "image/heic" });
-
-      const converted = await heic2any({
-        blob,
-        toType: "image/jpeg",
-        quality: 0.9
-      });
-
-      const convertedBlob = Array.isArray(converted) ? converted[0] : converted;
-      // create a new File object
-      imageFile = new File([convertedBlob], file.name.replace(/\.(heic|heif)$/i, ".jpg"), { type: "image/jpeg", lastModified: Date.now() });
-    } catch (e: any) {
-      console.error("HEIC conversion error:", e?.message || e);
-      // We continue with original file in hopes browser supports it natively or compressor handles it
-    }
-  }
-
   // Use browser-image-compression for robust resizing/compression/EXIF handling
+  // It will handle HEIC if the browser supports it natively
   const options = {
     maxSizeMB: 0.8,
     maxWidthOrHeight: 1200,
@@ -144,16 +120,16 @@ export async function compressImage(file: File): Promise<string> {
   };
 
   try {
-    const compressedFile = await imageCompression(imageFile, options);
+    const compressedFile = await imageCompression(file, options);
     return await imageCompression.getDataUrlFromFile(compressedFile);
   } catch (error) {
     console.error("Image compression failed:", error);
-    // Fallback: try to read original/converted file directly if compression failed
+    // Fallback: try to read original file directly if compression failed
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target?.result as string);
       reader.onerror = reject;
-      reader.readAsDataURL(imageFile);
+      reader.readAsDataURL(file);
     });
   }
 }
