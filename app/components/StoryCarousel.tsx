@@ -160,7 +160,14 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
   }
 
   function next() {
-    const extraCards = (onAdd ? 1 : 0) + (onAddPhoto ? 1 : 0) + (onAddAudio ? 1 : 0);
+    // Calculate extra cards based on what's showing
+    let extraCards = 0;
+    if (lockedProgress) {
+      extraCards = 1; // Only the locked card
+    } else {
+      extraCards = (onAdd ? 1 : 0) + (onAddPhoto ? 1 : 0) + (onAddAudio ? 1 : 0);
+    }
+
     const maxIndex = items.length + extraCards - 1;
 
     if (index < maxIndex) {
