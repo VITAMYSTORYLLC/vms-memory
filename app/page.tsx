@@ -43,6 +43,7 @@ export default function Page() {
     setDraftKey,
     startNewPerson,
     addNotification,
+    isPhotoMode, setIsPhotoMode,
   } = useMemory();
 
   const router = useRouter();
@@ -86,6 +87,15 @@ export default function Page() {
     return () => clearInterval(checkInterval);
   }, [step, editingId, storyDraft]);
 
+  // Auto-open file picker in Photo Mode
+  useEffect(() => {
+    if (isPhotoMode && !imageDraft) {
+      setTimeout(() => {
+        fileInputRef.current?.click();
+      }, 600);
+    }
+  }, [isPhotoMode, imageDraft]);
+
   const { isListening, isSupported, toggleListening } = useDictation(lang, (text) => {
     setStoryDraft((prev) => prev + text);
   });
@@ -123,6 +133,7 @@ export default function Page() {
 
   const displayQuestion = useMemo(() => {
     if (editingId && editingPrompt) return { type: "plain" as const, text: editingPrompt };
+    if (isPhotoMode) return { type: "photo" as const, text: t.qPhoto(displayName) };
     if (allStarterUsed) return { type: "free" as const, text: t.qFree };
     const q = currentQuestion; const name = displayName;
     if (q.includes("known for") || q.includes("conocidos")) return { type: "knownFor" as const, text: t.qKnownFor(name) };
@@ -131,7 +142,7 @@ export default function Page() {
     if (q.includes("everyone to know") || q.includes("todos sepan")) return { type: "everyoneKnow" as const, text: t.qEveryoneKnow(name) };
     if (q.includes("mattered most") || q.includes("más les importaba")) return { type: "matteredMost" as const, text: t.qMatteredMost(name) };
     return { type: "plain" as const, text: q };
-  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt]);
+  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode]);
 
   const promptToSave = useMemo(() => (editingId && editingPrompt) ? editingPrompt : allStarterUsed ? "" : displayQuestion.text, [allStarterUsed, displayQuestion.text, editingId, editingPrompt]);
   const usedCount = usedSet.size; const starterTotal = QUESTIONS.length;
@@ -164,6 +175,7 @@ export default function Page() {
       setStep("SAVED");
     }
     setIsSaving(false);
+    setIsPhotoMode(false);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -291,13 +303,13 @@ export default function Page() {
                 <PrimaryButton disabled={!canSave || isSaving} onClick={handleSave}>
                   {isSaving ? t.saving : editingId ? t.updateStory : t.saveStory}
                 </PrimaryButton>
-                {editingId && (
+                {(editingId || isPhotoMode) && (
                   <div className="text-center">
                     <button
-                      onClick={() => { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); }}
+                      onClick={() => { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setIsPhotoMode(false); }}
                       className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 font-sans transition-colors"
                     >
-                      {lang === "es" ? "Cancelar edición" : "Cancel editing"}
+                      {lang === "es" ? "Cancelar" : "Cancel"}
                     </button>
                   </div>
                 )}

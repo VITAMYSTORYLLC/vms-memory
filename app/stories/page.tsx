@@ -8,7 +8,8 @@ import { PrimaryButton } from "../components/PrimaryButton";
 import { plural } from "../utils";
 
 export default function StoriesPage() {
-    const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t } = useMemory();
+    const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode } = useMemory();
+
     const router = useRouter();
 
     function startEditing(item: any) {
@@ -16,6 +17,7 @@ export default function StoriesPage() {
         setEditingPrompt(item.prompt);
         setStoryDraft(item.text);
         setImageDraft(item.imageUrl || "");
+        setIsPhotoMode(false); // Ensure photo mode is off for edits unless needed
         router.push("/"); // Go to home/write
     }
 
@@ -45,9 +47,9 @@ export default function StoriesPage() {
                                 lang={lang}
                                 onDelete={deleteMemory}
                                 onEdit={startEditing}
-                                onAdd={() => router.push("/")}
-                                onAddPhoto={() => router.push("/")}
-                                onAddAudio={() => router.push("/")}
+                                onAdd={() => { setIsPhotoMode(false); router.push("/"); }}
+                                onAddPhoto={() => { setIsPhotoMode(true); router.push("/"); }}
+                                onAddAudio={() => { setIsPhotoMode(false); router.push("/"); }}
                             />
                         )}
                     </div>

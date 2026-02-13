@@ -83,6 +83,7 @@ export const TEXT = {
     qFirstMemory: (name: string) => `What’s the first memory that comes to mind when you think of |||${name}|||?`,
     qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
     qMatteredMost: (name: string) => `What mattered most to |||${name}|||?`,
+    qPhoto: (name: string) => `Here is a photo that reminds me of |||${name}|||...`,
     starterComplete: "Starter questions complete. The rest of the book is yours to write.",
     // Auth
     login: "Log in",
@@ -277,6 +278,7 @@ export const TEXT = {
     qFirstMemory: (name: string) => `¿Cuál es el primer recuerdo que te viene a la mente al pensar en |||${name}|||?`,
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
     qMatteredMost: (name: string) => `¿Qué era lo que más le importaba a |||${name}|||?`,
+    qPhoto: (name: string) => `Aquí hay una foto que me recuerda a |||${name}|||...`,
     starterComplete: "Preguntas iniciales completas. El resto del libro es tuyo.",
     // Auth
     login: "Iniciar sesión",
