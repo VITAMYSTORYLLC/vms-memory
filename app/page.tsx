@@ -223,7 +223,7 @@ export default function Page() {
           {/* MAIN WRITE FLOW */}
           {step === "WRITE" && (
             <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
-              <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 min-h-[200px] flex flex-col justify-center">
+              <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 h-[260px] flex flex-col justify-end pb-2">
                 {!(isCustomMode || isPhotoMode || isAudioMode) && (
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
                     {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
