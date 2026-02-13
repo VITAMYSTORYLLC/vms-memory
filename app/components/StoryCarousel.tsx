@@ -206,7 +206,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
           const isActionCard = isAddCard || isPhotoCard || isAudioCard;
 
           const isActive = i === index;
-          const isLong = !isActionCard && item.text.length > 70;
+          const isLong = !isActionCard && item.text.length > 200;
 
           return (
             <div
