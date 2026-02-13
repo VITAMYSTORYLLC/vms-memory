@@ -1,5 +1,6 @@
 import { Lang, MemoryItem } from "../types";
 import { LS } from "../constants";
+import heic2any from "heic2any";
 
 export function normalize(s: string): string { return (s ?? "").trim(); }
 
@@ -107,10 +108,22 @@ export function addBadge(personId: string, badgeId: string) {
   saveJSON(`${LS.badgesPrefix}${personId}`, [...current, badgeId]);
 }
 
-export function compressImage(file: File): Promise<string> {
+export async function compressImage(file: File): Promise<string> {
+  let sourceBlob: Blob = file;
+
+  // Check for HEIC
+  if (file.name.toLowerCase().endsWith(".heic") || file.name.toLowerCase().endsWith(".heif") || file.type === "image/heic" || file.type === "image/heif") {
+    try {
+      const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: 0.8 });
+      sourceBlob = Array.isArray(converted) ? converted[0] : converted;
+    } catch (e) {
+      console.warn("HEIC conversion failed, trying original", e);
+    }
+  }
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(sourceBlob);
     reader.onload = (e) => {
       const img = new Image();
       img.src = e.target?.result as string;

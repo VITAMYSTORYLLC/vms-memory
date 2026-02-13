@@ -358,7 +358,7 @@ export default function Page() {
                         </span>
                       </button>
                     )}
-                    <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    <input type="file" ref={fileInputRef} accept="image/*,.heic,.HEIC" className="hidden" onChange={handleImageUpload} />
                   </div>
                 ) : (
                   <>
@@ -380,7 +380,7 @@ export default function Page() {
                     />
 
                     <div className="absolute bottom-4 right-4 z-20 flex gap-2">
-                      <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleImageUpload} />
+                      <input type="file" ref={fileInputRef} accept="image/*,.heic,.HEIC" className="hidden" onChange={handleImageUpload} />
                       <button onClick={() => fileInputRef.current?.click()} className={`p-3 rounded-full shadow-lg border transition-all ${imageDraft ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100" : "bg-white dark:bg-midnight-800 text-stone-400 dark:text-stone-500 border-stone-100 dark:border-stone-700 hover:text-stone-600 dark:hover:text-stone-300 hover:scale-105"}`}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                       </button>
