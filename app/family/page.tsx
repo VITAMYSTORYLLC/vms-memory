@@ -150,8 +150,9 @@ export default function FamilyPage() {
             const res = await fetch(compressedBase64);
             const blob = await res.blob();
 
-            const path = `people/${uploadingForId}/profile`;
-            const downloadUrl = await uploadImage(user.uid, blob, path);
+            // Corrected path and arguments
+            const fullPath = `users/${user.uid}/people/${uploadingForId}/profile`;
+            const downloadUrl = await uploadImage(blob, fullPath);
 
             if (downloadUrl) {
                 updatePersonPhoto(uploadingForId, downloadUrl);
