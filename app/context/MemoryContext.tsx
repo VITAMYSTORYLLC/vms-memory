@@ -67,6 +67,8 @@ interface MemoryContextType {
     setIsPhotoMode: React.Dispatch<React.SetStateAction<boolean>>;
     isAudioMode: boolean;
     setIsAudioMode: React.Dispatch<React.SetStateAction<boolean>>;
+    isCustomMode: boolean;
+    setIsCustomMode: React.Dispatch<React.SetStateAction<boolean>>;
 
     // Editing
     editingId: string | null;
@@ -128,6 +130,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     const [imageDraft, setImageDraft] = useState<string>("");
     const [isPhotoMode, setIsPhotoMode] = useState(false);
     const [isAudioMode, setIsAudioMode] = useState(false);
+    const [isCustomMode, setIsCustomMode] = useState(false);
     const [draftKey, setDraftKey] = useState("default");
     const [inspiration, setInspiration] = useState<string | null>(null);
 
@@ -510,6 +513,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             draftKey, setDraftKey,
             isPhotoMode, setIsPhotoMode,
             isAudioMode, setIsAudioMode,
+            isCustomMode, setIsCustomMode,
             editingId, setEditingId,
             editingPrompt, setEditingPrompt,
             saveStory,

@@ -45,6 +45,7 @@ export default function Page() {
     addNotification,
     isPhotoMode, setIsPhotoMode,
     isAudioMode, setIsAudioMode,
+    isCustomMode, setIsCustomMode,
   } = useMemory();
 
   const router = useRouter();
@@ -133,6 +134,7 @@ export default function Page() {
   const currentQuestion = useMemo(() => QUESTIONS[wrapIndex(questionIndex, QUESTIONS.length)] || QUESTIONS[0], [questionIndex, QUESTIONS]);
 
   const displayQuestion = useMemo(() => {
+    if (isCustomMode) return { type: "custom" as const, text: editingPrompt };
     if (editingId && editingPrompt) return { type: "plain" as const, text: editingPrompt };
     if (isPhotoMode) return { type: "photo" as const, text: t.qPhoto(displayName) };
     if (isAudioMode) return { type: "audio" as const, text: t.qAudio(displayName) };
@@ -144,9 +146,13 @@ export default function Page() {
     if (q.includes("everyone to know") || q.includes("todos sepan")) return { type: "everyoneKnow" as const, text: t.qEveryoneKnow(name) };
     if (q.includes("mattered most") || q.includes("más les importaba")) return { type: "matteredMost" as const, text: t.qMatteredMost(name) };
     return { type: "plain" as const, text: q };
-  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode, isAudioMode]);
+  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode, isAudioMode, isCustomMode]);
 
-  const promptToSave = useMemo(() => (editingId && editingPrompt) ? editingPrompt : allStarterUsed ? "" : displayQuestion.text, [allStarterUsed, displayQuestion.text, editingId, editingPrompt]);
+  const promptToSave = useMemo(() => {
+    if (isCustomMode) return editingPrompt || t.newStoryTitle;
+    if (editingId && editingPrompt) return editingPrompt;
+    return allStarterUsed ? "" : displayQuestion.text;
+  }, [allStarterUsed, displayQuestion.text, editingId, editingPrompt, isCustomMode, t]);
   const usedCount = usedSet.size; const starterTotal = QUESTIONS.length;
   const starterProgressIndex = useMemo(() => Math.min(starterTotal, Math.max(1, usedCount + 1)), [starterTotal, usedCount]);
 
@@ -161,7 +167,7 @@ export default function Page() {
   async function handleSave() {
     setIsSaving(true);
     await new Promise(r => setTimeout(r, 800));
-    const questionIdToSave = allStarterUsed ? "free" : `q_${wrapIndex(questionIndex, QUESTIONS.length)}`;
+    const questionIdToSave = (allStarterUsed || isCustomMode) ? "free" : `q_${wrapIndex(questionIndex, QUESTIONS.length)}`;
     const savedPersonId = await saveStory(promptToSave, questionIdToSave);
     if (!savedPersonId) {
       setIsSaving(false);
@@ -179,6 +185,7 @@ export default function Page() {
     setIsSaving(false);
     setIsPhotoMode(false);
     setIsAudioMode(false);
+    setIsCustomMode(false);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -209,7 +216,17 @@ export default function Page() {
                   {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-serif leading-tight sm:leading-relaxed text-stone-900 dark:text-stone-100 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                  {renderWithBoldName(displayQuestion.text)}
+                  {isCustomMode ? (
+                    <input
+                      value={editingPrompt}
+                      onChange={(e) => setEditingPrompt(e.target.value)}
+                      placeholder={t.newStoryTitle}
+                      className="w-full text-center bg-transparent border-b border-stone-200 dark:border-stone-800 focus:border-stone-500 focus:outline-none placeholder:text-stone-300 dark:placeholder:text-stone-700 placeholder:italic transition-colors"
+                      autoFocus
+                    />
+                  ) : (
+                    renderWithBoldName(displayQuestion.text)
+                  )}
                 </h2>
                 <div className="min-h-[44px] flex items-center justify-center pt-3 relative">
                   {normalize(storyDraft).length > 20 ? (
@@ -371,10 +388,10 @@ export default function Page() {
                 <PrimaryButton disabled={!canSave || isSaving} onClick={handleSave}>
                   {isSaving ? t.saving : editingId ? t.updateStory : t.saveStory}
                 </PrimaryButton>
-                {(editingId || isPhotoMode || isAudioMode) && (
+                {(editingId || isPhotoMode || isAudioMode || isCustomMode) && (
                   <div className="text-center">
                     <button
-                      onClick={() => { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setIsPhotoMode(false); setIsAudioMode(false); }}
+                      onClick={() => { setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setIsPhotoMode(false); setIsAudioMode(false); setIsCustomMode(false); }}
                       className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 font-sans transition-colors"
                     >
                       {lang === "es" ? "Cancelar" : "Cancel"}
