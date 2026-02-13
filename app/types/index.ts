@@ -25,6 +25,8 @@ export type Person = {
   memories: MemoryItem[];
   createdAt: number;
   photoUrl?: string;
+  aiQuestions?: string[];
+  aiQuestionsUnlockedAt?: number;
 };
 
 export type AuthUser = {

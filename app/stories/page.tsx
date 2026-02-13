@@ -8,7 +8,7 @@ import { PrimaryButton } from "../components/PrimaryButton";
 import { plural } from "../utils";
 
 export default function StoriesPage() {
-    const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode, setIsCustomMode } = useMemory();
+    const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode, setIsCustomMode, generateAIQuestions, setIsAIMode, setAICurrentQuestionIndex } = useMemory();
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -102,7 +102,22 @@ export default function StoriesPage() {
                                 aiMilestonesCompleted={aiMilestonesCompleted}
                                 aiMilestonesTotal={aiMilestonesTotal}
                                 aiQuestionsUnlocked={aiQuestionsUnlocked}
-                                onAIQuestionsClick={() => router.push("/")} // TODO: Navigate to AI questions mode
+                                onAIQuestionsClick={async () => {
+                                    if (!activePerson) return;
+
+                                    // Generate questions if not already generated
+                                    if (!activePerson.aiQuestions || activePerson.aiQuestions.length === 0) {
+                                        await generateAIQuestions(activePerson.id);
+                                    }
+
+                                    // Navigate to AI mode
+                                    setIsPhotoMode(false);
+                                    setIsAudioMode(false);
+                                    setIsCustomMode(false);
+                                    setIsAIMode(true);
+                                    setAICurrentQuestionIndex(0);
+                                    router.push("/");
+                                }}
                                 onAdd={() => { setIsPhotoMode(false); setIsAudioMode(false); setIsCustomMode(true); router.push("/"); }}
                                 onAddPhoto={() => { setIsPhotoMode(true); setIsAudioMode(false); setIsCustomMode(false); router.push("/"); }}
                                 onAddAudio={() => { setIsPhotoMode(false); setIsAudioMode(true); setIsCustomMode(false); router.push("/"); }}

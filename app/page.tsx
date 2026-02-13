@@ -46,6 +46,8 @@ export default function Page() {
     isPhotoMode, setIsPhotoMode,
     isAudioMode, setIsAudioMode,
     isCustomMode, setIsCustomMode,
+    isAIMode, setIsAIMode,
+    aiCurrentQuestionIndex, setAICurrentQuestionIndex,
   } = useMemory();
 
   const router = useRouter();
@@ -146,6 +148,10 @@ export default function Page() {
   const currentQuestion = useMemo(() => QUESTIONS[wrapIndex(questionIndex, QUESTIONS.length)] || QUESTIONS[0], [questionIndex, QUESTIONS]);
 
   const displayQuestion = useMemo(() => {
+    if (isAIMode && activePerson?.aiQuestions && activePerson.aiQuestions.length > 0) {
+      const aiQuestion = activePerson.aiQuestions[aiCurrentQuestionIndex] || activePerson.aiQuestions[0];
+      return { type: "ai" as const, text: aiQuestion };
+    }
     if (isCustomMode) return { type: "custom" as const, text: editingPrompt };
     if (editingId && editingPrompt) return { type: "plain" as const, text: editingPrompt };
     if (isPhotoMode) return { type: "photo" as const, text: t.qPhoto(displayName) };
@@ -158,7 +164,7 @@ export default function Page() {
     if (q.includes("everyone to know") || q.includes("todos sepan")) return { type: "everyoneKnow" as const, text: t.qEveryoneKnow(name) };
     if (q.includes("mattered most") || q.includes("más les importaba")) return { type: "matteredMost" as const, text: t.qMatteredMost(name) };
     return { type: "plain" as const, text: q };
-  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode, isAudioMode, isCustomMode]);
+  }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode, isAudioMode, isCustomMode, isAIMode, activePerson, aiCurrentQuestionIndex]);
 
   const promptToSave = useMemo(() => {
     if (isCustomMode) return editingPrompt || t.newStoryTitle;
@@ -169,7 +175,17 @@ export default function Page() {
   const starterProgressIndex = useMemo(() => Math.min(starterTotal, Math.max(1, usedCount + 1)), [starterTotal, usedCount]);
 
   function goPrevQuestion() { if (allStarterUsed) return; setQuestionIndex((i) => nextUnusedIndex(i, -1, QUESTIONS.length, usedSet)); setInspiration(null); }
-  function goNextQuestion() { if (allStarterUsed) return; setQuestionIndex((i) => nextUnusedIndex(i, 1, QUESTIONS.length, usedSet)); setInspiration(null); }
+  function goNextQuestion() {
+    if (isAIMode && activePerson?.aiQuestions) {
+      const nextIndex = (aiCurrentQuestionIndex + 1) % activePerson.aiQuestions.length;
+      setAICurrentQuestionIndex(nextIndex);
+      setInspiration(null);
+      return;
+    }
+    if (allStarterUsed) return;
+    setQuestionIndex((i) => nextUnusedIndex(i, 1, QUESTIONS.length, usedSet));
+    setInspiration(null);
+  }
   const questionSwipeHandlers = useSwipe(goNextQuestion, goPrevQuestion);
 
   function markCurrentQuestionUsed(personId: string) { if (!personId || allStarterUsed) return; const idx = wrapIndex(questionIndex, QUESTIONS.length); saveUsedQuestionIndexes(personId, [...Array.from(usedSet), idx]); setUsedVersion((v) => v + 1); }
@@ -225,7 +241,7 @@ export default function Page() {
           {step === "WRITE" && (
             <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
               <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 h-[260px] flex flex-col justify-end pb-2 relative group">
-                {!(isCustomMode || isPhotoMode || isAudioMode) && (
+                {!(isCustomMode || isPhotoMode || isAudioMode || isAIMode) && (
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
                     {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
                   </div>
@@ -265,7 +281,7 @@ export default function Page() {
                       </span>
                     </button>
                   ) : (
-                    !allStarterUsed && !editingId && !isPhotoMode && !isAudioMode && (
+                    (!allStarterUsed || isAIMode) && !editingId && !isPhotoMode && !isAudioMode && (
                       <>
                         <button
                           onClick={() => {

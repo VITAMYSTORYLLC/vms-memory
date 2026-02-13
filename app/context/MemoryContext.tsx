@@ -69,6 +69,10 @@ interface MemoryContextType {
     setIsAudioMode: React.Dispatch<React.SetStateAction<boolean>>;
     isCustomMode: boolean;
     setIsCustomMode: React.Dispatch<React.SetStateAction<boolean>>;
+    isAIMode: boolean;
+    setIsAIMode: React.Dispatch<React.SetStateAction<boolean>>;
+    aiCurrentQuestionIndex: number;
+    setAICurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
 
     // Editing
     editingId: string | null;
@@ -82,6 +86,7 @@ interface MemoryContextType {
     deletePerson: (personId: string) => void;
     updatePersonName: (personId: string, newName: string) => void;
     updatePersonPhoto: (personId: string, newPhotoUrl: string) => void;
+    generateAIQuestions: (personId: string) => Promise<void>;
     startNewPerson: () => void;
     resetApp: () => void;
     refreshState: () => void; // Force update if needed
@@ -131,6 +136,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     const [isPhotoMode, setIsPhotoMode] = useState(false);
     const [isAudioMode, setIsAudioMode] = useState(false);
     const [isCustomMode, setIsCustomMode] = useState(false);
+    const [isAIMode, setIsAIMode] = useState(false);
+    const [aiCurrentQuestionIndex, setAICurrentQuestionIndex] = useState(0);
     const [draftKey, setDraftKey] = useState("default");
     const [inspiration, setInspiration] = useState<string | null>(null);
 
@@ -330,6 +337,53 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setPeople((prev) => prev.map((p) => p.id === personId ? { ...p, photoUrl: newPhotoUrl } : p));
     }
 
+    async function generateAIQuestions(personId: string) {
+        const person = people.find(p => p.id === personId);
+        if (!person) return;
+
+        try {
+            // Import the AI function
+            const { generatePersonalizedQuestions } = await import('../utils/ai');
+
+            // Prepare story context
+            const storyContext = person.memories.map(m => ({
+                prompt: m.prompt,
+                text: m.text
+            }));
+
+            // Generate 5 questions
+            const questions = await generatePersonalizedQuestions(
+                person.name,
+                storyContext,
+                lang,
+                5
+            );
+
+            // Store questions and unlock timestamp
+            setPeople((prev) => prev.map((p) =>
+                p.id === personId
+                    ? { ...p, aiQuestions: questions, aiQuestionsUnlockedAt: Date.now() }
+                    : p
+            ));
+
+            // Show success notification
+            addNotification(
+                t.aiQuestionsUnlockedTitle,
+                t.aiQuestionsUnlockedBody,
+                "feature",
+                { titleKey: "aiQuestionsUnlockedTitle", bodyKey: "aiQuestionsUnlockedBody" }
+            );
+        } catch (error) {
+            console.error("Failed to generate AI questions:", error);
+            addNotification(
+                t.errorTitle || "Error",
+                "Failed to generate AI questions. Please try again.",
+                "error",
+                { titleKey: "errorTitle" }
+            );
+        }
+    }
+
     function completeOnboarding() {
         setIsOnboarded(true);
     }
@@ -514,6 +568,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             isPhotoMode, setIsPhotoMode,
             isAudioMode, setIsAudioMode,
             isCustomMode, setIsCustomMode,
+            isAIMode, setIsAIMode,
+            aiCurrentQuestionIndex, setAICurrentQuestionIndex,
             editingId, setEditingId,
             editingPrompt, setEditingPrompt,
             saveStory,
@@ -521,6 +577,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             deletePerson,
             updatePersonName,
             updatePersonPhoto,
+            generateAIQuestions,
             startNewPerson,
 
             resetApp,
