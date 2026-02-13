@@ -216,6 +216,7 @@ export const TEXT = {
     aiQuestionsUnlockedBody: "Get personalized questions based on the stories you've shared!",
     generateMoreQuestions: "Generate More Questions",
     generatingQuestions: "Generating...",
+    aiQuestionsDescription: "We learn from your stories to create questions just for you.",
   },
   es: {
     heroTagline: "Comienza tu legado.",
@@ -433,6 +434,7 @@ export const TEXT = {
     aiQuestionsUnlockedBody: "¡Obtén preguntas personalizadas basadas en las historias que has compartido!",
     generateMoreQuestions: "Generar Más Preguntas",
     generatingQuestions: "Generando...",
+    aiQuestionsDescription: "Aprendemos y mejoramos preguntas personalizadas para ti.",
   },
 };
 
