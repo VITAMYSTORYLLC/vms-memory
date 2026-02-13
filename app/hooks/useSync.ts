@@ -6,51 +6,52 @@ import { db } from "../lib/firebase";
 import { useAuth } from "./useAuth";
 import { Person } from "../types";
 
-export function useSync(people: Person[], setPeople: (p: Person[]) => void) {
+export function useSync(
+    people: Person[],
+    setPeople: (p: Person[]) => void,
+    userName: string,
+    setUserName: (n: string) => void,
+    userPhoto: string,
+    setUserPhoto: (u: string) => void
+) {
     const { user } = useAuth();
-
-    // Safety flag to prevent infinite loops:
-    // If we just received data from the cloud, we don't want to immediately save it back.
     const isReceivingUpdate = useRef(false);
 
-    // 1. Downloading data (Real-time Listener)
+    // 1. Downloading data
     useEffect(() => {
         if (!user) return;
 
         const docRef = doc(db, "users", user.uid);
-
-        // Listen for changes on the server
         const unsubscribe = onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                if (data.people && Array.isArray(data.people)) {
-                    // Compare? Or just overwrite?
-                    // For now, overwrite local state with server state.
-                    // IMPORTANT: Set flag so we don't trigger the save effect below
-                    isReceivingUpdate.current = true;
-                    setPeople(data.people);
+                isReceivingUpdate.current = true;
 
-                    // Reset flag after a short delay (allows React to render)
-                    setTimeout(() => {
-                        isReceivingUpdate.current = false;
-                    }, 500);
+                // Sync People
+                if (data.people && Array.isArray(data.people)) {
+                    setPeople(data.people);
                 }
-            } else {
-                // If doc doesn't exist yet, we might want to create it with current state
-                // handled by the save effect below
+
+                // Sync Profile Data
+                if (data.displayName) {
+                    setUserName(data.displayName);
+                }
+                if (data.photoURL) {
+                    setUserPhoto(data.photoURL);
+                }
+
+                setTimeout(() => {
+                    isReceivingUpdate.current = false;
+                }, 500);
             }
-        }, (error) => {
-            console.error("Sync Error:", error);
         });
 
         return () => unsubscribe();
-    }, [user, setPeople]);
+    }, [user, setPeople, setUserName, setUserPhoto]);
 
-    // 2. Uploading data when people change
+    // 2. Uploading data
     useEffect(() => {
         if (!user) return;
-
-        // If this change was caused by a cloud update, DO NOT save back to cloud.
         if (isReceivingUpdate.current) return;
 
         const timeoutId = setTimeout(async () => {
@@ -58,15 +59,17 @@ export function useSync(people: Person[], setPeople: (p: Person[]) => void) {
                 const docRef = doc(db, "users", user.uid);
                 await setDoc(docRef, {
                     people: people,
+                    displayName: userName,
+                    photoURL: userPhoto,
                     updatedAt: Date.now()
                 }, { merge: true });
             } catch (e) {
                 console.error("Error saving to cloud:", e);
             }
-        }, 2000); // 2 second debounce
+        }, 2000);
 
         return () => clearTimeout(timeoutId);
-    }, [people, user]);
+    }, [people, userName, userPhoto, user]);
 
     return null;
 }

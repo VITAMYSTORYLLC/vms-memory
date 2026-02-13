@@ -5,13 +5,14 @@ import { useMemory } from "../context/MemoryContext";
 import { useAuth } from "../hooks/useAuth";
 import { AuthModal } from "../components/AuthModal";
 import { compressImage } from "../utils";
+import { uploadImage } from "../utils/storage";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { SecondaryButton } from "../components/SecondaryButton";
 import { useRouter } from "next/navigation";
 import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail } from "react-icons/fi";
 
 export default function ProfilePage() {
-    const { user, handleLogout, resetApp, lang, setLang, theme, setTheme, t, people, userName, setUserName, isHydrated } = useMemory();
+    const { user, handleLogout, resetApp, lang, setLang, theme, setTheme, t, people, userName, setUserName, isHydrated, userPhoto, setUserPhoto } = useMemory();
     const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const router = useRouter();
 
@@ -19,21 +20,40 @@ export default function ProfilePage() {
     const [profileImage, setProfileImage] = useState<string>("");
     const [isEditingName, setIsEditingName] = useState(false);
 
-    // Load profile image on mount
+    // Load profile image - Prioritize sync state (userPhoto), then local storage
     React.useEffect(() => {
-        const stored = window.localStorage.getItem("vms_user_photo");
-        if (stored) setProfileImage(stored);
-    }, []);
+        if (userPhoto) {
+            setProfileImage(userPhoto);
+        } else {
+            const stored = window.localStorage.getItem("vms_user_photo");
+            if (stored) setProfileImage(stored);
+        }
+    }, [userPhoto]);
 
     async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
         if (!file) return;
         try {
+            // 1. Compress
             const result = await compressImage(file);
-            setProfileImage(result);
+            setProfileImage(result); // Instant local update
+
+            // 2. Upload to Cloud (if logged in)
+            if (user) {
+                const blob = await (await fetch(result)).blob();
+                const path = `users/${user.uid}/profile`; // Storage util adds filename
+                const downloadUrl = await uploadImage(blob, path);
+
+                // 3. Update Sync State
+                setUserPhoto(downloadUrl);
+            }
+
+            // 4. Save Local Backup
             window.localStorage.setItem("vms_user_photo", result);
+
         } catch (err) {
-            console.error(err);
+            console.error("Upload failed:", err);
+            // Fallback: Just keep local update if upload fails
         }
     }
 

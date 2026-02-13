@@ -86,6 +86,8 @@ interface MemoryContextType {
     // Display Name
     userName: string;
     setUserName: React.Dispatch<React.SetStateAction<string>>;
+    userPhoto: string;
+    setUserPhoto: React.Dispatch<React.SetStateAction<string>>;
 
     // Auth
     user: any;
@@ -141,12 +143,13 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // Onboarding
     const [isOnboarded, setIsOnboarded] = useState(false);
     const [userName, setUserName] = useState("");
+    const [userPhoto, setUserPhoto] = useState("");
 
     // Notifications
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
     // --- SYNC HOOK ---
-    useSync(people, setPeople);
+    useSync(people, setPeople, userName, setUserName, userPhoto, setUserPhoto);
 
     // --- Hydration ---
     useEffect(() => {
@@ -484,6 +487,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             activePersonId, setActivePersonId,
             lang, setLang,
             isHydrated,
+            userName, setUserName,
+            userPhoto, setUserPhoto,
             activePerson,
             activeMemories,
             t,
@@ -506,8 +511,6 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             handleLogout,
             isOnboarded,
             completeOnboarding,
-            userName,
-            setUserName,
 
 
 
