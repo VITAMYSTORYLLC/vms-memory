@@ -41,6 +41,11 @@ export interface Notification {
   message: string;
   date: number;
   read: boolean;
+  translationData?: {
+    titleKey?: string;
+    bodyKey?: string;
+    params?: any;
+  };
 }
 
 export interface Comment {

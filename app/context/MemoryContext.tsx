@@ -93,7 +93,7 @@ interface MemoryContextType {
 
     // Notifications
     notifications: Notification[];
-    addNotification: (title: string, message: string, type?: NotificationType) => void;
+    addNotification: (title: string, message: string, type?: NotificationType, translationData?: any) => void;
     markAsRead: (id: string) => void;
     markAllAsRead: () => void;
     deleteNotification: (id: string) => void;
@@ -218,7 +218,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         if (loadString(key) !== "true") {
             // Need to wrap in timer to ensure Translation is ready and hydration settled
             setTimeout(() => {
-                addNotification(t.notificationWelcomeTitle, t.notificationWelcomeBody, "success");
+                addNotification(t.notificationWelcomeTitle, t.notificationWelcomeBody, "success", { titleKey: "notificationWelcomeTitle", bodyKey: "notificationWelcomeBody" });
                 saveString(key, "true");
             }, 1000);
         }
@@ -345,14 +345,20 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Notifications Actions
-    function addNotification(title: string, message: string, type: NotificationType = "info") {
+    function addNotification(
+        title: string,
+        message: string,
+        type: NotificationType = "info",
+        translationData?: { titleKey?: string, bodyKey?: string, params?: any }
+    ) {
         const newNote: Notification = {
             id: makeId(),
             title,
             message,
             type,
             date: Date.now(),
-            read: false
+            read: false,
+            translationData
         };
         setNotifications(prev => [newNote, ...prev]);
         setActiveToast({ title, message, type });
@@ -390,7 +396,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                 finalImageUrl = await uploadImage(blob, path);
             } catch (err) {
                 console.error("Failed to upload image:", err);
-                addNotification(t.errorTitle || "Error", "Failed to upload image. Please try again.", "error");
+                addNotification(t.errorTitle || "Error", "Failed to upload image. Please try again.", "error", { titleKey: "errorTitle" });
                 return null;
             }
         }
@@ -423,7 +429,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                     addNotification(
                         t.notificationMilestoneTitle,
                         t.milestoneMsg(p.name),
-                        "feature"
+                        "feature",
+                        { titleKey: "notificationMilestoneTitle", bodyKey: "milestoneMsg", params: { name: p.name } }
                     );
                 }
 
@@ -451,7 +458,12 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setActivePersonId(p.id);
 
         // Notify: Person Created
-        addNotification(t.notificationPersonCreatedTitle, t.notificationPersonCreatedBody, "success");
+        addNotification(
+            t.notificationPersonCreatedTitle,
+            t.notificationPersonCreatedBody,
+            "success",
+            { titleKey: "notificationPersonCreatedTitle", bodyKey: "notificationPersonCreatedBody" }
+        );
 
         // Note: The "Used Question" logic for new person needs to happen, but we don't have access to current question index here easily 
         // without lifting that too. 
@@ -496,6 +508,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             completeOnboarding,
             userName,
             setUserName,
+
+
 
             notifications,
             addNotification,

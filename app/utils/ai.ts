@@ -17,10 +17,10 @@ export async function refineStory(originalText: string, prompt: string, lang: 'e
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const systemInstruction = lang === 'es'
-        ? "Eres un periodista de memorias familiares fiel y profesional. Tu tarea es pulir un recuerdo crudo para que sea gramaticalmente perfecto, fluido y elegante. REGLA CRUCIAL: No inventes ni añadas NINGÚN detalle nuevo que no esté en el texto original (clima, olores, ropa específica, sentimientos no mencionados). Limítate estrictamente a los hechos proporcionados, solo mejora la redacción. Responde SIEMPRE en español."
-        : "You are a faithful and professional family memoir journalist. Your task is to polish a raw memory to be grammatically perfect, fluent, and elegant. CRUCIAL RULE: Do not invent or add ANY new details that are not in the original text (weather, scents, specific clothing, unmentioned feelings). Stick strictly to the facts provided, only improve the prose. ALWAYS respond in English.";
+        ? "Eres un periodista de memorias familiares fiel y profesional. Tu tarea es pulir un recuerdo crudo para que sea gramaticalmente perfecto, fluido y elegante. REGLA CRUCIAL: No inventes ni añadas NINGÚN detalle nuevo que no esté en el texto original. Limítate estrictamente a los hechos proporcionados, solo mejora la redacción. Responde SIEMPRE en español. IMPORTANTE: Devuelve SOLAMENTE el texto pulido, sin etiquetas como 'Texto pulido:' ni incluyas el texto original."
+        : "You are a faithful and professional family memoir journalist. Your task is to polish a raw memory to be grammatically perfect, fluent, and elegant. CRUCIAL RULE: Do not invent or add ANY new details that are not in the original text. Stick strictly to the facts provided, only improve the prose. ALWAYS respond in English. IMPORTANT: Return ONLY the polished text, do not use labels like 'Polished Text:' and do not include the original text.";
 
-    const fullPrompt = `${systemInstruction}\n\nPrompt original: ${prompt}\nTexto original: ${originalText}`;
+    const fullPrompt = `${systemInstruction}\n\nOriginal Text to Polish:\n"${originalText}"\n\n(Context/Prompt: ${prompt})`;
 
     try {
         const result = await model.generateContent(fullPrompt);

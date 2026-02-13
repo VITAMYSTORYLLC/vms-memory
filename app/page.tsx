@@ -342,6 +342,10 @@ export default function Page() {
             onAccept={(refined) => setStoryDraft(refined)}
           />
 
+
+          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-300 dark:text-stone-700 text-center py-4 opacity-30 select-none">
+            v. Feb 12
+          </div>
         </div>
       </div>
     </div>

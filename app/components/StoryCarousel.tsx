@@ -50,6 +50,13 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
       link.download = `memory-${item.id}.png`;
       link.href = dataUrl;
       link.click();
+
+      addNotification(
+        t.downloadSuccessTitle,
+        t.downloadSuccessBody,
+        "success",
+        { titleKey: "downloadSuccessTitle", bodyKey: "downloadSuccessBody" }
+      );
     } catch (err) {
       console.error("Failed to download image:", err);
     } finally {
@@ -108,14 +115,19 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
         await navigator.share(shareData);
 
         // Simulate social feedback
+        // Simulate social feedback
         setTimeout(() => {
           const type = Math.random() > 0.5 ? "saw" : "liked";
+          const titleKey = type === "saw" ? "notificationSaw" : "notificationLike";
+          const bodyKey = type === "saw" ? "notificationSawBody" : "notificationLikeBody";
+          const title = t[titleKey] as string;
+          const body = t[bodyKey] as string;
+
           addNotification(
-            type === "saw" ? t.notificationSaw : t.notificationLike,
-            lang === "es"
-              ? (type === "saw" ? "Alguien acaba de ver el recuerdo que compartiste." : "¡A alguien le encantó tu historia!")
-              : (type === "saw" ? "Someone just viewed the memory you shared." : "Someone loved your story!"),
-            "success"
+            title,
+            body,
+            "success",
+            { titleKey, bodyKey }
           );
         }, 1000 * (3 + Math.random() * 5));
       } else {
