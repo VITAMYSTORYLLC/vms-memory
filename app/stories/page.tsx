@@ -99,38 +99,6 @@ export default function StoriesPage() {
                                 onEdit={startEditing}
                                 lockedProgress={lockedProgress}
                                 onUnlockClick={() => router.push("/")}
-                                aiMilestones={aiMilestones}
-                                aiMilestonesCompleted={aiMilestonesCompleted}
-                                aiMilestonesTotal={aiMilestonesTotal}
-                                aiQuestionsUnlocked={aiQuestionsUnlocked}
-                                isGeneratingAI={isGenerating}
-                                onAIQuestionsClick={async () => {
-                                    if (!activePerson || isGenerating) return;
-
-                                    // Generate questions if not already generated
-                                    if (!activePerson.aiQuestions || activePerson.aiQuestions.length === 0) {
-                                        setIsGenerating(true);
-                                        try {
-                                            await generateAIQuestions(activePerson.id);
-                                        } catch (e) {
-                                            console.error(e);
-                                            setIsGenerating(false);
-                                            return;
-                                        }
-                                        setIsGenerating(false);
-                                    }
-
-                                    // Navigate to AI mode
-                                    setIsPhotoMode(false);
-                                    setIsAudioMode(false);
-                                    setIsCustomMode(false);
-                                    setIsAIMode(true);
-                                    setAICurrentQuestionIndex(0);
-                                    router.push("/");
-                                }}
-                                onAdd={() => { setIsPhotoMode(false); setIsAudioMode(false); setIsCustomMode(true); router.push("/"); }}
-                                onAddPhoto={() => { setIsPhotoMode(true); setIsAudioMode(false); setIsCustomMode(false); router.push("/"); }}
-                                onAddAudio={() => { setIsPhotoMode(false); setIsAudioMode(true); setIsCustomMode(false); router.push("/"); }}
                             />
                         )}
                     </div>

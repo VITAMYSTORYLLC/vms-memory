@@ -13,3 +13,16 @@ export function stripBoldMarkers(text: string) {
   return text.split("|||").join("");
 }
 
+export function renderShareCardPrompt(text: string) {
+  if (!text) return null;
+  const parts = text.split("|||");
+  if (parts.length === 1) return parts[0];
+  if (parts.length < 3) return text;
+  return (
+    <>
+      <span className="opacity-90">{parts[0]}</span>
+      <span className="font-bold text-stone-800 not-italic">{parts[1]}</span>
+      <span className="opacity-90">{parts[2]}</span>
+    </>
+  );
+}

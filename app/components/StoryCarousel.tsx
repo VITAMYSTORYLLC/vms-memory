@@ -8,34 +8,19 @@ import { toPng } from "html-to-image";
 import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
-import { getQuestionText } from "../utils/questions";
-import { FiCamera, FiMic, FiPlus, FiLock, FiZap } from "react-icons/fi";
+import { FiLock } from "react-icons/fi";
 
 interface StoryCarouselProps {
   items: MemoryItem[];
   lang: Lang;
   onDelete?: (id: string) => void;
   onEdit?: (item: MemoryItem) => void;
-  onAdd?: () => void;
-  onAddPhoto?: () => void;
-  onAddAudio?: () => void;
   initialIndex?: number;
   lockedProgress?: { current: number; total: number };
   onUnlockClick?: () => void;
-  aiMilestones?: {
-    stories: boolean;
-    photoStory: boolean;
-    audioStory: boolean;
-    profilePhoto: boolean;
-  };
-  aiMilestonesCompleted?: number;
-  aiMilestonesTotal?: number;
-  aiQuestionsUnlocked?: boolean;
-  onAIQuestionsClick?: () => void;
-  isGeneratingAI?: boolean;
 }
 
-export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto, onAddAudio, initialIndex = 0, lockedProgress, onUnlockClick, aiMilestones, aiMilestonesCompleted = 0, aiMilestonesTotal = 4, aiQuestionsUnlocked = false, onAIQuestionsClick, isGeneratingAI = false }: StoryCarouselProps) {
+export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0, lockedProgress, onUnlockClick }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(initialIndex);
 
@@ -101,28 +86,43 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
       const imageFile = new File([blob], `story-${item.id}.png`, { type: "image/png" });
 
       // 2. Prepare elaborated message
-      const cleanPrompt = stripBoldMarkers(item.prompt);
-      const subjectName = activePerson?.name || (lang === "es" ? "un ser querido" : "a loved one");
-      const appUrl = typeof window !== "undefined" ? window.location.origin : "https://vitamystory.com";
+      let displayPrompt = item.prompt;
+
+      const isGeneric = item.prompt === "New Story" || item.prompt === "Nueva Historia" || item.prompt === "New Photo" || item.prompt === "Nueva Foto";
+
+      // If prompt is generic, try to find the real question
+      if (isGeneric) {
+        if (item.questionId) {
+          // You would need to update getQuestionText to fetch properly if needed, but for now using prompt is fine
+          displayPrompt = item.prompt
+        } else {
+          // Fallback prompt for generic stories
+          displayPrompt = lang === "es" ? "Comparte una historia o foto, lo que desees." : "Share a story or photo, whatever you wish.";
+        }
+      }
+
+      const cleanPrompt = stripBoldMarkers(displayPrompt);
+      // Use *asterisks* to bold on WhatsApp/Telegram
+      const subjectName = activePerson?.name ? `*${activePerson.name}*` : (lang === "es" ? "un ser querido" : "a loved one");
+
+      // Force production URL for sharing
+      const appUrl = "https://vms-memory.vercel.app";
 
       const messageParts = [
         t.shareMainMsg(subjectName),
-        "",
         cleanPrompt ? `${cleanPrompt}` : "",
         `"${item.text}"`,
-        "",
         t.shareVisitMsg,
         `${t.shareCollectionMsg} ${appUrl}`,
-      ].filter(p => p !== null && p !== undefined);
+      ].filter(p => p !== null && p !== undefined && p !== "");
 
       const fullText = messageParts.join("\n");
 
       // 3. Share with file if supported
       if (navigator.share) {
         const shareData: ShareData = {
-          title: "VitaMyStory",
+          // title removed to avoid redundancy
           text: fullText,
-          // url: appUrl, // URL might be redundant if in text, but good to have
         };
 
         // Try sharing both image and text if supported
@@ -132,7 +132,6 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
 
         await navigator.share(shareData);
 
-        // Simulate social feedback
         // Simulate social feedback
         setTimeout(() => {
           const type = Math.random() > 0.5 ? "saw" : "liked";
@@ -175,13 +174,6 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
     let extraCards = 0;
     if (lockedProgress) {
       extraCards = 1; // Only the locked card
-    } else {
-      extraCards = (onAdd ? 1 : 0) + (onAddPhoto ? 1 : 0) + (onAddAudio ? 1 : 0);
-    }
-
-    // Add AI Questions card if present
-    if (aiMilestones) {
-      extraCards += 1;
     }
 
     const maxIndex = items.length + extraCards - 1;
@@ -207,23 +199,15 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [index, items.length]); // Dependencies to ensure current state is captured
+  }, [index, items.length]);
 
-  if (items.length === 0 && !onAdd) return null; // If no items and no add functionality, return null
+  // If no items, rendering nothing (StoriesPage should handle empty state/Locked state)
+  if (items.length === 0 && !lockedProgress) return null;
 
   // Build the list of extra cards
   const extraCards = [];
   if (lockedProgress) {
     extraCards.push({ id: "locked_card" });
-  } else {
-    if (onAdd) extraCards.push({ id: "add_card" });
-    if (onAddPhoto) extraCards.push({ id: "add_photo" });
-    if (onAddAudio) extraCards.push({ id: "add_audio" });
-  }
-
-  // Always add AI Questions card at the end (if milestones are being tracked)
-  if (aiMilestones) {
-    extraCards.push({ id: "ai_questions_card" });
   }
 
   const allItems = items.concat(extraCards as any);
@@ -239,15 +223,11 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
         }}
       >
         {allItems.map((item, i) => {
-          const isAddCard = item.id === "add_card";
-          const isPhotoCard = item.id === "add_photo";
-          const isAudioCard = item.id === "add_audio";
           const isLockedCard = item.id === "locked_card";
-          const isAIQuestionsCard = item.id === "ai_questions_card";
-          const isActionCard = isAddCard || isPhotoCard || isAudioCard || isLockedCard || isAIQuestionsCard;
+          const isActionCard = isLockedCard; // We removed other action cards
 
           const isActive = i === index;
-          const isLong = !isActionCard && item.text.length > 200;
+          const isLong = !isActionCard && item.text.length > 150;
 
           return (
             <div
@@ -256,14 +236,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                 if (!isActive) {
                   setShowDeleteConfirm(false);
                   setIndex(i);
-                } else if (isAddCard && onAdd) {
-                  onAdd();
-                } else if (isAudioCard && onAddAudio) {
-                  onAddAudio();
                 } else if (isLockedCard && onUnlockClick) {
                   onUnlockClick();
-                } else if (isAIQuestionsCard && aiQuestionsUnlocked && onAIQuestionsClick) {
-                  onAIQuestionsClick();
                 }
               }}
               className={`flex-shrink-0 w-[90%] px-2 h-full transition-all duration-500 ease-out cursor-pointer ${isActive ? "scale-100 opacity-100 cursor-default" : "scale-[0.92] opacity-60 hover:opacity-80"}`}
@@ -273,32 +247,15 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                 {isActionCard ? (
                   <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center animate-in fade-in duration-500">
                     <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500 group-hover:scale-110 
-                      ${isAIQuestionsCard && aiQuestionsUnlocked
-                        ? 'bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-500 dark:border-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.5)] text-purple-600 dark:text-purple-400'
-                        : `bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600 ${isPhotoCard ? 'group-hover:text-blue-400 group-hover:border-blue-200' :
-                          isAudioCard ? 'group-hover:text-red-400 group-hover:border-red-200' :
-                            isLockedCard ? 'group-hover:text-amber-400 group-hover:border-amber-200' :
-                              isAIQuestionsCard ? 'group-hover:text-purple-400 group-hover:border-purple-200' : ''
-                        }`
+                      ${isLockedCard ? 'bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600 group-hover:text-amber-400 group-hover:border-amber-200' : ''
                       }`}>
-                      {isAddCard && <FiPlus size={32} />}
-                      {isPhotoCard && <FiCamera size={32} />}
-                      {isAudioCard && <FiMic size={32} />}
                       {isLockedCard && <FiLock size={32} />}
-                      {isAIQuestionsCard && <FiZap size={32} />}
                     </div>
                     <div className="space-y-1 w-full">
                       <h4 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-xl">
-                        {isAddCard && t.newStoryTitle}
-                        {isPhotoCard && t.newPhotoTitle}
-                        {isAudioCard && t.newAudioTitle}
                         {isLockedCard && t.lockedTitle}
-                        {isAIQuestionsCard && t.aiQuestionsTitle}
                       </h4>
                       <div className="text-stone-400 dark:text-stone-600 font-sans text-sm italic">
-                        {isAddCard && t.newStorySubtitle}
-                        {isPhotoCard && t.newPhotoSubtitle}
-                        {isAudioCard && t.newAudioSubtitle}
                         {isLockedCard && (
                           <div className="space-y-3 mt-2">
                             <p>{t.lockedSubtitle}</p>
@@ -312,58 +269,6 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                             <div className="pt-2">
                               <span className="text-xs font-bold uppercase tracking-widest text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100 pb-0.5">{t.continueJourney}</span>
                             </div>
-                          </div>
-                        )}
-                        {isAIQuestionsCard && (
-                          <div className="space-y-3 mt-2">
-                            {!aiQuestionsUnlocked ? (
-                              <>
-                                <p>{t.aiQuestionsSubtitle}</p>
-                                <div className="text-left space-y-2 mt-4">
-                                  <p className="text-xs font-bold uppercase tracking-widest text-stone-500 dark:text-stone-500">{t.aiQuestionsLocked}</p>
-                                  <div className="space-y-1.5">
-                                    <div className="flex items-center gap-2 text-xs">
-                                      <span className={aiMilestones?.stories ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.stories ? "✓" : "○"}</span>
-                                      <span className={aiMilestones?.stories ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestone5Stories}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs">
-                                      <span className={aiMilestones?.photoStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.photoStory ? "✓" : "○"}</span>
-                                      <span className={aiMilestones?.photoStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestonePhotoStory}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs">
-                                      <span className={aiMilestones?.audioStory ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.audioStory ? "✓" : "○"}</span>
-                                      <span className={aiMilestones?.audioStory ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneAudioStory}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-xs">
-                                      <span className={aiMilestones?.profilePhoto ? "text-green-600 dark:text-green-400" : "text-stone-400 dark:text-stone-600"}>{aiMilestones?.profilePhoto ? "✓" : "○"}</span>
-                                      <span className={aiMilestones?.profilePhoto ? "text-stone-700 dark:text-stone-300" : ""}>{t.milestoneProfilePhoto}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="w-full bg-stone-200 dark:bg-stone-800 h-1.5 rounded-full overflow-hidden mt-3">
-                                  <div
-                                    className="bg-purple-600 dark:bg-purple-400 h-full transition-all duration-1000 ease-out"
-                                    style={{ width: `${(aiMilestonesCompleted / aiMilestonesTotal) * 100}%` }}
-                                  />
-                                </div>
-                                <p className="text-xs font-bold uppercase tracking-widest">{aiMilestonesCompleted} / {aiMilestonesTotal} {t.chaptersCompleted}</p>
-                              </>
-                            ) : (
-                              <>
-                                <p>{t.aiQuestionsDescription}</p>
-                                {isGeneratingAI && (
-                                  <div className="pt-6">
-                                    <span className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-600 dark:text-purple-400">
-                                      <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                      {t.generatingQuestions || "Generating..."}
-                                    </span>
-                                  </div>
-                                )}
-                              </>
-                            )}
                           </div>
                         )}
                       </div>
@@ -382,7 +287,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                       </div>
                     )}
 
-                    <div className="bg-stone-50 dark:bg-midnight-950/50 w-full px-6 py-6 flex flex-col items-center space-y-4 border-b border-stone-100 dark:border-stone-800 relative flex-shrink-0">
+                    <div className="bg-stone-50 dark:bg-midnight-950/50 w-full px-8 pt-8 pb-8 flex flex-col items-center text-center space-y-6 relative flex-shrink-0 border-b border-stone-100 dark:border-stone-800/50">
+
                       <div className="absolute top-4 right-4 flex gap-3 text-stone-300 dark:text-stone-700">
                         <button
                           disabled={isCapturing}
@@ -411,46 +317,71 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
                           </button>
                         )}
                         {onDelete && (
-                          <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }} className="hover:text-red-400 dark:hover:text-red-500 transition-colors p-1" title="Delete memory">
+                          <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }} className="hover:text-red-500 transition-colors p-1" title="Delete memory">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                           </button>
                         )}
                       </div>
-                      <div className="text-xs font-bold text-stone-400 dark:text-stone-600 tracking-[0.2em] uppercase font-sans">
+
+                      {/* Date */}
+                      <div className="text-xs font-bold uppercase tracking-widest text-stone-400 dark:text-stone-500 pt-2">
                         {formatWhen(item.createdAt, lang)}
                       </div>
-                      {item.prompt ? (
-                        <div className="text-lg text-stone-600 dark:text-stone-400 italic font-medium text-center px-4 leading-relaxed max-w-sm font-serif">
-                          {renderWithBoldName(item.questionId ? getQuestionText(item.questionId, activePerson?.name || "", t) : item.prompt)}
-                        </div>
-                      ) : null}
-                    </div>
 
-                    <div className={`flex-1 bg-white dark:bg-midnight-900 p-6 flex flex-col w-full overflow-hidden transition-colors ${isLong || item.imageUrl ? 'justify-start items-start' : 'justify-center items-center'}`}>
-                      {item.imageUrl && (
-                        <div className="w-full h-48 mb-4 rounded-2xl overflow-hidden shadow-sm flex-shrink-0 border border-stone-100 dark:border-stone-800">
-                          <img src={item.imageUrl} className="w-full h-full object-cover" alt="Memory" />
+                      {/* Title/Prompt */}
+                      {/* Using renderWithBoldName here as well to respect bolding if present in prompt */}
+                      <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-200 leading-snug w-full px-4">
+                        {renderWithBoldName(item.prompt)}
+                      </h3>
+
+                      {/* Audio Player */}
+                      {item.audioUrl && (
+                        <div className="w-full pt-2">
+                          <audio controls src={item.audioUrl} className="w-full h-10" />
                         </div>
                       )}
-                      <div
-                        className={`leading-relaxed font-serif px-2 w-full break-words overflow-y-auto no-scrollbar transition-colors ${item.imageUrl
-                          ? (isLong ? 'text-base text-stone-700 dark:text-stone-300' : 'text-xl text-stone-800 dark:text-stone-200')
-                          : (isLong ? 'text-xl text-stone-700 dark:text-stone-300' : 'text-3xl sm:text-4xl text-stone-800 dark:text-stone-100 text-center')
-                          }`}
-                        style={{ maxHeight: '100%' }}
-                      >
+                    </div>
+
+                    {/* Scrollable Text Area */}
+                    <div className="flex-1 overflow-y-auto px-8 py-8 w-full story-scroll text-center flex flex-col items-center">
+                      {item.imageUrl && (
+                        <div className="mb-8 rounded-2xl overflow-hidden shadow-sm border border-stone-100 dark:border-stone-800">
+                          <img src={item.imageUrl} alt="Memory" className="w-full h-auto object-cover max-h-[300px]" />
+                        </div>
+                      )}
+
+                      <p className={`text-stone-800 dark:text-stone-300 leading-relaxed whitespace-pre-wrap ${isLong ? 'text-2xl' : 'text-3xl'} font-serif`}>
                         {item.text}
+                      </p>
+
+                      {/* Generous padding at bottom for better scrolling feel */}
+                      <div className="h-12 flex-shrink-0" />
+                    </div>
+
+                    {/* Gradient Fade for Scroll Hint */}
+                    <div className="absolute bottom-14 left-0 right-0 h-16 bg-gradient-to-t from-white dark:from-midnight-900 to-transparent pointer-events-none" />
+
+                    {/* Pagination Dots */}
+                    <div className="h-14 w-full flex items-center justify-center bg-white dark:bg-midnight-900 border-t border-stone-100 dark:border-stone-800/50 absolute bottom-0">
+                      <div className="flex gap-2">
+                        {allItems.map((_, dotIndex) => (
+                          <div
+                            key={dotIndex}
+                            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${dotIndex === index ? 'bg-stone-800 dark:bg-stone-200' : 'bg-stone-200 dark:bg-stone-800'}`}
+                          />
+                        ))}
                       </div>
                     </div>
-                  </>
-                )}
 
-                {isActive && (allItems.length) > 1 && (
-                  <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
-                    {allItems.map((_, dotIdx) => (
-                      <div key={dotIdx} className={`h-1 w-1 rounded-full transition-all duration-300 ${dotIdx === i ? "bg-stone-800 dark:bg-stone-100 w-4" : "bg-stone-200 dark:bg-midnight-800"}`} />
-                    ))}
-                  </div>
+                    {/* Logo (Bottom Right) */}
+                    <div className="absolute bottom-3 right-4 pointer-events-none z-10">
+                      <img
+                        src="/logo-transparent.png"
+                        alt="Logo"
+                        className="w-16 h-auto"
+                      />
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -458,32 +389,47 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onAdd, onAddPhoto
         })}
       </div>
 
-      {/* Navigation Buttons for Desktop */}
+      {/* Hidden Share Card Render */}
+      <div className="fixed left-[-9999px] top-0 opacity-0 pointer-events-none">
+        {isActiveItem(index, allItems) && (
+          <ShareCard item={allItems[index]} lang={lang} personName={activePerson?.name || ""} />
+        )}
+      </div>
+
+      {/* Navigation Arrows */}
       {index > 0 && (
         <button
-          onClick={(e) => { e.stopPropagation(); prev(); }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/90 dark:bg-midnight-800/90 backdrop-blur-sm rounded-full shadow-xl text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:scale-110 hidden sm:flex items-center justify-center border border-stone-200 dark:border-stone-700 opacity-0 group-hover:opacity-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            prev();
+          }}
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-stone-800 rounded-full shadow-lg flex items-center justify-center text-stone-600 dark:text-stone-300 hover:scale-110 transition-transform duration-200 focus:outline-none"
           aria-label="Previous story"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        </button>
-      )}
-      {index < allItems.length - 1 && (
-        <button
-          onClick={(e) => { e.stopPropagation(); next(); }}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/90 dark:bg-midnight-800/90 backdrop-blur-sm rounded-full shadow-xl text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-all hover:scale-110 hidden sm:flex items-center justify-center border border-stone-200 dark:border-stone-700 opacity-0 group-hover:opacity-100"
-          aria-label="Next story"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
         </button>
       )}
 
-      {/* Hidden container for image generation */}
-      <div className="fixed -left-[2000px] top-0 pointer-events-none">
-        {items[index] && (
-          <ShareCard item={items[index]} lang={lang} userName={userName} />
-        )}
-      </div>
+      {index < allItems.length - 1 && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            next();
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-stone-800 rounded-full shadow-lg flex items-center justify-center text-stone-600 dark:text-stone-300 hover:scale-110 transition-transform duration-200 focus:outline-none"
+          aria-label="Next story"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      )}
     </div>
   );
+}
+
+function isActiveItem(index: number, items: any[]): boolean {
+  return items[index] && items[index].id !== "add_card" && items[index].id !== "add_photo" && items[index].id !== "add_audio" && items[index].id !== "locked_card" && items[index].id !== "ai_questions_card";
 }
