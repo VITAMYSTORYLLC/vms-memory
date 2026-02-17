@@ -20,6 +20,7 @@ import { PrimaryButton } from "./components/PrimaryButton";
 import { SecondaryButton } from "./components/SecondaryButton";
 import { ArrowButton } from "./components/ArrowButton";
 import { useDictation } from "./hooks/useDictation";
+import { useAudioRecorder } from "./hooks/useAudioRecorder";
 import { useMemory } from "./context/MemoryContext";
 import { useRouter } from "next/navigation";
 import { Haptics } from "./utils/haptics";
@@ -49,6 +50,7 @@ export default function Page() {
     isAIMode, setIsAIMode,
     aiCurrentQuestionIndex, setAICurrentQuestionIndex,
     generateAIQuestions,
+    audioDraft, setAudioDraft
   } = useMemory();
 
   const router = useRouter();
@@ -64,6 +66,23 @@ export default function Page() {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastActivity = useRef(Date.now());
+
+  // Audio Recorder
+  const {
+    isRecording,
+    timeLeft,
+    audioBlob,
+    startRecording,
+    stopRecording,
+    resetRecording
+  } = useAudioRecorder();
+
+  // Sync audioBlob with context when recording stops
+  useEffect(() => {
+    if (audioBlob) {
+      setAudioDraft(audioBlob);
+    }
+  }, [audioBlob, setAudioDraft]);
 
   // Update activity timestamp on interaction
   useEffect(() => {
@@ -244,7 +263,7 @@ export default function Page() {
     }
   }
 
-  const canSave = (normalize(storyDraft).length > 0 || imageDraft.length > 0) && normalize(displayName).length > 0;
+  const canSave = (normalize(storyDraft).length > 0 || imageDraft.length > 0 || audioDraft) && normalize(displayName).length > 0;
 
   if (!isHydrated) return <div className="min-h-screen bg-[#F9F8F6]"></div>;
 
@@ -267,7 +286,7 @@ export default function Page() {
                     <input
                       value={editingPrompt}
                       onChange={(e) => setEditingPrompt(e.target.value)}
-                      placeholder={t.newStoryTitle}
+                      placeholder={t.customStoryPlaceholder}
                       className="w-full text-center bg-transparent border-b border-stone-200 dark:border-stone-800 focus:border-stone-500 focus:outline-none placeholder:text-stone-300 dark:placeholder:text-stone-700 placeholder:italic transition-colors"
                       autoFocus
                     />
@@ -279,25 +298,29 @@ export default function Page() {
                   {normalize(storyDraft).length > 20 ? (
                     <button
                       onClick={() => setShowRefineModal(true)}
-                      className="w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-3 bg-gradient-to-r from-stone-800 to-stone-900 dark:from-stone-100 dark:to-stone-300 text-white dark:text-stone-900 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 animate-fadeInUp"
+                      className={`w-[180px] flex justify-center text-xs font-bold uppercase tracking-[0.15em] transition-all items-center gap-2 py-3 bg-gradient-to-r from-stone-800 to-stone-900 dark:from-stone-100 dark:to-stone-300 text-white dark:text-stone-900 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 ${isCustomMode ? '' : 'animate-fadeInUp'}`}
                     >
                       <span className="flex items-center gap-2">
-                        <span className="animate-pulse">✨</span>
-                        <span className="flex">
-                          {t.refineStory.split("").map((char, index) => (
-                            <span
-                              key={index}
-                              className="opacity-0 animate-fadeInUp inline-block"
-                              style={{ animationDelay: `${700 + index * 50}ms`, animationFillMode: "both" }}
-                            >
-                              {char === " " ? "\u00A0" : char}
-                            </span>
-                          ))}
-                        </span>
+                        <span className={isCustomMode ? '' : 'animate-pulse'}>✨</span>
+                        {isCustomMode ? (
+                          <span>{t.refineStory}</span>
+                        ) : (
+                          <span className="flex">
+                            {t.refineStory.split("").map((char, index) => (
+                              <span
+                                key={index}
+                                className="opacity-0 animate-fadeInUp inline-block"
+                                style={{ animationDelay: `${700 + index * 50}ms`, animationFillMode: "both" }}
+                              >
+                                {char === " " ? "\u00A0" : char}
+                              </span>
+                            ))}
+                          </span>
+                        )}
                       </span>
                     </button>
                   ) : (
-                    (!allStarterUsed || isAIMode) && !editingId && !isPhotoMode && !isAudioMode && (
+                    (!allStarterUsed || isAIMode) && !editingId && !isPhotoMode && !isAudioMode && !isCustomMode && (
                       <>
                         <button
                           onClick={() => {
@@ -357,30 +380,60 @@ export default function Page() {
               <div className="h-96 relative flex flex-col min-h-0 mb-8 bg-white dark:bg-midnight-900 rounded-3xl border border-stone-100 dark:border-stone-800 shadow-sm overflow-hidden transition-colors">
                 {isAudioMode ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-8 animate-in fade-in duration-500 z-20">
-                    <div className="flex-1 flex items-center justify-center w-full">
-                      {storyDraft ? (
-                        <p className="font-serif text-xl sm:text-2xl text-stone-800 dark:text-stone-200 leading-relaxed italic animate-in fade-in slide-in-from-bottom-2">
-                          "{storyDraft}"
-                        </p>
+                    {/* Audio Recorder Controls */}
+                    <div className="flex-1 flex flex-col items-center justify-center w-full space-y-6">
+                      {audioDraft ? (
+                        <div className="w-full max-w-sm space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                          <div className="bg-stone-100 dark:bg-midnight-800 rounded-2xl p-6 flex flex-col items-center gap-4">
+                            <div className="w-16 h-16 rounded-full bg-stone-200 dark:bg-midnight-700 flex items-center justify-center text-stone-500 dark:text-stone-400">
+                              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                            </div>
+                            <audio controls src={URL.createObjectURL(audioDraft)} className="w-full" />
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setAudioDraft(null);
+                              resetRecording();
+                            }}
+                            className="text-stone-400 hover:text-red-500 dark:text-stone-500 dark:hover:text-red-400 transition-colors text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                            {t.change || "Retake"}
+                          </button>
+                        </div>
                       ) : (
-                        <p className="font-serif text-lg text-stone-400 dark:text-stone-600 italic">
-                          {isListening ? t.listening : t.tapToSpeak}
-                        </p>
+                        <>
+                          <div className={`text-6xl font-serif font-bold tabular-nums transition-colors ${isRecording ? "text-red-500 animate-pulse" : "text-stone-300 dark:text-stone-700"}`}>
+                            0:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
+                          </div>
+                          <p className="font-serif text-lg text-stone-400 dark:text-stone-600 italic">
+                            {isRecording ? (lang === "es" ? "Grabando..." : "Recording...") : t.tapToSpeak}
+                          </p>
+                        </>
                       )}
                     </div>
 
-                    {isSupported && (
+                    {!audioDraft && (
                       <button
-                        onClick={toggleListening}
-                        className={`p-6 rounded-full shadow-xl border-4 transition-all duration-300 transform ${isListening
-                          ? "bg-red-500 border-red-100 dark:border-red-900 text-white scale-125 animate-pulse shadow-red-500/30"
+                        onClick={isRecording ? stopRecording : startRecording}
+                        className={`p-6 rounded-full shadow-xl border-4 transition-all duration-300 transform ${isRecording
+                          ? "bg-red-500 border-red-100 dark:border-red-900 text-white scale-125 shadow-red-500/30"
                           : "bg-stone-900 dark:bg-stone-100 border-stone-100 dark:border-stone-800 text-white dark:text-stone-900 hover:scale-110 hover:shadow-2xl"
                           }`}
                       >
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        </svg>
+                        {isRecording ? (
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="6" y="6" width="12" height="12" fill="currentColor"></rect>
+                          </svg>
+                        ) : (
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                          </svg>
+                        )}
                       </button>
                     )}
                   </div>

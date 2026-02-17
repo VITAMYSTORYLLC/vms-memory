@@ -57,6 +57,8 @@ interface MemoryContextType {
     setStoryDraft: React.Dispatch<React.SetStateAction<string>>;
     imageDraft: string;
     setImageDraft: React.Dispatch<React.SetStateAction<string>>;
+    audioDraft: Blob | null;
+    setAudioDraft: React.Dispatch<React.SetStateAction<Blob | null>>;
     nameDraft: string;
     setNameDraft: React.Dispatch<React.SetStateAction<string>>;
     inspiration: string | null;
@@ -133,6 +135,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     const [nameDraft, setNameDraft] = useState("");
     const [storyDraft, setStoryDraft] = useState("");
     const [imageDraft, setImageDraft] = useState<string>("");
+    const [audioDraft, setAudioDraft] = useState<Blob | null>(null);
     const [isPhotoMode, setIsPhotoMode] = useState(false);
     const [isAudioMode, setIsAudioMode] = useState(false);
     const [isCustomMode, setIsCustomMode] = useState(false);
@@ -280,6 +283,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         // First, immediately clear the current draft state to prevent text bleeding between questions
         setStoryDraft("");
         setImageDraft("");
+        setAudioDraft(null);
 
         // Then, restore the saved draft for this specific question (if any)
         const key = `${LS.draftPrefix}${activePersonId}_${draftKey}`;
@@ -305,9 +309,15 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setNameDraft("");
         setStoryDraft("");
         setImageDraft("");
+        setAudioDraft(null);
         setInspiration(null);
         setEditingId(null);
         setEditingPrompt("");
+        // Reset all modes to ensure starter questions appear
+        setIsCustomMode(false);
+        setIsPhotoMode(false);
+        setIsAudioMode(false);
+        setIsAIMode(false);
     }
 
     function deleteMemory(memoryId: string) {
@@ -324,6 +334,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             setActivePersonId("");
             setStoryDraft("");
             setImageDraft("");
+            setAudioDraft(null);
         }
         removeKey(`${LS.draftPrefix}${personId}`);
         // Also clean up used questions if we wanted to go deep, but leaving them is safe enough
@@ -392,6 +403,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         if (!canUseStorage()) {
             setPeople([]); setActivePersonId(""); setNameDraft(""); setStoryDraft("");
             setEditingId(null); setEditingPrompt(""); setIsOnboarded(false);
+            setAudioDraft(null);
             return;
         }
         try {
@@ -400,7 +412,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         } catch { }
         suppressAutoSelectRef.current = true;
         setPeople([]); setActivePersonId(""); setNameDraft(""); setStoryDraft("");
-        setImageDraft(""); setInspiration(null); setEditingId(null); setEditingPrompt("");
+        setImageDraft(""); setAudioDraft(null); setInspiration(null); setEditingId(null); setEditingPrompt("");
         setIsOnboarded(false); setUserName(""); setNotifications(INITIAL_NOTIFICATIONS);
         setTheme("light");
     }
@@ -412,6 +424,14 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setNameDraft("");
         setStoryDraft("");
         setImageDraft("");
+        setAudioDraft(null);
+        // Clear user profile data preventing it from persisting to the next user
+        setUserName("");
+        setUserPhoto("");
+        // Remove from local storage explicitely just to be safe, 
+        // though the useEffect should handle it when state updates.
+        removeKey("vms_user_name");
+
         setIsOnboarded(false);
     }
 
@@ -455,7 +475,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // We might need to pass the "promptToSave" from component to here.
     async function saveStory(promptToSave: string, questionId?: string): Promise<string | null> {
         const text = normalize(storyDraft);
-        if (!text && !imageDraft) return null;
+        if (!text && !imageDraft && !audioDraft) return null;
 
         // --- IMAGE UPLOAD LOGIC ---
         let finalImageUrl = imageDraft;
@@ -473,6 +493,27 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         }
         // --------------------------
 
+        // --- AUDIO UPLOAD LOGIC ---
+        let finalAudioUrl = "";
+        if (audioDraft) {
+            try {
+                // Import uploadAudio just in time or assume it's available via closure scope if imported at top
+                // Since this file is big, I'll rely on the import I added/will add at the top.
+                // Wait, I need to add the import statement for uploadAudio at the top of the file!
+                // I will add the import in a separate tool call if it's missing, but for now assuming it's imported or I will add it.
+                // Ah, I cannot add imports easily in this block replacement. I will have to add it.
+                // For now, let's use dynamic import to avoid breaking if I missed the top import.
+                const { uploadAudio } = await import("../utils/storage");
+                const path = `people/${activePersonId || "new"}/audio`;
+                finalAudioUrl = await uploadAudio(audioDraft, path);
+            } catch (err) {
+                console.error("Failed to upload audio:", err);
+                addNotification(t.errorTitle || "Error", "Failed to upload audio. Please try again.", "error", { titleKey: "errorTitle" });
+                return null;
+            }
+        }
+        // --------------------------
+
         // We removed the artificial delay here; components can handle UI loading state if they want
 
         if (editingId && activePerson) {
@@ -481,7 +522,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                 memories: p.memories.map((m) => m.id === editingId ? { ...m, text: text, imageUrl: finalImageUrl } : m)
             })));
             const id = activePerson.id;
-            setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft("");
+            setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setAudioDraft(null);
             return id;
         }
 
@@ -492,7 +533,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
             setPeople((prev) => prev.map((p) => {
                 if (p.id !== activePerson.id) return p;
-                const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode);
+                const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode, finalAudioUrl);
 
                 // Milestone Check: 5 Stories
                 if (newMemories.length === 5 && !hasBadge(p.id, "story_keeper")) {
@@ -510,7 +551,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
             removeKey(`${LS.draftPrefix}${activePerson.id}_${draftKey}`);
             const id = activePerson.id;
-            setStoryDraft(""); setImageDraft(""); setInspiration(null);
+            setStoryDraft(""); setImageDraft(""); setAudioDraft(null); setInspiration(null);
             return id;
         }
 
@@ -521,7 +562,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         const p: Person = {
             id: makeId(),
             name: normalizedName,
-            memories: addMemory([], promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode),
+            memories: addMemory([], promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode, finalAudioUrl),
             createdAt: Date.now()
         };
 
@@ -541,7 +582,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         // Ideally, the caller handles `saveUsedQuestionIndexes` since it knows the question index.
 
         removeKey(`${LS.draftPrefix}${p.id}`);
-        setNameDraft(""); setStoryDraft(""); setImageDraft(""); setInspiration(null);
+        setNameDraft(""); setStoryDraft(""); setImageDraft(""); setAudioDraft(null); setInspiration(null);
         return p.id;
     }
 
@@ -562,6 +603,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             t,
             storyDraft, setStoryDraft,
             imageDraft, setImageDraft,
+            audioDraft, setAudioDraft, // Exporting audio draft state
             nameDraft, setNameDraft,
             inspiration, setInspiration,
             draftKey, setDraftKey,
@@ -586,8 +628,6 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             handleLogout,
             isOnboarded,
             completeOnboarding,
-
-
 
             notifications,
             addNotification,

@@ -10,6 +10,15 @@ import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
 import { FiLock } from "react-icons/fi";
 
+function getTextSizeClass(text: string) {
+  const len = text.length;
+  if (len < 60) return "text-4xl"; // Very short/impactful
+  if (len < 120) return "text-3xl"; // Standard short
+  if (len < 200) return "text-2xl"; // Medium
+  if (len < 350) return "text-xl";  // Long
+  return "text-lg";                 // Very long (scrolls less)
+}
+
 interface StoryCarouselProps {
   items: MemoryItem[];
   lang: Lang;
@@ -227,7 +236,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
           const isActionCard = isLockedCard; // We removed other action cards
 
           const isActive = i === index;
-          const isLong = !isActionCard && item.text.length > 150;
+          const textSizeClass = !isActionCard ? getTextSizeClass(item.text) : "";
 
           return (
             <div
@@ -350,7 +359,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
                         </div>
                       )}
 
-                      <p className={`text-stone-800 dark:text-stone-300 leading-relaxed whitespace-pre-wrap ${isLong ? 'text-2xl' : 'text-3xl'} font-serif`}>
+                      <p className={`text-stone-800 dark:text-stone-300 leading-relaxed whitespace-pre-wrap ${textSizeClass} font-serif transition-all duration-300`}>
                         {item.text}
                       </p>
 

@@ -45,13 +45,15 @@ export function formatWhen(ts: number, lang: Lang) {
   } catch { return ""; }
 }
 
-export function addMemory(existing: MemoryItem[], prompt: string, text: string, memoryDate?: string, imageUrl?: string, questionId?: string, isAudioStory?: boolean): MemoryItem[] {
+export function addMemory(existing: MemoryItem[], prompt: string, text: string, memoryDate?: string, imageUrl?: string, questionId?: string, isAudioStory?: boolean, audioUrl?: string): MemoryItem[] {
   const p = normalize(prompt);
   const t = normalize(text);
   const md = normalize(memoryDate || "");
   const img = normalize(imageUrl || "");
-  if (!t && !img) return existing;
-  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now(), memoryDate: md, imageUrl: img, questionId, isAudioStory }];
+  const aud = normalize(audioUrl || "");
+  // if (!t && !img && !aud) return existing; // Allow just audio
+  if (!t && !img && !aud) return existing;
+  return [...existing, { id: makeId(), prompt: p, text: t, createdAt: Date.now(), memoryDate: md, imageUrl: img, questionId, isAudioStory, audioUrl: aud }];
 }
 
 export function wrapIndex(index: number, length: number): number {

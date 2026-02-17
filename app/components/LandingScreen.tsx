@@ -21,8 +21,13 @@ export default function LandingScreen() {
 
     return (
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] dark:bg-stone-950 flex flex-col overflow-y-auto transition-colors duration-500">
-            {/* Lang Switch */}
-            <div className="absolute top-6 right-6 z-20 font-sans">
+            {/* Logo - Top Left */}
+            <div className="absolute top-6 left-6 z-20">
+                <img src="/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700" />
+            </div>
+
+            {/* Lang Switch - Top Right, aligned with bottom of logo */}
+            <div className="absolute top-[52px] right-6 z-20 font-sans">
                 <button
                     onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
                     className="flex items-center gap-2 text-sm font-black tracking-[0.2em] text-stone-900 dark:text-stone-100 hover:text-stone-600 dark:hover:text-stone-300 transition-colors uppercase bg-transparent p-2 rounded-lg"
@@ -58,11 +63,6 @@ export default function LandingScreen() {
                         </button>
                     </div>
                 )}
-            </div>
-
-            {/* Logo - Top Left */}
-            <div className="absolute top-6 left-6 z-20">
-                <img src="/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700" />
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center p-6 pt-24 text-center max-w-lg mx-auto w-full animate-in fade-in zoom-in-95 duration-700">

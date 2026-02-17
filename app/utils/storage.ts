@@ -36,3 +36,21 @@ export async function deleteImage(url: string): Promise<void> {
         // We typically treat delete errors as non-fatal for the user flow
     }
 }
+/**
+ * Uploads an audio file to Firebase Storage.
+ * @param file The audio blob to upload.
+ * @param path The path in storage.
+ * @returns The public download URL.
+ */
+export async function uploadAudio(file: Blob, path: string): Promise<string> {
+    if (!file) throw new Error("No file provided");
+
+    const extension = "webm"; // MediaRecorder typically outputs webm
+    const filename = `${makeId()}.${extension}`;
+    const storageRef = ref(storage, `${path}/${filename}`);
+
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    return downloadURL;
+}
