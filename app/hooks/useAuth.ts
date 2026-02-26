@@ -50,6 +50,7 @@ export function useAuth() {
                     uid: firebaseUser.uid,
                     email: firebaseUser.email,
                     displayName: firebaseUser.displayName,
+                    photoURL: firebaseUser.photoURL,
                 });
             } else {
                 setUser(null);
