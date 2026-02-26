@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiEdit3, FiCamera, FiMic, FiZap, FiPlus } from "react-icons/fi";
 import { TEXT } from "../constants";
 import { useSwipe } from "../hooks/useSwipe";
+import { Haptics } from "../utils/haptics";
 
 interface AddMenuProps {
     isOpen: boolean;
@@ -90,11 +91,11 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
     };
 
     const prev = () => {
-        if (index > 0) setIndex(index - 1);
+        if (index > 0) { Haptics.light(); setIndex(index - 1); }
     };
 
     const next = () => {
-        if (index < cards.length - 1) setIndex(index + 1);
+        if (index < cards.length - 1) { Haptics.light(); setIndex(index + 1); }
     };
 
     const swipeHandlers = useSwipe(next, prev);
@@ -118,9 +119,10 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
+                        onClick={onClose}
                         className="fixed inset-0 z-50 flex items-center justify-center p-4 pb-32"
                     >
-                        <div className="relative w-full max-w-lg h-[580px] overflow-hidden">
+                        <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-lg h-[580px] overflow-hidden">
                             {/* Carousel */}
                             <div
                                 {...swipeHandlers}
