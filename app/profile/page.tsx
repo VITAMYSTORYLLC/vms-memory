@@ -117,7 +117,7 @@ export default function ProfilePage() {
     return (
         <div className="min-h-screen flex flex-col bg-[#F9F8F6] dark:bg-midnight-950 safe-top safe-bottom pb-24 transition-colors duration-500">
             <div className="w-full max-w-lg mx-auto font-sans">
-                <div className="p-6 pt-12 space-y-8">
+                <div className="p-6 pt-20 space-y-8">
 
                     {/* Header: Avatar & Identity */}
                     <div className="flex items-center gap-6 px-2">

@@ -29,7 +29,7 @@ export default function NotificationsPage() {
     return (
         <div className="min-h-screen bg-[#F9F8F6] dark:bg-stone-950 safe-top safe-bottom pb-24 transition-colors duration-500">
             <div className="w-full max-w-lg mx-auto font-sans h-full sm:h-auto min-h-screen sm:min-h-0">
-                <div className="p-6 pt-12">
+                <div className="p-6 pt-20">
                     <div className="flex items-center justify-between mb-8">
                         <h1 className="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100">{t.notificationsTitle}</h1>
                         {unreadCount > 0 && (
