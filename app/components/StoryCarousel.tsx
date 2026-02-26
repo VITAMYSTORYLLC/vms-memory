@@ -8,7 +8,6 @@ import { toPng } from "html-to-image";
 import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
-import { FiLock } from "react-icons/fi";
 
 function getTextSizeClass(text: string) {
   const len = text.length;
@@ -254,34 +253,48 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
             >
               <div className="bg-white dark:bg-midnight-900 border border-stone-200 dark:border-stone-800 shadow-xl rounded-[2rem] h-full flex flex-col relative overflow-hidden transition-colors">
                 {isActionCard ? (
-                  <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-6 text-center animate-in fade-in duration-500">
-                    <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500 group-hover:scale-110 
-                      ${isLockedCard ? 'bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-600 group-hover:text-amber-400 group-hover:border-amber-200' : ''
-                      }`}>
-                      {isLockedCard && <FiLock size={32} />}
+                  <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500 gap-0">
+
+                    {/* Story progress dots */}
+                    <div className="flex gap-3 mb-8">
+                      {Array.from({ length: lockedProgress?.total || 5 }).map((_, i) => {
+                        const filled = i < (lockedProgress?.current || 0);
+                        return (
+                          <div
+                            key={i}
+                            className={`w-3 h-3 rounded-full transition-all duration-700 ${filled
+                              ? 'bg-stone-800 dark:bg-stone-100 scale-110'
+                              : 'bg-stone-200 dark:bg-stone-800'
+                              }`}
+                          />
+                        );
+                      })}
                     </div>
-                    <div className="space-y-1 w-full">
-                      <h4 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-xl">
-                        {isLockedCard && t.lockedTitle}
+
+                    {/* Hero CTA */}
+                    <div className="space-y-3 w-full mb-8">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-stone-400 dark:text-stone-600">
+                        {lockedProgress?.current || 0} / {lockedProgress?.total || 5} {t.chaptersCompleted}
+                      </p>
+                      <h4 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-3xl leading-snug">
+                        {(lockedProgress?.current || 0) <= 1 ? t.lockedHeroTitle : t.lockedHeroTitleKeepGoing}
                       </h4>
-                      <div className="text-stone-400 dark:text-stone-600 font-sans text-sm italic">
-                        {isLockedCard && (
-                          <div className="space-y-3 mt-2">
-                            <p>{t.lockedSubtitle}</p>
-                            <div className="w-full bg-stone-200 dark:bg-stone-800 h-1.5 rounded-full overflow-hidden">
-                              <div
-                                className="bg-stone-800 dark:bg-stone-100 h-full transition-all duration-1000 ease-out"
-                                style={{ width: `${(lockedProgress?.current || 0) / (lockedProgress?.total || 1) * 100}%` }}
-                              />
-                            </div>
-                            <p className="text-xs font-bold uppercase tracking-widest">{lockedProgress?.current || 0} / {lockedProgress?.total || 5} {t.chaptersCompleted}</p>
-                            <div className="pt-2">
-                              <span className="text-xs font-bold uppercase tracking-widest text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100 pb-0.5">{t.continueJourney}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      <p className="text-stone-400 dark:text-stone-600 font-sans text-sm leading-relaxed max-w-[220px] mx-auto italic">
+                        {t.lockedSubtitle}
+                      </p>
                     </div>
+
+
+                    {/* Big CTA button */}
+                    <button
+                      onClick={onUnlockClick}
+                      className="w-full py-4 rounded-2xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold uppercase tracking-[0.18em] text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-stone-800 dark:hover:bg-white shadow-lg shadow-stone-200/60 dark:shadow-none"
+                    >
+                      <span>{t.continueJourney}</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </button>
                   </div>
                 ) : (
                   <>
