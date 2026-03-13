@@ -15,6 +15,14 @@ export default function StoriesPage() {
     const isRandom = searchParams.get('random') === 'true';
     const [isGenerating, setIsGenerating] = useState(false);
 
+    // Reset all input modes when landing on Stories page (prevents stale audio/photo/etc. mode from bleeding to home page)
+    useEffect(() => {
+        setIsAudioMode(false);
+        setIsPhotoMode(false);
+        setIsCustomMode(false);
+        setIsAIMode(false);
+    }, []);
+
     // Stable items array
     const items = React.useMemo(() => [...activeMemories].reverse(), [activeMemories]);
 
