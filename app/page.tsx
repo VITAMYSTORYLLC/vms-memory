@@ -488,17 +488,7 @@ export default function Page() {
                       className="w-full h-full resize-none bg-transparent p-6 text-2xl sm:text-3xl font-serif leading-relaxed text-stone-800 dark:text-stone-200 placeholder:font-serif placeholder:italic placeholder:text-stone-200 dark:placeholder:text-stone-600 focus:outline-none z-10"
                     />
 
-                    <div className="absolute bottom-4 right-4 z-20 flex gap-2">
-                      <input type="file" ref={fileInputRef} accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden" onChange={handleImageUpload} />
-                      <button onClick={() => fileInputRef.current?.click()} className={`p-3 rounded-full shadow-lg border transition-all ${imageDraft ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100" : "bg-white dark:bg-midnight-800 text-stone-400 dark:text-stone-500 border-stone-100 dark:border-stone-700 hover:text-stone-600 dark:hover:text-stone-300 hover:scale-105"}`}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                      </button>
-                      {isSupported && (
-                        <button onClick={toggleListening} className={`p-3 rounded-full shadow-lg border transition-all ${isListening ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 animate-pulse scale-110" : "bg-white dark:bg-midnight-800 text-stone-400 dark:text-stone-500 border-stone-100 dark:border-stone-700 hover:text-stone-600 dark:hover:text-stone-300 hover:scale-105"}`}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
-                        </button>
-                      )}
-                    </div>
+                    <input type="file" ref={fileInputRef} accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden" onChange={handleImageUpload} />
                   </>
                 )}
 
