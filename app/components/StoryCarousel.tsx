@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { MemoryItem, Lang } from "../types";
 import { TEXT } from "../constants";
 import { formatWhen } from "../utils";
@@ -37,7 +37,46 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
   }, [initialIndex]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const t = TEXT[lang];
+
+  // Stop audio when swiping to a different card
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    setPlayingId(null);
+  }, [index]);
+
+  const toggleAudio = useCallback((item: MemoryItem) => {
+    if (playingId === item.id) {
+      // Stop
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      setPlayingId(null);
+    } else {
+      // Stop any current audio first
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      const audio = new Audio(item.audioUrl);
+      audio.play();
+      audioRef.current = audio;
+      setPlayingId(item.id);
+      audio.onended = () => {
+        audioRef.current = null;
+        setPlayingId(null);
+      };
+    }
+  }, [playingId]);
 
   async function downloadAsImage(item: MemoryItem) {
     const el = document.getElementById("share-card-content");
@@ -96,32 +135,36 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
       // 2. Prepare elaborated message
       let displayPrompt = item.prompt;
 
+      // Detect the language the story was written in, based on its content
+      // This prevents bilingual share messages when the app UI lang differs from the story lang
+      const storyTextSample = `${item.prompt} ${item.text}`;
+      const spanishPattern = /[áéíóúüñ¿¡]/i;
+      const spanishWords = /\b(la|el|de|en|que|por|una|con|para|es|era|fue|muy|también|más|cuando|quería|tenía|había)\b/i;
+      const storyLang: "en" | "es" =
+        spanishPattern.test(storyTextSample) || spanishWords.test(storyTextSample)
+          ? "es"
+          : "en";
+      const tStory = TEXT[storyLang];
+
       const isGeneric = item.prompt === "New Story" || item.prompt === "Nueva Historia" || item.prompt === "New Photo" || item.prompt === "Nueva Foto";
 
-      // If prompt is generic, try to find the real question
       if (isGeneric) {
-        if (item.questionId) {
-          // You would need to update getQuestionText to fetch properly if needed, but for now using prompt is fine
-          displayPrompt = item.prompt
-        } else {
-          // Fallback prompt for generic stories
-          displayPrompt = lang === "es" ? "Comparte una historia o foto, lo que desees." : "Share a story or photo, whatever you wish.";
-        }
+        displayPrompt = storyLang === "es" ? "Comparte una historia o foto, lo que desees." : "Share a story or photo, whatever you wish.";
       }
 
       const cleanPrompt = stripBoldMarkers(displayPrompt);
       // Use *asterisks* to bold on WhatsApp/Telegram
-      const subjectName = activePerson?.name ? `*${activePerson.name}*` : (lang === "es" ? "un ser querido" : "a loved one");
+      const subjectName = activePerson?.name ? `*${activePerson.name}*` : (storyLang === "es" ? "un ser querido" : "a loved one");
 
       // Force production URL for sharing
       const appUrl = "https://vms-memory.vercel.app";
 
       const messageParts = [
-        t.shareMainMsg(subjectName),
+        tStory.shareMainMsg(subjectName),
         cleanPrompt ? `${cleanPrompt}` : "",
         `"${item.text}"`,
-        t.shareVisitMsg,
-        `${t.shareCollectionMsg} ${appUrl}`,
+        tStory.shareVisitMsg,
+        `${tStory.shareCollectionMsg} ${appUrl}`,
       ].filter(p => p !== null && p !== undefined && p !== "");
 
       const fullText = messageParts.join("\n");
@@ -356,25 +399,53 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
                         {renderWithBoldName(item.prompt)}
                       </h3>
 
-                      {/* Audio Player */}
-                      {item.audioUrl && (
-                        <div className="w-full pt-2">
-                          <audio controls src={item.audioUrl} className="w-full h-10" />
-                        </div>
-                      )}
                     </div>
 
-                    {/* Scrollable Text Area */}
-                    <div className="flex-1 overflow-y-auto px-8 py-8 w-full story-scroll text-center flex flex-col items-center">
+
+                    {/* Scrollable Body Area */}
+                    <div className="flex-1 overflow-y-auto px-8 py-8 w-full story-scroll text-center flex flex-col items-center justify-center">
                       {item.imageUrl && (
                         <div className="mb-8 rounded-2xl overflow-hidden shadow-sm border border-stone-100 dark:border-stone-800">
                           <img src={item.imageUrl} alt="Memory" className="w-full h-auto object-cover max-h-[300px]" />
                         </div>
                       )}
 
-                      <p className={`text-stone-800 dark:text-stone-300 leading-relaxed whitespace-pre-wrap ${textSizeClass} font-serif transition-all duration-300`}>
-                        {item.text}
-                      </p>
+                      {/* Large Play/Stop button for audio stories */}
+                      {item.audioUrl ? (
+                        <div className="flex flex-col items-center gap-6">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleAudio(item); }}
+                            className="group flex items-center justify-center transition-transform duration-200 active:scale-95 hover:scale-105"
+                            aria-label={playingId === item.id ? "Stop" : "Play"}
+                          >
+                            {playingId === item.id ? (
+                              // Big stop icon
+                              <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                                <rect x="28" y="28" width="64" height="64" rx="10" fill="currentColor" className="text-stone-800 dark:text-stone-100" />
+                              </svg>
+                            ) : (
+                              // Big outlined play triangle
+                              <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                                <polygon
+                                  points="28,18 100,60 28,102"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="7"
+                                  strokeLinejoin="round"
+                                  className="text-stone-800 dark:text-stone-200"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                          <p className="text-xs font-bold uppercase tracking-[0.25em] text-stone-400 dark:text-stone-600">
+                            {playingId === item.id ? (lang === "es" ? "Detener" : "Stop") : (lang === "es" ? "Escuchar" : "Play")}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className={`text-stone-800 dark:text-stone-300 leading-relaxed whitespace-pre-wrap ${textSizeClass} font-serif transition-all duration-300`}>
+                          {item.text}
+                        </p>
+                      )}
 
                       {/* Generous padding at bottom for better scrolling feel */}
                       <div className="h-12 flex-shrink-0" />
