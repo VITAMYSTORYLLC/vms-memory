@@ -31,6 +31,7 @@ interface StoryCarouselProps {
 export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0, lockedProgress, onUnlockClick }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(initialIndex);
+  const [skipTransition, setSkipTransition] = useState(false);
 
   useEffect(() => {
     setIndex(initialIndex);
@@ -221,18 +222,24 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
   }
 
   function next() {
-    // Calculate extra cards based on what's showing
     let extraCards = 0;
-    if (lockedProgress) {
-      extraCards = 1; // Only the locked card
-    }
+    if (lockedProgress) extraCards = 1;
+    const maxRealIndex = items.length + extraCards - 1;
 
-    const maxIndex = items.length + extraCards - 1;
+    Haptics.light();
+    setShowDeleteConfirm(false);
 
-    if (index < maxIndex) {
-      Haptics.light();
-      setShowDeleteConfirm(false);
+    if (index <= maxRealIndex) {
+      // Slide right into the next card (or clone of first if at end)
       setIndex(index + 1);
+      if (index === maxRealIndex) {
+        // After animation completes, silently snap back to real index 0
+        setTimeout(() => {
+          setSkipTransition(true);
+          setIndex(0);
+          requestAnimationFrame(() => requestAnimationFrame(() => setSkipTransition(false)));
+        }, 510);
+      }
     }
   }
 
@@ -262,18 +269,23 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
   }
 
   const allItems = items.concat(extraCards as any);
+  // Clone first card at the end so right-arrow wrap looks like a forward swipe
+  const displayItems = allItems.length > 1 ? [...allItems, allItems[0]] : allItems;
+  // Which dot to highlight (clone of first = dot 0)
+  const activeDotIndex = index >= allItems.length ? 0 : index;
 
   return (
     <div className="relative w-full overflow-hidden py-2 h-[580px] group transition-colors duration-500">
       <div
         {...swipeHandlers}
-        className="flex transition-transform duration-500 ease-out h-full select-none"
+        className="flex h-full select-none"
         style={{
           transform: `translateX(calc(-${index * 90}% + 5%))`,
-          width: '100%'
+          width: '100%',
+          transition: skipTransition ? 'none' : 'transform 500ms ease-out',
         }}
       >
-        {allItems.map((item, i) => {
+        {displayItems.map((item, i) => {
           const isLockedCard = item.id === "locked_card";
           const isActionCard = isLockedCard; // We removed other action cards
 
@@ -460,7 +472,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
                         {allItems.map((_, dotIndex) => (
                           <div
                             key={dotIndex}
-                            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${dotIndex === index ? 'bg-stone-800 dark:bg-stone-200' : 'bg-stone-200 dark:bg-stone-800'}`}
+                            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${dotIndex === activeDotIndex ? 'bg-stone-800 dark:bg-stone-200' : 'bg-stone-200 dark:bg-stone-800'}`}
                           />
                         ))}
                       </div>
@@ -505,20 +517,18 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
         </button>
       )}
 
-      {index < allItems.length - 1 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            next();
-          }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-stone-800 rounded-full shadow-lg flex items-center justify-center text-stone-600 dark:text-stone-300 hover:scale-110 transition-transform duration-200 focus:outline-none"
-          aria-label="Next story"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      )}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          next();
+        }}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white dark:bg-stone-800 rounded-full shadow-lg flex items-center justify-center text-stone-600 dark:text-stone-300 hover:scale-110 transition-transform duration-200 focus:outline-none"
+        aria-label="Next story"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
     </div>
   );
 }
