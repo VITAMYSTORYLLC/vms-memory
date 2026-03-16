@@ -483,7 +483,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             try {
                 // It's a base64 string, so we need to upload it
                 const blob = base64ToBlob(imageDraft);
-                const path = `people/${activePersonId || "new"}/stories`; // Use a logical path
+                const uid = user?.uid || "guest";
+                const path = `users/${uid}/people/${activePersonId || "new"}/stories`;
                 finalImageUrl = await uploadImage(blob, path);
             } catch (err) {
                 console.error("Failed to upload image:", err);
@@ -504,7 +505,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                 // Ah, I cannot add imports easily in this block replacement. I will have to add it.
                 // For now, let's use dynamic import to avoid breaking if I missed the top import.
                 const { uploadAudio } = await import("../utils/storage");
-                const path = `people/${activePersonId || "new"}/audio`;
+                const uid = user?.uid || "guest";
+                const path = `users/${uid}/people/${activePersonId || "new"}/audio`;
                 finalAudioUrl = await uploadAudio(audioDraft, path);
             } catch (err) {
                 console.error("Failed to upload audio:", err);

@@ -46,7 +46,7 @@ export const TEXT = {
     secondStoryBody: "You are building momentum. Complete 5 stories to unlock special features.",
     storyKeeperTitle: "Story Keeper",
     storyKeeperBody: (name: string) =>
-      `You’ve preserved the first chapter of ${name}’s story.`,
+      `You’ve preserved the first chapter of |||${name}|||’s story.`,
     storyKeeperBadge: "Story Keeper",
     storiesOf: "THE STORIES OF",
     storyOf: "THE STORY OF",
@@ -78,7 +78,7 @@ export const TEXT = {
     q4: "In one word, how would you describe this person?",
     q5: "What mattered most to this person?",
     qFree: "Share a story or picture, anything you want.",
-    qKnownFor: (name: string) => `What is something |||${name}||| is known for?`,
+    qKnownFor: (name: string) => `What's a memory of |||${name}||| you'll never forget?`,
     qDescribe: (name: string) => `In one word, how would you describe |||${name}|||?`,
     qFirstMemory: (name: string) => `What’s the first memory that comes to mind when you think of |||${name}|||?`,
     qEveryoneKnow: (name: string) => `What’s something you want everyone to know about |||${name}|||?`,
@@ -137,7 +137,7 @@ export const TEXT = {
     or: "OR",
     continueWithGoogle: "Continue with Google",
     markAllRead: "Mark all read",
-    noNotifications: "No notifications yet.",
+    noNotifications: "No notifications.",
     familyTitle: "Your Family",
     peopleOf: "People of",
     storiesTitle: "Your Stories",
@@ -271,7 +271,7 @@ export const TEXT = {
     secondStoryBody: "Vas muy bien. Completa 5 historias para desbloquear funciones especiales.",
     storyKeeperTitle: "Guardián de Historias",
     storyKeeperBody: (name: string) =>
-      `Has completado el primer capítulo del legado de ${name}.`,
+      `Has completado el primer capítulo del legado de |||${name}|||.`,
     storyKeeperBadge: "Guardián",
     storiesOf: "LAS HISTORIAS DE",
     storyOf: "LA HISTORIA DE",
@@ -303,7 +303,7 @@ export const TEXT = {
     q4: "In una palabra, ¿cómo describirías a esta persona?",
     q5: "¿Qué era lo que más le importaba a esta persona?",
     qFree: "Comparte una historia o foto, lo que desees.",
-    qKnownFor: (name: string) => `¿Qué es algo por lo que es conocido/a |||${name}|||?`,
+    qKnownFor: (name: string) => `¿Qué recuerdo de |||${name}||| nunca olvidarás?`,
     qDescribe: (name: string) => `En una palabra, ¿cómo describirías a |||${name}|||?`,
     qFirstMemory: (name: string) => `¿Cuál es el primer recuerdo que te viene a la mente al pensar en |||${name}|||?`,
     qEveryoneKnow: (name: string) => `¿Qué es algo que quieres que todos sepan sobre |||${name}|||?`,
@@ -362,7 +362,7 @@ export const TEXT = {
     or: "O",
     continueWithGoogle: "Continuar con Google",
     markAllRead: "Marcar leídas",
-    noNotifications: "No hay notificaciones aún.",
+    noNotifications: "No hay notificaciones.",
     familyTitle: "Tu Familia",
     peopleOf: "Familia de",
     storiesTitle: "Tus Historias",
@@ -456,14 +456,14 @@ export const QUESTION_EXAMPLES = {
   en: {
     0: "I remember the sound of her laugh during Sunday dinners...", // q1: First memory
     1: "I want them to know she always put her family first…", // q2: What everyone should know
-    2: "She is known for her incredible cherry pies...", // q3: Known for
+    2: "I remember the way she'd stay up late just to braid my hair before school...", // q3: Memory
     3: "Protective · Energetic · Devoted", // q4: One word description
     4: "Her family is everything to her...", // q5: Mattered most
   },
   es: {
     0: "Recuerdo el sonido de su risa durante las cenas del domingo...",
     1: "Quiero que sepan que siempre puso a su familia primero…",
-    2: "Es conocida por sus increíbles pasteles de cereza...",
+    2: "Recuerdo cómo se quedaba despierta tarde solo para trenzarme el cabello antes de la escuela...",
     3: "Protección · Energía · Compromiso",
     4: "Su familia lo es todo para ella...",
   }
