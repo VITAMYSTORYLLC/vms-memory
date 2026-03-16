@@ -24,7 +24,9 @@ import {
     StoryView,
     ActivityItem,
     MemoryItem,
-    Person
+    Person,
+    BlankQuestion,
+    FamilyAnswer,
 } from '../types';
 import { makeId } from './index';
 
@@ -33,6 +35,7 @@ export const COLLECTIONS = {
     SHARED_STORIES: 'shared_stories',
     STORY_ENGAGEMENT: 'story_engagement',
     ACTIVITY_FEED: 'activity_feed',
+    BLANK_QUESTIONS: 'blank_questions',
 };
 
 interface SharedStory {
@@ -411,3 +414,106 @@ export async function deleteActivity(userId: string, activityId: string): Promis
     const activityRef = doc(db, COLLECTIONS.ACTIVITY_FEED, userId, 'activities', activityId);
     await deleteDoc(activityRef);
 }
+
+// ==================== BLANK QUESTIONS ====================
+
+export async function shareBlankQuestion(
+    personId: string,
+    personName: string,
+    ownerId: string,
+    ownerName: string,
+    prompt: string,
+    questionIndex: number
+): Promise<string> {
+    const id = makeId();
+    const blankQuestion: BlankQuestion = {
+        id,
+        personId,
+        personName,
+        ownerId,
+        ownerName,
+        prompt,
+        questionIndex,
+        createdAt: Date.now(),
+        answers: [],
+    };
+    await setDoc(doc(db, COLLECTIONS.BLANK_QUESTIONS, id), blankQuestion);
+    return id;
+}
+
+export async function getBlankQuestion(shareId: string): Promise<BlankQuestion | null> {
+    const docRef = doc(db, COLLECTIONS.BLANK_QUESTIONS, shareId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return docSnap.data() as BlankQuestion;
+    }
+    return null;
+}
+
+export async function getBlankQuestionsForPerson(
+    ownerId: string,
+    personId: string
+): Promise<BlankQuestion[]> {
+    const q = query(
+        collection(db, COLLECTIONS.BLANK_QUESTIONS),
+        where('ownerId', '==', ownerId),
+        where('personId', '==', personId)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => d.data() as BlankQuestion);
+}
+
+export async function submitFamilyAnswer(
+    shareId: string,
+    userId: string,
+    userName: string,
+    userPhoto: string | undefined,
+    text: string
+): Promise<void> {
+    const questionRef = doc(db, COLLECTIONS.BLANK_QUESTIONS, shareId);
+    const questionSnap = await getDoc(questionRef);
+    if (!questionSnap.exists()) throw new Error('Blank question not found');
+
+    const question = questionSnap.data() as BlankQuestion;
+
+    const answer: FamilyAnswer = {
+        id: makeId(),
+        questionId: shareId,
+        authorId: userId,
+        authorName: userName,
+        authorPhoto: userPhoto,
+        text,
+        createdAt: Date.now(),
+    };
+
+    await updateDoc(questionRef, {
+        answers: arrayUnion(answer),
+    });
+
+    // Notify owner
+    if (question.ownerId !== userId) {
+        const activity: ActivityItem = {
+            id: makeId(),
+            type: 'answer',
+            storyId: shareId,
+            storyPrompt: question.prompt,
+            personName: question.personName,
+            actorId: userId,
+            actorName: userName,
+            actorPhoto: userPhoto,
+            blankQuestionId: shareId,
+            answerText: text,
+            createdAt: Date.now(),
+            read: false,
+        };
+        const activityRef = doc(
+            db,
+            COLLECTIONS.ACTIVITY_FEED,
+            question.ownerId,
+            'activities',
+            activity.id
+        );
+        await setDoc(activityRef, activity);
+    }
+}
+
