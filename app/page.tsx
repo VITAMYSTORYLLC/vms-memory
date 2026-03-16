@@ -25,6 +25,8 @@ import { useMemory } from "./context/MemoryContext";
 import { useRouter } from "next/navigation";
 import { Haptics } from "./utils/haptics";
 import { RefineModal } from "./components/RefineModal";
+import { useAuth } from "./hooks/useAuth";
+import { shareBlankQuestion, getBlankQuestionsForPerson } from "./utils/engagement";
 
 export default function Page() {
   const {
@@ -54,6 +56,7 @@ export default function Page() {
   } = useMemory();
 
   const router = useRouter();
+  const { user } = useAuth();
   const QUESTIONS = useMemo(() => [t.q1, t.q2, t.q3, t.q4, t.q5], [t]);
 
   const [questionIndex, setQuestionIndex] = useState<number>(0);
@@ -64,6 +67,8 @@ export default function Page() {
   const [showRefineModal, setShowRefineModal] = useState(false);
   const [showNudge, setShowNudge] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [isSharingBlank, setIsSharingBlank] = useState(false);
+  const [blankSharedLink, setBlankSharedLink] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastActivity = useRef(Date.now());
 
@@ -212,6 +217,59 @@ export default function Page() {
   function markCurrentQuestionUsed(personId: string) { if (!personId || allStarterUsed) return; const idx = wrapIndex(questionIndex, QUESTIONS.length); saveUsedQuestionIndexes(personId, [...Array.from(usedSet), idx]); setUsedVersion((v) => v + 1); }
   function maybeAwardStoryKeeper(personId: string) { if (!personId) return false; const used = loadUsedQuestionIndexes(personId); if (used.length < QUESTIONS.length || hasBadge(personId, "story_keeper")) return false; addBadge(personId, "story_keeper"); setBadgeVersion((v) => v + 1); return true; }
   function advanceToNextUnused(personId: string) { if (!personId) return; const usedNext = new Set<number>(loadUsedQuestionIndexes(personId)); if (usedNext.size >= QUESTIONS.length) return; setQuestionIndex(nextUnusedIndex(questionIndex, 1, QUESTIONS.length, usedNext)); }
+
+  // Auto-skip any question that already has a family answer
+  useEffect(() => {
+    if (!activePersonId || !user?.uid || allStarterUsed) return;
+    getBlankQuestionsForPerson(user.uid, activePersonId).then((blanks) => {
+      blanks.forEach((bq) => {
+        if (bq.answers.length > 0) {
+          const used = new Set<number>(loadUsedQuestionIndexes(activePersonId));
+          if (!used.has(bq.questionIndex)) {
+            saveUsedQuestionIndexes(activePersonId, [...Array.from(used), bq.questionIndex]);
+            setUsedVersion((v) => v + 1);
+          }
+        }
+      });
+    }).catch(() => { });
+  }, [activePersonId, user?.uid, allStarterUsed]);
+
+  async function handleShareBlank() {
+    if (!user || !activePerson) return;
+    setIsSharingBlank(true);
+    try {
+      const qIdx = wrapIndex(questionIndex, QUESTIONS.length);
+      const rawPrompt = displayQuestion.text.replace(/\|\|\|[^|]+\|\|\|/g, activePerson.name);
+      const shareId = await shareBlankQuestion(
+        activePerson.id,
+        activePerson.name,
+        user.uid,
+        user.displayName || user.email?.split("@")[0] || "Someone",
+        rawPrompt,
+        qIdx
+      );
+      const link = `${window.location.origin}/blank/${shareId}`;
+      const shareText = lang === "es"
+        ? `Hola 💛 Estoy usando VitaMyStory para preservar la historia de vida de ${activePerson.name}.\n\nTengo esta pregunta y pensé que tú podrías ayudarme a responderla:\n\n"${rawPrompt}"\n\n¿Puedes compartir tu memoria?`
+        : `Hi 💛 I'm using VitaMyStory to preserve the life story of ${activePerson.name}.\n\nI have this question and thought you could help me answer it:\n\n"${rawPrompt}"\n\nCan you share your memory?`;
+      if (navigator.share) {
+        await navigator.share({ title: "VitaMyStory", text: shareText, url: link });
+      } else {
+        await navigator.clipboard.writeText(link);
+        setBlankSharedLink(link);
+      }
+    } catch (err: any) {
+      // AbortError = user dismissed the share sheet — not a real error
+      if (err?.name === "AbortError") return;
+      console.error("Share blank error:", err);
+      const msg = err?.code === "permission-denied" || err?.code === "firestore/permission-denied"
+        ? (lang === "es" ? "Sin permiso. Verifica las reglas de Firestore." : "Permission denied. Check your Firestore rules.")
+        : (err?.message || "Failed to create share link");
+      addNotification(t.error, msg, "error");
+    } finally {
+      setIsSharingBlank(false);
+    }
+  }
 
   async function handleSave() {
     setIsSaving(true);
@@ -499,6 +557,39 @@ export default function Page() {
                 <PrimaryButton disabled={!canSave || isSaving} onClick={handleSave}>
                   {isSaving ? t.saving : editingId ? t.updateStory : t.saveStory}
                 </PrimaryButton>
+
+                {/* Share with family — only when text is empty, logged in, not a special mode */}
+                {user && !editingId && !isPhotoMode && !isAudioMode && !isCustomMode && !isAIMode && !allStarterUsed && normalize(storyDraft).length === 0 && (
+                  <div className="text-center">
+                    {blankSharedLink ? (
+                      <div className="flex flex-col items-center gap-1 animate-in fade-in duration-300">
+                        <span className="text-xs text-green-600 dark:text-green-400 font-semibold">
+                          {lang === "es" ? "✓ ¡Enlace copiado!" : "✓ Link copied!"}
+                        </span>
+                        <span className="text-[10px] text-stone-400 dark:text-stone-500 break-all max-w-[260px]">{blankSharedLink}</span>
+                        <button
+                          onClick={() => setBlankSharedLink(null)}
+                          className="mt-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+                        >
+                          {lang === "es" ? "Cerrar" : "Dismiss"}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleShareBlank}
+                        disabled={isSharingBlank}
+                        className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-[#8B7355] dark:hover:text-[#C49A6C] transition-colors flex items-center gap-2 mx-auto disabled:opacity-50"
+                      >
+                        {isSharingBlank
+                          ? <span className="inline-block w-3 h-3 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+                          : <span>↗</span>
+                        }
+                        {lang === "es" ? "Compartir con familia para responder" : "Share with family to answer"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {(editingId || isPhotoMode || isAudioMode || isCustomMode) && (
                   <div className="text-center">
                     <button
@@ -543,7 +634,7 @@ export default function Page() {
             <div className="flex-1 flex flex-col justify-center text-center space-y-8 animate-in zoom-in-95 duration-500">
               <div className="text-8xl animate-bounce">📖</div>
               <h2 className="text-4xl font-serif font-bold text-stone-900 dark:text-stone-100 leading-tight">{t.badgeModalTitle}</h2>
-              <p className="text-stone-500 dark:text-stone-400 font-serif italic text-lg mt-4 px-6">{t.storyKeeperBody(displayName)}</p>
+              <p className="text-stone-500 dark:text-stone-400 font-serif italic text-lg mt-4 px-6">{renderWithBoldName(t.storyKeeperBody(displayName))}</p>
               <div className="space-y-3 pt-6">
                 <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
                 <SecondaryButton onClick={() => router.push("/stories")}>{t.viewStories}</SecondaryButton>
