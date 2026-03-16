@@ -134,29 +134,19 @@ export default function FamilyPage() {
 
     async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
-        if (!file || !uploadingForId || !user) return;
+        if (!file || !uploadingForId) return;
+
+        if (!user) {
+            addNotification(t.error, lang === "es" ? "Inicia sesión para subir fotos" : "Please sign in to upload photos", "error");
+            setUploadingForId(null);
+            return;
+        }
 
         try {
-            // Optimistic update using local object URL (optional, but let's stick to simple upload first)
-            // 1. Compress
             const compressedBase64 = await compressImage(file);
-
-            // 2. Upload
-            // We need to convert base64 back to blob for uploadImage, or use putString
-            // But uploadImage takes a File/Blob.
-            // Let's use the helper base64ToBlob if we have it, or just upload the file directly if compression isn't strictly enforced for storage size (though it should be).
-            // Actually, compressImage returns base64. 
-            // We can upload the base64 string using uploadString in firebase, but our utility might only handle Files?
-            // Let's check imports. I didn't import base64ToBlob. I should added it.
-            // For now, let's just upload the original file to keep it simple, or use the storage utility if it handles formatting.
-            // Wait, previous turn showed `uploadImage` usage in ProfilePage: 
-            // `const url = await uploadImage(user.uid, blob, "profile");`
-            // So I need `base64ToBlob`.
-
             const res = await fetch(compressedBase64);
             const blob = await res.blob();
 
-            // Corrected path and arguments
             const fullPath = `users/${user.uid}/people/${uploadingForId}/profile`;
             const downloadUrl = await uploadImage(blob, fullPath);
 
@@ -164,9 +154,12 @@ export default function FamilyPage() {
                 updatePersonPhoto(uploadingForId, downloadUrl);
                 addNotification(t.success, t.photoUpdated || "Photo updated", "success");
             }
-        } catch (error) {
-            console.error(error);
-            addNotification(t.error, "Failed to upload photo", "error");
+        } catch (error: any) {
+            console.error("Photo upload error:", error);
+            const msg = error?.code === "storage/unauthorized"
+                ? (lang === "es" ? "Sin permiso. Verifica las reglas de Firebase Storage." : "Upload permission denied. Check Firebase Storage rules.")
+                : (error?.message || "Failed to upload photo");
+            addNotification(t.error, msg, "error");
         }
         setUploadingForId(null);
         if (personFileInputRef.current) personFileInputRef.current.value = "";
