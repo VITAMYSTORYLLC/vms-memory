@@ -114,7 +114,7 @@ export interface StoryEngagement {
 
 export interface ActivityItem {
   id: string;
-  type: 'like' | 'comment' | 'view' | 'share';
+  type: 'like' | 'comment' | 'view' | 'share' | 'answer';
   storyId: string;
   storyPrompt: string;
   personName: string;
@@ -122,6 +122,31 @@ export interface ActivityItem {
   actorName: string;
   actorPhoto?: string;
   commentText?: string;
+  // For 'answer' type
+  blankQuestionId?: string;
+  answerText?: string;
   createdAt: number;
   read: boolean;
+}
+
+export interface FamilyAnswer {
+  id: string;
+  questionId: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto?: string;
+  text: string;
+  createdAt: number;
+}
+
+export interface BlankQuestion {
+  id: string;
+  personId: string;
+  personName: string;
+  ownerId: string;
+  ownerName: string;
+  prompt: string;
+  questionIndex: number;
+  createdAt: number;
+  answers: FamilyAnswer[];
 }
