@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useMemory } from "../context/MemoryContext";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiEdit3, FiCamera, FiMic, FiZap, FiPlus } from "react-icons/fi";
+import { FiEdit3, FiCamera, FiMic, FiZap, FiPlus, FiMessageCircle } from "react-icons/fi";
 import { TEXT } from "../constants";
 import { useSwipe } from "../hooks/useSwipe";
 import { Haptics } from "../utils/haptics";
@@ -20,10 +20,11 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
         setIsPhotoMode,
         setIsAudioMode,
         setIsAIMode,
+        setIsAskMode,
         setAICurrentQuestionIndex,
         generateAIQuestions,
         activePerson,
-        activeMemories, // Added activeMemories
+        activeMemories,
         lang
     } = useMemory();
     const router = useRouter();
@@ -66,6 +67,7 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
         setIsPhotoMode(false);
         setIsAudioMode(false);
         setIsAIMode(false);
+        setIsAskMode(false);
 
         switch (mode) {
             case "story":

@@ -330,7 +330,7 @@ export default function FamilyPage() {
                                         alt="VitaMyStory Logo"
                                         width={150}
                                         height={150}
-                                        className="rounded-xl object-contain"
+                                        className="rounded-xl object-contain mix-blend-multiply dark:mix-blend-normal"
                                     />
                                 </div>
 

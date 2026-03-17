@@ -3,6 +3,8 @@ import BottomNav from "./components/BottomNav";
 import { MemoryProvider } from "./context/MemoryContext";
 import { GuestBanner } from "./components/GuestBanner";
 import { MemoryFlash } from "./components/MemoryFlash";
+import MilestoneWrapper from "./components/MilestoneWrapper";
+import SplashScreen from "./components/SplashScreen";
 
 export const metadata = {
   title: "VitaMyStory — Preserve Family Stories Forever",
@@ -56,10 +58,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="pb-16 mobile-safe-area">
         <MemoryProvider>
+          <SplashScreen />
           <GuestBanner />
           <MemoryFlash />
           {children}
           <BottomNav />
+          <MilestoneWrapper />
         </MemoryProvider>
       </body>
     </html>

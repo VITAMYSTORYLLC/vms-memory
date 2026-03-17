@@ -28,6 +28,7 @@ import { RefineModal } from "./components/RefineModal";
 import { useAuth } from "./hooks/useAuth";
 import { shareBlankQuestion, getBlankQuestionsForPerson } from "./utils/engagement";
 
+
 export default function Page() {
   const {
     people,
@@ -50,6 +51,7 @@ export default function Page() {
     isAudioMode, setIsAudioMode,
     isCustomMode, setIsCustomMode,
     isAIMode, setIsAIMode,
+
     aiCurrentQuestionIndex, setAICurrentQuestionIndex,
     generateAIQuestions,
     audioDraft, setAudioDraft
@@ -608,8 +610,40 @@ export default function Page() {
                   {isSaving ? t.saving : editingId ? t.updateStory : t.saveStory}
                 </PrimaryButton>
 
-                {/* Share with family — only when text is empty, logged in, not a special mode */}
-                {user && !editingId && !isPhotoMode && !isAudioMode && !isCustomMode && !isAIMode && !allStarterUsed && normalize(storyDraft).length === 0 && (
+                {/* Share with family — shown at bottom for all modes when no content yet */}
+                {user && !editingId && !allStarterUsed && !imageDraft && !audioDraft && normalize(storyDraft).length === 0 && !isPhotoMode && !isAudioMode && (
+                  <div className="text-center">
+                    {blankSharedLink ? (
+                      <div className="flex flex-col items-center gap-1 animate-in fade-in duration-300">
+                        <span className="text-xs text-green-600 dark:text-green-400 font-semibold">
+                          {lang === "es" ? "✓ ¡Enlace copiado!" : "✓ Link copied!"}
+                        </span>
+                        <span className="text-[10px] text-stone-400 dark:text-stone-500 break-all max-w-[260px]">{blankSharedLink}</span>
+                        <button
+                          onClick={() => setBlankSharedLink(null)}
+                          className="mt-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+                        >
+                          {t.close}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleShareBlank}
+                        disabled={isSharingBlank}
+                        className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-[#8B7355] dark:hover:text-[#C49A6C] transition-colors flex items-center gap-2 mx-auto disabled:opacity-50"
+                      >
+                        {isSharingBlank
+                          ? <span className="inline-block w-3 h-3 border-2 border-stone-300 border-t-stone-600 rounded-full animate-spin" />
+                          : <span>↗</span>
+                        }
+                        {lang === "es" ? "Compartir con familia para responder" : "Share with family to answer"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Share with family for Photo / Audio modes — same bottom position */}
+                {user && !editingId && (isPhotoMode || isAudioMode) && !imageDraft && !audioDraft && (
                   <div className="text-center">
                     {blankSharedLink ? (
                       <div className="flex flex-col items-center gap-1 animate-in fade-in duration-300">

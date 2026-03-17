@@ -19,6 +19,10 @@ export type MemoryItem = {
   audioUrl?: string;
   isAudioStory?: boolean;
   questionId?: string;
+  // Collaboration
+  status?: 'published' | 'pending';
+  authorName?: string;
+  authorId?: string;
   // Social engagement
   isShared?: boolean;
   shareId?: string;

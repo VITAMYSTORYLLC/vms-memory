@@ -11,9 +11,10 @@ interface ShareCardProps {
     lang: Lang;
     userName?: string;
     personName?: string;
+    imageDataUrl?: string; // Pre-fetched data URL to bypass CORS in html-to-image
 }
 
-export function ShareCard({ item, lang, userName, personName }: ShareCardProps) {
+export function ShareCard({ item, lang, userName, personName, imageDataUrl }: ShareCardProps) {
     const t = TEXT[lang];
 
     // Determine if we should show the prompt.
@@ -51,13 +52,12 @@ export function ShareCard({ item, lang, userName, personName }: ShareCardProps) 
                 <div className="flex-1 bg-white p-20 flex flex-col items-center justify-center relative">
 
                     {/* Optional Memory Image */}
-                    {item.imageUrl && (
+                    {(imageDataUrl || item.imageUrl) && (
                         <div className="w-full h-[400px] mb-12 rounded-3xl overflow-hidden shadow-sm flex-shrink-0 border border-stone-100">
                             <img
-                                src={item.imageUrl}
+                                src={imageDataUrl || item.imageUrl}
                                 className="w-full h-full object-cover"
                                 alt="Memory"
-                                crossOrigin="anonymous"
                             />
                         </div>
                     )}
@@ -71,7 +71,7 @@ export function ShareCard({ item, lang, userName, personName }: ShareCardProps) 
                     <div className="absolute bottom-6 right-6 w-24 h-24 opacity-80 select-none pointer-events-none">
                         <img
                             src="/logo-transparent.png"
-                            className="w-full h-full object-contain"
+                            className="w-full h-full object-contain mix-blend-multiply"
                             alt="VitaMyStory"
                         />
                     </div>

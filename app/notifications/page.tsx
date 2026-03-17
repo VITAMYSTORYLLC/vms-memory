@@ -1,16 +1,32 @@
 "use client";
 
 import React from "react";
-import { FiBell, FiInfo, FiStar, FiCheckCircle, FiTrash2, FiHeart, FiMessageSquare, FiEye, FiEdit3 } from "react-icons/fi";
+import { FiBell, FiInfo, FiStar, FiCheckCircle, FiTrash2, FiHeart, FiMessageSquare, FiEye, FiEdit3, FiInbox } from "react-icons/fi";
 import { useMemory } from "../context/MemoryContext";
 import { useAuth } from "../hooks/useAuth";
 import { useActivityFeed } from "../hooks/useEngagement";
-import { NotificationType } from "../types";
+import { NotificationType, Person, MemoryItem } from "../types";
 
 export default function NotificationsPage() {
-    const { notifications, markAsRead, markAllAsRead, deleteNotification, isHydrated, t } = useMemory();
+    const { notifications, markAsRead, markAllAsRead, deleteNotification, isHydrated, t, pendingMemories, activePerson, setPeople, lang } = useMemory();
     const { user } = useAuth();
     const { activities, unreadCount: activityUnreadCount, handleMarkAsRead, handleMarkAllAsRead } = useActivityFeed(user?.uid || null);
+
+    const handleApprove = (memoryId: string) => {
+        if (!activePerson) return;
+        setPeople((prev: Person[]) => prev.map((p: Person) => {
+            if (p.id !== activePerson.id) return p;
+            return { ...p, memories: p.memories.map((m: MemoryItem) => m.id === memoryId ? { ...m, status: "published" } as MemoryItem : m) };
+        }));
+    };
+
+    const handleDismiss = (memoryId: string) => {
+        if (!activePerson) return;
+        setPeople((prev: Person[]) => prev.map((p: Person) => {
+            if (p.id !== activePerson.id) return p;
+            return { ...p, memories: p.memories.filter((m: MemoryItem) => m.id !== memoryId) };
+        }));
+    };
 
     const getIcon = (type: NotificationType) => {
         switch (type) {
@@ -69,6 +85,49 @@ export default function NotificationsPage() {
                             </button>
                         )}
                     </div>
+
+                    {/* === PENDING CONTRIBUTIONS === */}
+                    {pendingMemories.length > 0 && (
+                        <div className="mb-6">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600 mb-3 flex items-center gap-2">
+                                <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                                {lang === "es" ? "Contribuciones de familia" : "Family Contributions"}
+                            </p>
+                            <div className="space-y-3">
+                                {pendingMemories.map((memory: MemoryItem) => (
+                                    <div key={memory.id} className="bg-white dark:bg-stone-900 border border-blue-100 dark:border-blue-900/40 rounded-xl p-4 shadow-sm">
+                                        <div className="flex items-start gap-3 mb-3">
+                                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 flex-shrink-0 mt-0.5">
+                                                <FiInbox size={14} />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 mb-0.5">
+                                                    {memory.authorName || (lang === "es" ? "Familiar" : "Family member")}
+                                                </p>
+                                                <p className="text-sm text-stone-800 dark:text-stone-200 font-serif leading-snug">
+                                                    {memory.text}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleApprove(memory.id)}
+                                                className="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition-colors"
+                                            >
+                                                {lang === "es" ? "✓ Aprobar" : "✓ Approve"}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDismiss(memory.id)}
+                                                className="px-4 py-2 text-stone-400 text-xs font-bold rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                                            >
+                                                {lang === "es" ? "Ignorar" : "Dismiss"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Activity Feed (Firebase: likes, comments, answers) */}
                     {sortedActivities.length > 0 && (

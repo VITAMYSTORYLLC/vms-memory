@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiHome, FiBook, FiUsers, FiUser, FiBell, FiPlus } from 'react-icons/fi';
+import { FiHome, FiBook, FiUsers, FiUser, FiBell, FiPlus, FiBox } from 'react-icons/fi';
 import { useMemory } from '../context/MemoryContext';
 import { Haptics } from '../utils/haptics';
 import { motion } from 'framer-motion';
@@ -11,8 +11,9 @@ import { AddMenu } from './AddMenu';
 
 export default function BottomNav() {
     const pathname = usePathname();
-    const { notifications, t } = useMemory();
+    const { notifications, t, pendingMemories } = useMemory();
     const unreadCount = notifications.filter(n => !n.read).length;
+    const pendingCount = pendingMemories.length;
     const [isAddMenuOpen, setIsAddMenuOpen] = React.useState(false);
 
     // Navigation items with the central "Add" placeholder
@@ -24,12 +25,15 @@ export default function BottomNav() {
         { href: '/notifications', label: t.navNotifications, icon: <FiBell size={24} /> },
     ];
 
+    const totalBadgeCount = unreadCount + pendingCount;
+
     return (
         <>
             <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-stone-950 border-t border-stone-100 dark:border-stone-900 shadow-t flex justify-around items-end z-30 pb-safe pt-2 h-[calc(4rem+env(safe-area-inset-bottom))]">
                 {navItems.map((item, index) => {
                     const isActive = pathname === item.href;
                     const isNotifications = item.href === '/notifications';
+                    const isInbox = item.href === '/inbox';
 
                     if (item.isAdd) {
                         return (
@@ -58,9 +62,14 @@ export default function BottomNav() {
                             >
                                 <div className="relative">
                                     {item.icon}
-                                    {isNotifications && unreadCount > 0 && (
+                                    {isNotifications && totalBadgeCount > 0 && (
                                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-in zoom-in duration-300 shadow-md border border-white dark:border-stone-950">
-                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                            {totalBadgeCount > 9 ? '9+' : totalBadgeCount}
+                                        </div>
+                                    )}
+                                    {isInbox && pendingCount > 0 && (
+                                        <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-in zoom-in duration-300 shadow-md border border-white dark:border-stone-950">
+                                            {pendingCount > 9 ? '9+' : pendingCount}
                                         </div>
                                     )}
                                 </div>

@@ -28,6 +28,8 @@ import { useAuth } from "../hooks/useAuth";
 import { useSync } from "../hooks/useSync";
 import LandingScreen from "../components/LandingScreen";
 import Toast from "../components/Toast";
+import { usePushNotifications } from "../hooks/usePushNotifications";
+import { type MilestoneData } from "../components/MilestoneCelebration";
 
 interface ToastMessage {
     title: string;
@@ -50,6 +52,7 @@ interface MemoryContextType {
     // Derived
     activePerson: Person | null;
     activeMemories: MemoryItem[];
+    pendingMemories: MemoryItem[];
     t: typeof TEXT["en"];
 
     // Drafts (Global so they persist on nav change)
@@ -73,6 +76,8 @@ interface MemoryContextType {
     setIsCustomMode: React.Dispatch<React.SetStateAction<boolean>>;
     isAIMode: boolean;
     setIsAIMode: React.Dispatch<React.SetStateAction<boolean>>;
+    isAskMode: boolean;
+    setIsAskMode: React.Dispatch<React.SetStateAction<boolean>>;
     aiCurrentQuestionIndex: number;
     setAICurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
 
@@ -117,6 +122,10 @@ interface MemoryContextType {
     // Toast
     activeToast: ToastMessage | null;
     hideToast: () => void;
+
+    // Milestone
+    pendingMilestone: MilestoneData | null;
+    dismissMilestone: () => void;
 }
 
 const MemoryContext = createContext<MemoryContextType | undefined>(undefined);
@@ -140,6 +149,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     const [isAudioMode, setIsAudioMode] = useState(false);
     const [isCustomMode, setIsCustomMode] = useState(false);
     const [isAIMode, setIsAIMode] = useState(false);
+    const [isAskMode, setIsAskMode] = useState(false);
     const [aiCurrentQuestionIndex, setAICurrentQuestionIndex] = useState(0);
     const [draftKey, setDraftKey] = useState("default");
     const [inspiration, setInspiration] = useState<string | null>(null);
@@ -151,8 +161,25 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // Toast
     const [activeToast, setActiveToast] = useState<ToastMessage | null>(null);
 
+    // Milestones
+    const [pendingMilestone, setPendingMilestone] = useState<MilestoneData | null>(null);
+    const milestoneQueueRef = useRef<MilestoneData[]>([]);
+    function enqueueMilestone(m: MilestoneData) {
+        // If none showing, show immediately; otherwise queue it
+        if (!pendingMilestone) {
+            setPendingMilestone(m);
+        } else {
+            milestoneQueueRef.current.push(m);
+        }
+    }
+    function dismissMilestone() {
+        const next = milestoneQueueRef.current.shift();
+        setPendingMilestone(next || null);
+    }
+
     const activePerson = useMemo(() => people.find((p) => p.id === activePersonId) || null, [people, activePersonId]);
-    const activeMemories = activePerson?.memories ?? [];
+    const activeMemories = useMemo(() => activePerson?.memories.filter((m) => m.status !== 'pending') ?? [], [activePerson]);
+    const pendingMemories = useMemo(() => activePerson?.memories.filter((m) => m.status === 'pending') ?? [], [activePerson]);
     const t = TEXT[lang];
 
     const { user, signOut } = useAuth();
@@ -170,6 +197,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
     // --- SYNC HOOK ---
     useSync(people, setPeople, userName, setUserName, userPhoto, setUserPhoto);
+
+    // --- PUSH NOTIFICATIONS ---
+    usePushNotifications(user?.uid || null);
 
     // --- Hydration ---
     useEffect(() => {
@@ -537,16 +567,41 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             setPeople((prev) => prev.map((p) => {
                 if (p.id !== activePerson.id) return p;
                 const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode, finalAudioUrl);
+                const count = newMemories.length;
 
-                // Milestone Check: 5 Stories
-                if (newMemories.length === 5 && !hasBadge(p.id, "story_keeper")) {
-                    addBadge(p.id, "story_keeper");
-                    addNotification(
-                        t.notificationMilestoneTitle,
-                        t.milestoneMsg(p.name),
-                        "feature",
-                        { titleKey: "notificationMilestoneTitle", bodyKey: "milestoneMsg", params: { name: p.name } }
-                    );
+                // ---- Milestone definitions ----
+                const STORY_MILESTONES: Array<{ count: number; id: string; icon: string; title: string; subtitle: string }> = [
+                    { count: 1,   id: 'first_memory',    icon: '✨', title: 'First Memory',     subtitle: 'The journey begins' },
+                    { count: 5,   id: 'story_keeper',    icon: '📗', title: 'Story Keeper',     subtitle: '5 memories preserved' },
+                    { count: 10,  id: 'memory_maker',    icon: '🕯️', title: 'Memory Maker',     subtitle: '10 stories captured' },
+                    { count: 25,  id: 'family_narrator', icon: '🖊️', title: 'Family Narrator',   subtitle: '25 memories alive' },
+                    { count: 50,  id: 'chronicler',      icon: '📚', title: 'Chronicler',         subtitle: '50 stories preserved' },
+                    { count: 100, id: 'legacy_guardian', icon: '🏛️', title: 'Legacy Guardian',   subtitle: '100 memories — a legacy' },
+                ];
+
+                for (const ms of STORY_MILESTONES) {
+                    if (count === ms.count && !hasBadge(p.id, ms.id)) {
+                        addBadge(p.id, ms.id);
+                        enqueueMilestone({ id: ms.id, icon: ms.icon, title: ms.title, subtitle: ms.subtitle, color: '', personName: p.name });
+                    }
+                }
+
+                // First audio story
+                if (isAudioMode && finalAudioUrl && !hasBadge(p.id, 'voice_of_memory')) {
+                    addBadge(p.id, 'voice_of_memory');
+                    enqueueMilestone({ id: 'voice_of_memory', icon: '🎙️', title: 'Voice of Memory', subtitle: 'First audio story recorded', color: '', personName: p.name });
+                }
+
+                // First photo story
+                if (finalImageUrl && !hasBadge(p.id, 'moment_in_time')) {
+                    addBadge(p.id, 'moment_in_time');
+                    enqueueMilestone({ id: 'moment_in_time', icon: '📷', title: 'Moment in Time', subtitle: 'First photo memory added', color: '', personName: p.name });
+                }
+
+                // First AI smart question answered
+                if (isAIMode && !hasBadge(p.id, 'first_smart_question')) {
+                    addBadge(p.id, 'first_smart_question');
+                    enqueueMilestone({ id: 'first_smart_question', icon: '🤖', title: 'Deep Thinker', subtitle: 'First smart question answered', color: '', personName: p.name });
                 }
 
                 return { ...p, memories: newMemories };
@@ -603,6 +658,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             userPhoto, setUserPhoto,
             activePerson,
             activeMemories,
+            pendingMemories,
             t,
             storyDraft, setStoryDraft,
             imageDraft, setImageDraft,
@@ -614,6 +670,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             isAudioMode, setIsAudioMode,
             isCustomMode, setIsCustomMode,
             isAIMode, setIsAIMode,
+            isAskMode, setIsAskMode,
             aiCurrentQuestionIndex, setAICurrentQuestionIndex,
             editingId, setEditingId,
             editingPrompt, setEditingPrompt,
@@ -640,7 +697,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             theme,
             setTheme,
             activeToast,
-            hideToast
+            hideToast,
+            pendingMilestone,
+            dismissMilestone,
         }}>
             {!isHydrated ? <div className="min-h-screen bg-[#F9F8F6]" /> : !isOnboarded ? <LandingScreen /> : (
                 <>

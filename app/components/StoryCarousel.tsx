@@ -37,6 +37,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
     setIndex(initialIndex);
   }, [initialIndex]);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [shareImageDataUrl, setShareImageDataUrl] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -79,14 +80,35 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
     }
   }, [playingId]);
 
+  // Fetch an image URL as a base64 data URL so html-to-image can embed it without CORS issues.
+  async function fetchImageAsDataUrl(url: string): Promise<string | null> {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  }
+
   async function downloadAsImage(item: MemoryItem) {
     const el = document.getElementById("share-card-content");
     if (!el) return;
 
     setIsCapturing(true);
-    await new Promise(r => setTimeout(r, 100));
 
     try {
+      // Pre-fetch the image so html-to-image can embed it without CORS issues
+      if (item.imageUrl) {
+        const dataUrl = await fetchImageAsDataUrl(item.imageUrl);
+        setShareImageDataUrl(dataUrl);
+      }
+      await new Promise(r => setTimeout(r, 150)); // Let React re-render with the data URL
+
       const dataUrl = await toPng(el, {
         width: 1080,
         height: 1080,
@@ -112,6 +134,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
       console.error("Failed to download image:", err);
     } finally {
       setIsCapturing(false);
+      setShareImageDataUrl(null);
     }
   }
 
@@ -120,9 +143,15 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
     if (!el) return;
 
     setIsCapturing(true);
-    await new Promise(r => setTimeout(r, 100));
 
     try {
+      // Pre-fetch the story image as a data URL to avoid CORS issues in html-to-image
+      if (item.imageUrl) {
+        const fetched = await fetchImageAsDataUrl(item.imageUrl);
+        setShareImageDataUrl(fetched);
+      }
+      await new Promise(r => setTimeout(r, 150)); // Let React re-render with the data URL
+
       // 1. Generate image for visual sharing
       const dataUrl = await toPng(el, {
         width: 1080,
@@ -194,6 +223,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
       }
     } finally {
       setIsCapturing(false);
+      setShareImageDataUrl(null);
     }
   }
 
@@ -491,7 +521,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
                       <img
                         src="/logo-transparent.png"
                         alt="Logo"
-                        className="w-16 h-auto"
+                        className="w-16 h-auto mix-blend-multiply dark:mix-blend-normal"
                       />
                     </div>
                   </>
@@ -505,7 +535,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
       {/* Hidden Share Card Render */}
       <div className="fixed left-[-9999px] top-0 opacity-0 pointer-events-none">
         {isActiveItem(index, allItems) && (
-          <ShareCard item={allItems[index]} lang={lang} personName={activePerson?.name || ""} />
+          <ShareCard item={allItems[index]} lang={lang} personName={activePerson?.name || ""} imageDataUrl={shareImageDataUrl || undefined} />
         )}
       </div>
 

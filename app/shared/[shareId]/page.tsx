@@ -119,6 +119,24 @@ export default function SharedStoryPage() {
 
         try {
             await handleAddComment(text, userName, userPhoto);
+
+            // Notify story owner (skip if commenter IS the owner)
+            if (story && story.authorId && story.authorId !== user.uid) {
+                const notifBody = lang === 'es'
+                    ? `${userName} dejó un comentario en el recuerdo de ${story.personName}`
+                    : `${userName} commented on a memory of ${story.personName}`;
+
+                fetch('/api/notify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ownerUid: story.authorId,
+                        title: '💬 VitaMyStory',
+                        body: notifBody,
+                        url: `https://vms-memory.vercel.app/shared/${shareId}`,
+                    }),
+                }).catch(() => {/* fire-and-forget, don't block UI */});
+            }
         } catch (err) {
             console.error('Error adding comment:', err);
             throw err;

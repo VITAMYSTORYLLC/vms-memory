@@ -6,6 +6,7 @@ import { useMemory } from "../context/MemoryContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { plural } from "../utils";
+import PendingAnswers from "../components/PendingAnswers";
 
 // Search only reveals itself once the collection is large enough to need it
 const SEARCH_THRESHOLD = 10;
@@ -86,8 +87,8 @@ export default function StoriesPage() {
 
                         {/* ── Header ── */}
                         <div className="mb-4 px-4">
-                            <div className="flex items-start justify-between">
-                                <div className={`flex-1 text-center ${searchEnabled ? "pr-10" : ""}`}>
+                            <div className="relative flex items-start justify-center">
+                                <div className="text-center">
                                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans mb-2">
                                         {activePerson ? t.storiesOf : "COLLECTION"}
                                     </div>
@@ -101,11 +102,11 @@ export default function StoriesPage() {
                                     </p>
                                 </div>
 
-                                {/* 🔍 — only appears once collection exceeds threshold */}
+                                {/* 🔍 — absolutely positioned so it never shifts the title */}
                                 {searchEnabled && (
                                     <button
                                         onClick={() => { setSearchOpen(o => !o); if (searchOpen) setQuery(""); }}
-                                        className={`mt-2 p-2 rounded-full transition-all duration-200 ${
+                                        className={`absolute right-0 top-0 mt-1 p-2 rounded-full transition-all duration-200 ${
                                             searchOpen
                                                 ? "text-stone-800 dark:text-stone-100 bg-stone-100 dark:bg-stone-800"
                                                 : "text-stone-300 dark:text-stone-700 hover:text-stone-500 dark:hover:text-stone-400"
@@ -153,6 +154,9 @@ export default function StoriesPage() {
                                 </div>
                             )}
                         </div>
+
+                        {/* ── Pending Family Answers ── */}
+                        <PendingAnswers lang={lang} />
 
                         {/* ── Stories ── */}
                         {activeMemories.length === 0 ? (
