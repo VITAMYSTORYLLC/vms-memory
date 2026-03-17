@@ -183,22 +183,6 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
         }
 
         await navigator.share(shareData);
-
-        // Simulate social feedback
-        setTimeout(() => {
-          const type = Math.random() > 0.5 ? "saw" : "liked";
-          const titleKey = type === "saw" ? "notificationSaw" : "notificationLike";
-          const bodyKey = type === "saw" ? "notificationSawBody" : "notificationLikeBody";
-          const title = t[titleKey] as string;
-          const body = t[bodyKey] as string;
-
-          addNotification(
-            title,
-            body,
-            "success",
-            { titleKey, bodyKey }
-          );
-        }, 1000 * (3 + Math.random() * 5));
       } else {
         // Fallback to clipboard
         await navigator.clipboard.writeText(fullText);
@@ -406,10 +390,34 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
                       </div>
 
                       {/* Title/Prompt */}
-                      {/* Using renderWithBoldName here as well to respect bolding if present in prompt */}
-                      <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-200 leading-snug w-full px-4">
-                        {renderWithBoldName(item.prompt)}
-                      </h3>
+                      {(() => {
+                        // Detect photo-only cards with no custom title
+                        const isPhotoOnly = !!item.imageUrl && !item.text;
+                        const isGenericPhotoTitle = item.prompt === "New Photo" || item.prompt === "Nueva Foto" || item.prompt === "";
+                        // Detect AI-question cards: they have a question-like prompt AND text content
+                        const isAICard = !!item.text && item.prompt && item.prompt.endsWith("?");
+
+                        if (isPhotoOnly && isGenericPhotoTitle) {
+                          return (
+                            <h3 className="font-serif italic text-2xl text-stone-300 dark:text-stone-700 leading-snug w-full px-4">
+                              {lang === "es" ? "Un momento" : "A moment"}
+                            </h3>
+                          );
+                        }
+
+                        return (
+                          <div className="w-full px-4 space-y-2">
+                            {isAICard && (
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700">
+                                {lang === "es" ? "En respuesta a" : "In response to"}
+                              </p>
+                            )}
+                            <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-200 leading-snug">
+                              {renderWithBoldName(item.prompt)}
+                            </h3>
+                          </div>
+                        );
+                      })()}
 
                     </div>
 
@@ -417,8 +425,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
                     {/* Scrollable Body Area */}
                     <div className="flex-1 overflow-y-auto px-8 py-8 w-full story-scroll text-center flex flex-col items-center justify-center">
                       {item.imageUrl && (
-                        <div className="mb-8 rounded-2xl overflow-hidden shadow-sm border border-stone-100 dark:border-stone-800">
-                          <img src={item.imageUrl} alt="Memory" className="w-full h-auto object-cover max-h-[300px]" />
+                        <div className={`rounded-2xl overflow-hidden shadow-sm border border-stone-100 dark:border-stone-800 ${!item.text && !item.audioUrl ? 'w-full' : 'mb-8 w-full'}`}>
+                          <img src={item.imageUrl} alt="Memory" className={`w-full object-cover ${!item.text && !item.audioUrl ? 'max-h-[380px]' : 'max-h-[220px]'}`} />
                         </div>
                       )}
 
@@ -453,11 +461,11 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
                             {playingId === item.id ? (lang === "es" ? "Detener" : "Stop") : (lang === "es" ? "Escuchar" : "Play")}
                           </p>
                         </div>
-                      ) : (
-                        <p className={`text-stone-800 dark:text-stone-300 leading-relaxed whitespace-pre-wrap ${textSizeClass} font-serif transition-all duration-300`}>
+                      ) : item.text ? (
+                        <p className={`text-stone-800 dark:text-stone-300 leading-relaxed whitespace-pre-wrap ${item.imageUrl ? 'text-lg mt-2' : textSizeClass} font-serif transition-all duration-300`}>
                           {item.text}
                         </p>
-                      )}
+                      ) : null}
 
                       {/* Generous padding at bottom for better scrolling feel */}
                       <div className="h-12 flex-shrink-0" />

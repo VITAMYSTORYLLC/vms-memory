@@ -193,8 +193,8 @@ export default function FamilyPage() {
                                                 </div>
 
                                                 <div>
-                                                    <div className="text-2xl font-serif leading-none mb-2 font-bold pr-4">{p.name}</div>
-                                                    <div className={`text-sm uppercase tracking-wider font-sans ${p.id === activePersonId ? "text-stone-400 dark:text-stone-500" : "text-stone-400 dark:text-stone-600 font-bold"}`}>
+                                                    <div className="text-2xl font-serif leading-none mb-1 font-bold pr-4">{p.name}</div>
+                                                    <div className={`text-xs uppercase tracking-wider font-sans font-bold ${p.id === activePersonId ? "text-stone-500 dark:text-stone-400" : "text-stone-400 dark:text-stone-500"}`}>
                                                         {p.memories.length} {plural(p.memories.length, lang === "es" ? "historia" : "story")}
                                                     </div>
                                                 </div>

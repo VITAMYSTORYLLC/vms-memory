@@ -475,7 +475,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // We might need to pass the "promptToSave" from component to here.
     async function saveStory(promptToSave: string, questionId?: string): Promise<string | null> {
         const text = normalize(storyDraft);
-        if (!text && !imageDraft && !audioDraft) return null;
+        // For new memories only — require some content. Edits can be title-only.
+        if (!editingId && !text && !imageDraft && !audioDraft) return null;
 
         // --- IMAGE UPLOAD LOGIC ---
         let finalImageUrl = imageDraft;
@@ -521,7 +522,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         if (editingId && activePerson) {
             setPeople((prev) => prev.map((p) => (p.id !== activePerson.id ? p : {
                 ...p,
-                memories: p.memories.map((m) => m.id === editingId ? { ...m, text: text, imageUrl: finalImageUrl } : m)
+                memories: p.memories.map((m) => m.id === editingId ? { ...m, prompt: promptToSave, text: text, imageUrl: finalImageUrl } : m)
             })));
             const id = activePerson.id;
             setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setAudioDraft(null);

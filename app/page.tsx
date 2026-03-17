@@ -193,10 +193,15 @@ export default function Page() {
   }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode, isAudioMode, isCustomMode, isAIMode, activePerson, aiCurrentQuestionIndex]);
 
   const promptToSave = useMemo(() => {
-    if (isCustomMode) return editingPrompt || t.newStoryTitle;
+    if (isCustomMode || isPhotoMode) {
+      if (editingPrompt && editingPrompt.trim().length > 0) return editingPrompt;
+      return isPhotoMode ? t.newPhotoTitle : t.newStoryTitle;
+    }
     if (editingId && editingPrompt) return editingPrompt;
+    // AI mode is active after allStarterUsed — always save the AI question as the prompt
+    if (isAIMode) return displayQuestion.text;
     return allStarterUsed ? "" : displayQuestion.text;
-  }, [allStarterUsed, displayQuestion.text, editingId, editingPrompt, isCustomMode, t]);
+  }, [allStarterUsed, displayQuestion.text, editingId, editingPrompt, isCustomMode, isPhotoMode, isAIMode, t]);
   const usedCount = usedSet.size; const starterTotal = QUESTIONS.length;
   const starterProgressIndex = useMemo(() => Math.min(starterTotal, Math.max(1, usedCount + 1)), [starterTotal, usedCount]);
 
@@ -302,6 +307,13 @@ export default function Page() {
     try {
       const base64 = await compressImage(file);
       setImageDraft(base64);
+      if (!isCustomMode && !isPhotoMode && (!editingPrompt || editingPrompt.trim() === "")) {
+        setEditingPrompt(displayQuestion.text);
+      }
+      setIsPhotoMode(true);
+      if (!editingId) {
+        setStoryDraft(""); 
+      }
     } catch (err) {
       console.error(err);
     }
@@ -321,7 +333,7 @@ export default function Page() {
     }
   }
 
-  const canSave = (normalize(storyDraft).length > 0 || imageDraft.length > 0 || audioDraft) && normalize(displayName).length > 0;
+  const canSave = (normalize(storyDraft).length > 0 || imageDraft.length > 0 || audioDraft || !!editingId) && normalize(displayName).length > 0;
 
   if (!isHydrated) return <div className="min-h-screen bg-[#F9F8F6]"></div>;
 
@@ -336,20 +348,30 @@ export default function Page() {
               <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 h-[260px] flex flex-col justify-end pb-2 relative group">
                 {!(isCustomMode || isPhotoMode || isAudioMode || isAIMode) && (
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
-                    {editingId ? (lang === "es" ? "EDITANDO" : "EDITING") : allStarterUsed ? t.freeChapter : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
+                    {editingId
+                      ? (lang === "es" ? "EDITANDO" : "EDITING")
+                      : allStarterUsed
+                      ? t.freeChapter
+                      : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
                   </div>
                 )}
                 <h2 className="text-2xl sm:text-3xl font-serif leading-[1.15] sm:leading-snug text-stone-900 dark:text-stone-100 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                  {isCustomMode ? (
+                  {isCustomMode || isPhotoMode || (isAudioMode && editingId) ? (
                     <input
                       value={editingPrompt}
                       onChange={(e) => setEditingPrompt(e.target.value)}
-                      placeholder={t.customStoryPlaceholder}
-                      className="w-full text-center bg-transparent border-b border-stone-200 dark:border-stone-800 focus:border-stone-500 focus:outline-none placeholder:text-stone-300 dark:placeholder:text-stone-700 placeholder:italic transition-colors"
-                      autoFocus
+                      placeholder={
+                        isPhotoMode ? (lang === "es" ? "Añadir un título..." : "Add a title...")
+                        : isAudioMode ? (lang === "es" ? "Título del audio..." : "Audio title...")
+                        : t.customStoryPlaceholder
+                      }
+                      className="w-full text-center bg-transparent border-b border-stone-200 dark:border-stone-800 focus:border-stone-500 focus:outline-none placeholder:text-stone-300 dark:placeholder:text-stone-700 placeholder:italic transition-colors pb-1"
+                      autoFocus={isCustomMode && !imageDraft}
                     />
                   ) : (
-                    renderWithBoldName(displayQuestion.text)
+                    renderWithBoldName(
+                      displayQuestion.text.charAt(0).toUpperCase() + displayQuestion.text.slice(1)
+                    )
                   )}
                 </h2>
                 <div className="min-h-[44px] flex items-center justify-center pt-3 relative gap-3">
@@ -437,6 +459,27 @@ export default function Page() {
 
               <div className="h-96 relative flex flex-col min-h-0 mb-8 bg-white dark:bg-midnight-900 rounded-3xl border border-stone-100 dark:border-stone-800 shadow-sm overflow-hidden transition-colors">
                 {isAudioMode ? (
+                  editingId ? (
+                    /* Editing existing audio — title-only mode */
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-5 animate-in fade-in duration-500 z-20">
+                      <div className="w-20 h-20 rounded-full bg-stone-100 dark:bg-midnight-800 flex items-center justify-center text-stone-400 dark:text-stone-500">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                          <line x1="12" y1="19" x2="12" y2="23"></line>
+                          <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="font-serif italic text-stone-500 dark:text-stone-400 text-base">
+                          {lang === "es" ? "Memoria de audio guardada." : "Audio memory saved."}
+                        </p>
+                        <p className="text-xs text-stone-300 dark:text-stone-700 uppercase tracking-widest font-bold">
+                          {lang === "es" ? "Solo puedes editar el título" : "Only the title can be edited"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-8 animate-in fade-in duration-500 z-20">
                     {/* Audio Recorder Controls */}
                     <div className="flex-1 flex flex-col items-center justify-center w-full space-y-6">
@@ -462,39 +505,46 @@ export default function Page() {
                         </div>
                       ) : (
                         <>
-                          <div className={`text-6xl font-serif font-bold tabular-nums transition-colors ${isRecording ? "text-red-500 animate-pulse" : "text-stone-300 dark:text-stone-700"}`}>
-                            0:{timeLeft < 10 ? `0${timeLeft}` : timeLeft}
-                          </div>
                           <p className="font-serif text-lg text-stone-400 dark:text-stone-600 italic">
-                            {isRecording ? (lang === "es" ? "Grabando..." : "Recording...") : t.tapToSpeak}
+                            {isRecording ? t.listening : t.tapToSpeak}
                           </p>
                         </>
                       )}
                     </div>
 
                     {!audioDraft && (
-                      <button
-                        onClick={isRecording ? stopRecording : startRecording}
-                        className={`p-6 rounded-full shadow-xl border-4 transition-all duration-300 transform ${isRecording
-                          ? "bg-red-500 border-red-100 dark:border-red-900 text-white scale-125 shadow-red-500/30"
-                          : "bg-stone-900 dark:bg-stone-100 border-stone-100 dark:border-stone-800 text-white dark:text-stone-900 hover:scale-110 hover:shadow-2xl"
-                          }`}
-                      >
-                        {isRecording ? (
-                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="6" y="6" width="12" height="12" fill="currentColor"></rect>
-                          </svg>
-                        ) : (
-                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                            <line x1="12" y1="19" x2="12" y2="23"></line>
-                            <line x1="8" y1="23" x2="16" y2="23"></line>
-                          </svg>
+                      <div className="relative flex items-center justify-center mb-4">
+                        {/* Pulse rings when recording */}
+                        {isRecording && (
+                          <>
+                            <span className="absolute inline-flex w-24 h-24 rounded-full bg-red-400/30 animate-ping" />
+                            <span className="absolute inline-flex w-32 h-32 rounded-full bg-red-400/15 animate-ping" style={{ animationDelay: '0.3s' }} />
+                          </>
                         )}
-                      </button>
+                        <button
+                          onClick={isRecording ? stopRecording : startRecording}
+                          className={`relative p-6 rounded-full shadow-xl border-4 transition-all duration-300 transform ${isRecording
+                            ? "bg-red-500 border-red-100 dark:border-red-900 text-white scale-110 shadow-red-500/30"
+                            : "bg-stone-900 dark:bg-stone-100 border-stone-100 dark:border-stone-800 text-white dark:text-stone-900 hover:scale-110 hover:shadow-2xl"
+                            }`}
+                        >
+                          {isRecording ? (
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="6" y="6" width="12" height="12" fill="currentColor"></rect>
+                            </svg>
+                          ) : (
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                              <line x1="12" y1="19" x2="12" y2="23"></line>
+                              <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                          )}
+                        </button>
+                      </div>
                     )}
                   </div>
+                  )
                 ) : isPhotoMode ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-6 animate-in fade-in duration-500 z-20">
                     {imageDraft ? (
@@ -571,7 +621,7 @@ export default function Page() {
                           onClick={() => setBlankSharedLink(null)}
                           className="mt-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
                         >
-                          {lang === "es" ? "Cerrar" : "Dismiss"}
+                          {t.close}
                         </button>
                       </div>
                     ) : (
@@ -607,7 +657,7 @@ export default function Page() {
                       }}
                       className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-900 font-sans transition-colors"
                     >
-                      {lang === "es" ? "Cancelar" : "Cancel"}
+                      {t.cancel}
                     </button>
                   </div>
                 )}
@@ -653,9 +703,7 @@ export default function Page() {
           />
 
 
-          <div className="text-[9px] font-bold uppercase tracking-widest text-stone-300 dark:text-stone-700 text-center py-4 opacity-30 select-none">
-            v. Feb 12
-          </div>
+
         </div>
       </div>
     </div>

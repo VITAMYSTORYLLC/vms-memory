@@ -123,6 +123,8 @@ Generate ${count} personalized questions:`;
             .filter(q => q.length > 0)
             // Remove numbering if AI added it (e.g., "1. ", "- ")
             .map(q => q.replace(/^[\d\-\*\.]+\s*/, ''))
+            // Ensure each question starts with a capital letter
+            .map(q => q.charAt(0).toUpperCase() + q.slice(1))
             .slice(0, count); // Ensure we only return the requested count
 
         return questions;

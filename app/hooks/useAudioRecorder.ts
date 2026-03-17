@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 
 export function useAudioRecorder() {
     const [isRecording, setIsRecording] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(120); // 2 minutes
+    const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -27,7 +27,7 @@ export function useAudioRecorder() {
 
             mediaRecorder.start();
             setIsRecording(true);
-            setTimeLeft(120);
+            setTimeLeft(300);
 
             timerRef.current = setInterval(() => {
                 setTimeLeft((prev) => {
@@ -57,7 +57,7 @@ export function useAudioRecorder() {
 
     const resetRecording = useCallback(() => {
         setAudioBlob(null);
-        setTimeLeft(120);
+        setTimeLeft(300);
     }, []);
 
     useEffect(() => {

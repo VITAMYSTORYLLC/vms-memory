@@ -95,28 +95,28 @@ export default function StoryComments({
     const sortedComments = [...comments].sort((a, b) => b.createdAt - a.createdAt);
 
     return (
-        <div className="py-4 px-4">
-            <h3 className="text-lg font-serif font-semibold text-gray-800 dark:text-gray-200 mb-4">
-                Comments {comments.length > 0 && `(${comments.length})`}
+        <div className="py-6 px-6 bg-white dark:bg-midnight-900 rounded-b-[2rem]">
+            <h3 className="text-xs font-sans font-bold tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-6 flex items-center gap-2">
+                {comments.length === 0 ? 'Be the first to comment' : `Comments (${comments.length})`}
             </h3>
 
             {/* Comment Input */}
             {isAuthenticated ? (
-                <div className="mb-6">
-                    <div className="flex gap-3">
+                <div className="mb-8">
+                    <div className="flex gap-4">
                         {currentUserPhoto && (
                             <img
                                 src={currentUserPhoto}
                                 alt={currentUserName}
-                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-stone-100 dark:border-stone-800"
                             />
                         )}
                         {!currentUserPhoto && (
-                            <div className="w-10 h-10 rounded-full bg-[#8B7355] flex items-center justify-center text-white font-medium flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500 font-bold font-serif flex-shrink-0">
                                 {currentUserName.charAt(0).toUpperCase()}
                             </div>
                         )}
-                        <div className="flex-1">
+                        <div className="flex-1 relative">
                             <textarea
                                 value={commentText}
                                 onChange={(e) => setCommentText(e.target.value)}
@@ -126,22 +126,22 @@ export default function StoryComments({
                                         handleSubmit();
                                     }
                                 }}
-                                placeholder="Write a comment..."
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#8B7355] dark:bg-gray-800 dark:text-gray-200"
+                                placeholder="Add a comment..."
+                                className="w-full px-4 py-3 bg-stone-50 dark:bg-midnight-950 border border-stone-100 dark:border-stone-800 rounded-2xl resize-none focus:outline-none focus:ring-1 focus:ring-stone-400 dark:focus:ring-stone-600 text-stone-800 dark:text-stone-200 font-serif"
                                 rows={2}
                                 maxLength={500}
                                 disabled={submitting}
                             />
-                            <div className="flex justify-between items-center mt-2">
-                                <span className="text-xs text-gray-500">
+                            <div className="flex justify-between items-center mt-2 px-1">
+                                <span className="text-[10px] uppercase font-bold text-stone-300 dark:text-stone-700 font-sans tracking-widest">
                                     {commentText.length}/500
                                 </span>
                                 <button
                                     onClick={handleSubmit}
                                     disabled={!commentText.trim() || submitting}
-                                    className="px-4 py-2 bg-[#8B7355] hover:bg-[#6F5940] disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-colors flex items-center gap-2 disabled:cursor-not-allowed"
+                                    className="px-4 py-2 bg-stone-900 dark:bg-stone-100 hover:bg-stone-700 dark:hover:bg-white disabled:bg-stone-200 dark:disabled:bg-stone-800 text-white dark:text-stone-900 rounded-full transition-colors flex items-center gap-2 disabled:cursor-not-allowed text-xs font-bold font-sans uppercase tracking-widest"
                                 >
-                                    <FiSend className="w-4 h-4" />
+                                    <FiSend size={12} />
                                     Post
                                 </button>
                             </div>
@@ -149,75 +149,75 @@ export default function StoryComments({
                     </div>
                 </div>
             ) : (
-                <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
-                    <p className="text-gray-600 dark:text-gray-400">
+                <div className="mb-8 p-6 bg-stone-50 dark:bg-midnight-950 rounded-2xl text-center border border-dashed border-stone-200 dark:border-stone-800">
+                    <p className="text-sm font-sans font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600">
                         Sign in to leave a comment
                     </p>
                 </div>
             )}
 
             {/* Comments List */}
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {sortedComments.length === 0 && (
-                    <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-                        No comments yet. Be the first to comment!
+                    <p className="text-center text-stone-400 dark:text-stone-600 py-4 font-serif italic text-sm">
+                        No comments yet.
                     </p>
                 )}
 
                 {sortedComments.map((comment) => (
-                    <div key={comment.id} className="flex gap-3">
+                    <div key={comment.id} className="flex gap-4">
                         {comment.userPhoto && (
                             <img
                                 src={comment.userPhoto}
                                 alt={comment.userName}
-                                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                                className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-stone-100 dark:border-stone-800"
                             />
                         )}
                         {!comment.userPhoto && (
-                            <div className="w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-white font-medium flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-500 font-bold font-serif flex-shrink-0">
                                 {comment.userName.charAt(0).toUpperCase()}
                             </div>
                         )}
 
                         <div className="flex-1">
-                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-3">
-                                <div className="flex justify-between items-start mb-1">
-                                    <span className="font-medium text-gray-800 dark:text-gray-200">
+                            <div className="bg-stone-50 dark:bg-midnight-950 border border-stone-100 dark:border-stone-800 rounded-2xl  rounded-tl-none px-5 py-4">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="font-bold font-sans text-xs tracking-wide text-stone-900 dark:text-stone-100">
                                         {comment.userName}
                                     </span>
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-[10px] font-bold font-sans tracking-widest uppercase text-stone-400 dark:text-stone-600">
                                         {getRelativeTime(comment.createdAt)}
                                     </span>
                                 </div>
 
                                 {editingId === comment.id ? (
-                                    <div className="mt-2">
+                                    <div className="mt-3">
                                         <textarea
                                             value={editText}
                                             onChange={(e) => setEditText(e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded resize-none focus:outline-none focus:ring-2 focus:ring-[#8B7355] dark:bg-gray-700 dark:text-gray-200"
+                                            className="w-full px-3 py-2 border border-stone-200 dark:border-stone-700 bg-white dark:bg-midnight-900 rounded-lg resize-none focus:outline-none focus:ring-1 focus:ring-stone-400 text-stone-800 dark:text-stone-200 font-serif"
                                             rows={2}
                                             maxLength={500}
                                         />
-                                        <div className="flex gap-2 mt-2">
+                                        <div className="flex gap-2 mt-3">
                                             <button
                                                 onClick={() => handleEdit(comment.id)}
                                                 disabled={submitting || !editText.trim()}
-                                                className="px-3 py-1 bg-[#8B7355] hover:bg-[#6F5940] text-white text-sm rounded disabled:bg-gray-300"
+                                                className="px-4 py-1.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold font-sans text-[10px] tracking-widest uppercase rounded-full disabled:opacity-50"
                                             >
                                                 Save
                                             </button>
                                             <button
                                                 onClick={cancelEdit}
                                                 disabled={submitting}
-                                                className="px-3 py-1 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm rounded"
+                                                className="px-4 py-1.5 bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 text-stone-700 dark:text-stone-300 font-bold font-sans text-[10px] tracking-widest uppercase rounded-full"
                                             >
                                                 Cancel
                                             </button>
                                         </div>
                                     </div>
                                 ) : (
-                                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                    <p className="text-stone-700 dark:text-stone-300 whitespace-pre-wrap font-serif text-sm leading-relaxed">
                                         {comment.text}
                                     </p>
                                 )}
@@ -225,19 +225,19 @@ export default function StoryComments({
 
                             {/* Edit/Delete buttons (only for own comments) */}
                             {currentUserId === comment.userId && editingId !== comment.id && (
-                                <div className="flex gap-3 mt-2 ml-2">
+                                <div className="flex gap-4 mt-2 ml-4">
                                     <button
                                         onClick={() => startEdit(comment)}
-                                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-[#8B7355] dark:hover:text-[#A68968] flex items-center gap-1"
+                                        className="text-[10px] font-bold font-sans uppercase tracking-widest text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors flex items-center gap-1.5"
                                     >
-                                        <FiEdit2 className="w-3 h-3" />
+                                        <FiEdit2 size={10} />
                                         Edit
                                     </button>
                                     <button
                                         onClick={() => handleDelete(comment.id)}
-                                        className="text-xs text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1"
+                                        className="text-[10px] font-bold font-sans uppercase tracking-widest text-stone-400 hover:text-red-500 transition-colors flex items-center gap-1.5"
                                     >
-                                        <FiTrash2 className="w-3 h-3" />
+                                        <FiTrash2 size={10} />
                                         Delete
                                     </button>
                                 </div>

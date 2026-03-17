@@ -42,23 +42,25 @@ export default function EngagementBar({
     };
 
     return (
-        <div className="flex items-center justify-between py-3 px-4 border-t border-[#E8E6E1] dark:border-gray-700">
+        <div className="flex items-center justify-between py-4 px-6">
             {/* Left: Like and Comment */}
             <div className="flex items-center gap-6">
                 {/* Like Button */}
                 <button
                     onClick={handleLike}
                     disabled={loading || !isAuthenticated}
-                    className={`flex items-center gap-2 transition-all ${isAuthenticated ? 'hover:scale-110 cursor-pointer' : 'cursor-not-allowed opacity-50'
+                    className={`flex items-center gap-2.5 transition-all group ${isAuthenticated ? 'hover:scale-105 cursor-pointer' : 'cursor-not-allowed opacity-50'
                         }`}
                     title={!isAuthenticated ? 'Sign in to like' : ''}
                 >
-                    {hasLiked ? (
-                        <FaHeart className="text-red-500 w-5 h-5 animate-pulse" />
-                    ) : (
-                        <FiHeart className="text-gray-600 dark:text-gray-400 w-5 h-5" />
-                    )}
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                    <div className="relative">
+                        {hasLiked ? (
+                            <FaHeart className="text-red-500 w-5 h-5 drop-shadow-[0_2px_4px_rgba(239,68,68,0.3)] animate-in zoom-in duration-300" />
+                        ) : (
+                            <FiHeart className="text-stone-400 dark:text-stone-500 w-5 h-5 group-hover:text-red-400 transition-colors" />
+                        )}
+                    </div>
+                    <span className={`text-sm font-sans font-bold tracking-widest ${hasLiked ? 'text-red-500' : 'text-stone-500 dark:text-stone-400 group-hover:text-red-400'} transition-colors`}>
                         {likesCount}
                     </span>
                 </button>
@@ -66,19 +68,19 @@ export default function EngagementBar({
                 {/* Comment Button */}
                 <button
                     onClick={handleComment}
-                    className="flex items-center gap-2 hover:scale-110 transition-all cursor-pointer"
+                    className="flex items-center gap-2.5 group hover:scale-105 transition-all cursor-pointer"
                 >
-                    <FiMessageCircle className="text-gray-600 dark:text-gray-400 w-5 h-5" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                    <FiMessageCircle className="text-stone-400 dark:text-stone-500 w-5 h-5 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors" />
+                    <span className="text-sm font-sans font-bold tracking-widest text-stone-500 dark:text-stone-400 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors">
                         {commentsCount}
                     </span>
                 </button>
 
                 {/* View Count (Only shown to owner) */}
                 {isOwner && viewsCount > 0 && (
-                    <div className="flex items-center gap-2">
-                        <FiEye className="text-gray-500 dark:text-gray-500 w-5 h-5" />
-                        <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    <div className="flex items-center gap-2.5 opacity-50" title="Views">
+                        <FiEye className="text-stone-500 dark:text-stone-500 w-5 h-5" />
+                        <span className="text-sm font-sans font-bold tracking-widest text-stone-500 dark:text-stone-500">
                             {viewsCount}
                         </span>
                     </div>
@@ -89,10 +91,10 @@ export default function EngagementBar({
             {onShareClick && (
                 <button
                     onClick={onShareClick}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors group"
                 >
-                    <FiShare2 className="text-gray-600 dark:text-gray-400 w-4 h-4" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                    <FiShare2 className="text-stone-500 dark:text-stone-400 w-4 h-4 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors" />
+                    <span className="text-[10px] uppercase tracking-widest font-sans font-bold text-stone-500 dark:text-stone-400 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors">
                         Share
                     </span>
                 </button>

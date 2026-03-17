@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail } from "react-icons/fi";
 
 export default function ProfilePage() {
-    const { user, handleLogout, resetApp, lang, setLang, theme, setTheme, t, people, userName, setUserName, isHydrated, userPhoto, setUserPhoto } = useMemory();
+    const { user, handleLogout, resetApp, lang, setLang, theme, setTheme, t, people, userName, setUserName, isHydrated, userPhoto, setUserPhoto, addNotification } = useMemory();
     const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const router = useRouter();
 
@@ -101,13 +101,26 @@ export default function ProfilePage() {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(href);
+            addNotification(t.success, t.backupDownloaded, "success");
         } catch (err) {
             // Last resort: Copy to clipboard
             try {
                 await navigator.clipboard.writeText(jsonString);
-                alert("Backup copied to clipboard! Paste it into a text file to save.");
+                addNotification(
+                    t.success,
+                    lang === "es"
+                        ? "Respaldo copiado al portapapeles. Pégalo en un archivo de texto."
+                        : "Backup copied to clipboard! Paste it into a text file to save.",
+                    "success"
+                );
             } catch (clipErr) {
-                alert("Unable to export. Please try on a different browser.");
+                addNotification(
+                    t.error,
+                    lang === "es"
+                        ? "No se pudo exportar. Intenta con otro navegador."
+                        : "Unable to export. Please try on a different browser.",
+                    "error"
+                );
             }
         }
     }
@@ -254,13 +267,21 @@ export default function ProfilePage() {
                                 <h3 className="text-stone-900 dark:text-stone-100 font-serif font-bold text-2xl mb-2">{t.contactTitle}</h3>
                                 <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed">{t.contactSubtitle}</p>
                             </div>
-                            <a
-                                href="mailto:hello@vitamystory.com"
+                            <button
+                                onClick={() => {
+                                    const email = "hello@vitamystory.com";
+                                    const mailto = `mailto:${email}?subject=VitaMyStory%20Feedback`;
+                                    try {
+                                        window.open(mailto, "_blank");
+                                    } catch {
+                                        navigator.clipboard?.writeText(email);
+                                    }
+                                }}
                                 className="w-full py-4 rounded-2xl bg-stone-50 dark:bg-midnight-950 text-stone-900 dark:text-stone-100 font-bold uppercase tracking-[0.2em] text-[11px] hover:bg-stone-100 dark:hover:bg-stone-900 transition-all flex items-center justify-center gap-3 border border-stone-100 dark:border-stone-800"
                             >
                                 <FiMail size={16} />
                                 <span>{t.contactBtn}</span>
-                            </a>
+                            </button>
                         </div>
                     </div>
 
