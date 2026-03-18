@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMemory } from "../context/MemoryContext";
 import { useAuth } from "../hooks/useAuth";
 import { AuthModal } from "../components/AuthModal";
@@ -10,6 +10,8 @@ import { PrimaryButton } from "../components/PrimaryButton";
 import { SecondaryButton } from "../components/SecondaryButton";
 import { useRouter } from "next/navigation";
 import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail } from "react-icons/fi";
+import ExportModal from "../components/ExportModal";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 
 export default function ProfilePage() {
     const { user, handleLogout, resetApp, lang, setLang, theme, setTheme, t, people, userName, setUserName, isHydrated, userPhoto, setUserPhoto, addNotification } = useMemory();
@@ -19,6 +21,25 @@ export default function ProfilePage() {
     const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>(null);
     const [profileImage, setProfileImage] = useState<string>("");
     const [isEditingName, setIsEditingName] = useState(false);
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [hasPurchasedBook, setHasPurchasedBook] = useState(false);
+
+    const activePerson = people.find((p) => p.id) ?? people[0] ?? null;
+
+    // Check if user has previously purchased a book export
+    useEffect(() => {
+        if (!user || !activePerson) return;
+        const checkPurchase = async () => {
+            try {
+                const db = getFirestore();
+                const snap = await getDoc(doc(db, "book_purchases", `${user.uid}_${activePerson.id}`));
+                setHasPurchasedBook(snap.exists());
+            } catch {
+                // Non-blocking
+            }
+        };
+        checkPurchase();
+    }, [user, activePerson?.id]);
 
     // Load profile image - Prioritize sync state (userPhoto), then local storage
     React.useEffect(() => {
@@ -242,7 +263,7 @@ export default function ProfilePage() {
                         <label className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 pl-1">{t.collection}</label>
                         <div className="space-y-4">
                             <button
-                                onClick={downloadBackup}
+                                onClick={() => setShowExportModal(true)}
                                 className="w-full py-4 px-6 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-bold text-sm hover:bg-stone-50 dark:hover:bg-midnight-800 transition-all flex items-center justify-center gap-3 group"
                             >
                                 <FiDownload size={18} className="text-stone-400 dark:text-stone-500 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors" />
@@ -343,6 +364,17 @@ export default function ProfilePage() {
                     onClearError={clearError}
                 />
             )}
+
+            <ExportModal
+                isOpen={showExportModal}
+                onClose={() => setShowExportModal(false)}
+                person={activePerson}
+                memories={activePerson?.memories ?? []}
+                lang={lang}
+                userName={userName}
+                hasPurchasedBook={hasPurchasedBook}
+                onDownloadBackup={downloadBackup}
+            />
         </div>
     );
 }

@@ -114,6 +114,17 @@ export async function getSharedStory(shareId: string): Promise<SharedStory | nul
     return null;
 }
 
+// ==================== SET STORY PRIVACY ====================
+// Called when user toggles isPrivate on a memory that has already been shared.
+// Updates the Firestore shared_stories document so the public link respects privacy.
+export async function setSharedStoryPrivacy(shareId: string, isPrivate: boolean): Promise<void> {
+    const docRef = doc(db, COLLECTIONS.SHARED_STORIES, shareId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        await updateDoc(docRef, { isPrivate });
+    }
+}
+
 // ==================== LIKE STORY ====================
 export async function likeStory(
     shareId: string,

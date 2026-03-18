@@ -90,6 +90,7 @@ interface MemoryContextType {
     // Actions
     saveStory: (promptToSave: string, questionId?: string) => Promise<string | null>;
     deleteMemory: (memoryId: string) => void;
+    toggleMemoryPrivacy: (memoryId: string) => void;
     deletePerson: (personId: string) => void;
     updatePersonName: (personId: string, newName: string) => void;
     updatePersonPhoto: (personId: string, newPhotoUrl: string) => void;
@@ -355,6 +356,25 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setPeople((prev) => prev.map((p) => {
             if (p.id !== activePersonId) return p;
             return { ...p, memories: p.memories.filter((m) => m.id !== memoryId) };
+        }));
+    }
+
+    function toggleMemoryPrivacy(memoryId: string) {
+        if (!activePersonId) return;
+        setPeople((prev) => prev.map((p) => {
+            if (p.id !== activePersonId) return p;
+            const updatedMemories = p.memories.map((m) => {
+                if (m.id !== memoryId) return m;
+                const newPrivate = !m.isPrivate;
+                // Sync to Firestore if this story was previously shared
+                if (m.shareId) {
+                    import('../utils/engagement').then(({ setSharedStoryPrivacy }) => {
+                        setSharedStoryPrivacy(m.shareId!, newPrivate).catch(console.error);
+                    });
+                }
+                return { ...m, isPrivate: newPrivate };
+            });
+            return { ...p, memories: updatedMemories };
         }));
     }
 
@@ -676,6 +696,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             editingPrompt, setEditingPrompt,
             saveStory,
             deleteMemory,
+            toggleMemoryPrivacy,
             deletePerson,
             updatePersonName,
             updatePersonPhoto,

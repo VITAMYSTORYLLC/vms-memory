@@ -47,9 +47,9 @@ export default function SplashScreen() {
         className="w-48 h-auto object-contain animate-in fade-in zoom-in duration-700 mix-blend-multiply dark:hidden"
       />
       <img
-        src="/logo-white.png"
+        src="/logo-dark.png"
         alt="Vita My Story"
-        className="w-48 h-auto object-contain animate-in fade-in zoom-in duration-700 hidden dark:block"
+        className="w-48 h-auto object-contain animate-in fade-in zoom-in duration-700 hidden dark:block mix-blend-screen"
       />
     </div>
   );

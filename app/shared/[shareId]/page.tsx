@@ -66,6 +66,11 @@ export default function SharedStoryPage() {
 
                 if (!sharedStory) {
                     setError('Story not found');
+                } else if ((sharedStory as any).isPrivate && user?.uid !== sharedStory.authorId) {
+                    // Story has been marked private — block non-owners
+                    setError(lang === 'es'
+                        ? 'Esta historia es privada.'
+                        : 'This story is private.');
                 } else {
                     setStory(sharedStory);
                 }

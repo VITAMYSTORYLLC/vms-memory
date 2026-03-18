@@ -23,12 +23,13 @@ interface StoryCarouselProps {
   lang: Lang;
   onDelete?: (id: string) => void;
   onEdit?: (item: MemoryItem) => void;
+  onTogglePrivacy?: (id: string) => void;
   initialIndex?: number;
   lockedProgress?: { current: number; total: number };
   onUnlockClick?: () => void;
 }
 
-export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0, lockedProgress, onUnlockClick }: StoryCarouselProps) {
+export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, initialIndex = 0, lockedProgress, onUnlockClick }: StoryCarouselProps) {
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(initialIndex);
   const [skipTransition, setSkipTransition] = useState(false);
@@ -380,38 +381,84 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
 
                     <div className="bg-stone-50 dark:bg-midnight-950/50 w-full px-8 pt-8 pb-8 flex flex-col items-center text-center space-y-6 relative flex-shrink-0 border-b border-stone-100 dark:border-stone-800/50">
 
-                      <div className="absolute top-4 right-4 flex gap-3 text-stone-300 dark:text-stone-700">
-                        <button
-                          disabled={isCapturing}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            downloadAsImage(item);
-                          }}
-                          className={`${isCapturing ? 'opacity-50' : 'hover:text-stone-600 dark:hover:text-stone-400'} transition-colors p-1`}
-                          title="Download as Image"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            shareStory(item);
-                          }}
-                          className="hover:text-stone-600 dark:hover:text-stone-400 transition-colors p-1"
-                          title={t.shareStory}
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                        </button>
-                        {onEdit && (
-                          <button onClick={(e) => { e.stopPropagation(); onEdit(item); }} className="hover:text-stone-600 dark:hover:text-stone-400 transition-colors p-1" title="Edit memory">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      {/* Top bar: Private badge (left) + Action icons (right) — single row, same height */}
+                      <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                        {/* Left: Private pill — empty placeholder keeps icons right-aligned when not private */}
+                        <div className="flex items-center">
+                          {item.isPrivate && (
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-full border border-amber-200 dark:border-amber-800/50">
+                              {lang === 'es' ? 'Privado' : 'Private'}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Right: Action icons */}
+                        <div className="flex items-center gap-3 text-stone-300 dark:text-stone-700">
+                          <button
+                            disabled={isCapturing}
+                            onClick={(e) => { e.stopPropagation(); downloadAsImage(item); }}
+                            className={`${isCapturing ? 'opacity-50' : 'hover:text-stone-600 dark:hover:text-stone-400'} transition-colors p-1`}
+                            title="Download as Image"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                           </button>
-                        )}
-                        {onDelete && (
-                          <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }} className="hover:text-red-500 transition-colors p-1" title="Delete memory">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (item.isPrivate) {
+                                addNotification(t.privateShareTitle, t.privateShareBody, 'error');
+                                return;
+                              }
+                              shareStory(item);
+                            }}
+                            className={`transition-colors p-1 ${item.isPrivate ? 'opacity-30 cursor-not-allowed' : 'hover:text-stone-600 dark:hover:text-stone-400'}`}
+                            title={item.isPrivate
+                              ? (lang === 'es' ? 'Historia privada — hazla pública para compartir' : 'Private story — make it public to share')
+                              : t.shareStory
+                            }
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                           </button>
-                        )}
+
+                          {/* Privacy toggle: eye = visible, closed lock = private */}
+                          {onTogglePrivacy && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); onTogglePrivacy(item.id); }}
+                              className={`transition-colors p-1 ${
+                                item.isPrivate
+                                  ? 'text-amber-500 dark:text-amber-400'
+                                  : 'hover:text-stone-600 dark:hover:text-stone-400'
+                              }`}
+                              title={item.isPrivate
+                                ? (lang === 'es' ? 'Solo tú puedes ver esto — toca para hacer público' : 'Only you can see this — tap to make visible')
+                                : (lang === 'es' ? 'Visible — toca para hacer privado' : 'Visible — tap to make private')
+                              }
+                            >
+                              {item.isPrivate ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                              ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                  <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                              )}
+                            </button>
+                          )}
+
+                          {onEdit && (
+                            <button onClick={(e) => { e.stopPropagation(); onEdit(item); }} className="hover:text-stone-600 dark:hover:text-stone-400 transition-colors p-1" title="Edit memory">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }} className="hover:text-red-500 transition-colors p-1" title="Delete memory">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {/* Date */}
@@ -518,10 +565,17 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, initialIndex = 0,
 
                     {/* Logo (Bottom Right) */}
                     <div className="absolute bottom-3 right-4 pointer-events-none z-10">
+                      {/* Light mode logo */}
                       <img
                         src="/logo-transparent.png"
                         alt="Logo"
-                        className="w-16 h-auto mix-blend-multiply dark:mix-blend-normal"
+                        className="w-16 h-auto mix-blend-multiply dark:hidden"
+                      />
+                      {/* Dark / Midnight mode logo */}
+                      <img
+                        src="/logo-dark.png"
+                        alt="Logo"
+                        className="w-16 h-auto hidden dark:block mix-blend-screen"
                       />
                     </div>
                   </>

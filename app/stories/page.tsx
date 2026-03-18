@@ -12,7 +12,7 @@ import PendingAnswers from "../components/PendingAnswers";
 const SEARCH_THRESHOLD = 10;
 
 export default function StoriesPage() {
-    const { activeMemories, activePerson, lang, deleteMemory, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode, setIsCustomMode } = useMemory();
+    const { activeMemories, activePerson, lang, deleteMemory, toggleMemoryPrivacy, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode, setIsCustomMode } = useMemory();
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -171,6 +171,7 @@ export default function StoriesPage() {
                                 lang={lang}
                                 onDelete={deleteMemory}
                                 onEdit={startEditing}
+                                onTogglePrivacy={toggleMemoryPrivacy}
                                 lockedProgress={isSearching ? undefined : lockedProgress}
                                 onUnlockClick={() => router.push("/")}
                             />

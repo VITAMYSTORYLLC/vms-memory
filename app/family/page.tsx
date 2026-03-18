@@ -326,7 +326,7 @@ export default function FamilyPage() {
                             <div className="space-y-4">
                                 <div className="flex justify-center mb-2">
                                     <Image
-                                        src={theme === "dark" ? "/logo-white.png" : "/logo-transparent.png"}
+                                        src={theme === "dark" ? "/logo-dark.png" : "/logo-transparent.png"}
                                         alt="VitaMyStory Logo"
                                         width={150}
                                         height={150}

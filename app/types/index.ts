@@ -23,6 +23,8 @@ export type MemoryItem = {
   status?: 'published' | 'pending';
   authorName?: string;
   authorId?: string;
+  // Privacy
+  isPrivate?: boolean;
   // Social engagement
   isShared?: boolean;
   shareId?: string;
