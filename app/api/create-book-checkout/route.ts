@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apiVersion: "2026-02-25.clover" as any,
-});
-
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL || "https://vms-memory.vercel.app";
 
 export async function POST(req: NextRequest) {
+  // Initialize inside handler so a missing env var doesn't crash the build
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    apiVersion: "2026-02-25.clover" as any,
+  });
+
   try {
     const { personId, personName, userName } = await req.json();
 
