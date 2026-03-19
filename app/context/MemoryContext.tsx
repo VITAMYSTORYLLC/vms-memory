@@ -88,7 +88,7 @@ interface MemoryContextType {
     setEditingPrompt: React.Dispatch<React.SetStateAction<string>>;
 
     // Actions
-    saveStory: (promptToSave: string, questionId?: string) => Promise<string | null>;
+    saveStory: (prompt: string, questionId?: string, targetPersonId?: string) => Promise<string | null>;
     deleteMemory: (memoryId: string) => void;
     toggleMemoryPrivacy: (memoryId: string) => void;
     deletePerson: (personId: string) => void;
@@ -96,6 +96,7 @@ interface MemoryContextType {
     updatePersonPhoto: (personId: string, newPhotoUrl: string) => void;
     generateAIQuestions: (personId: string) => Promise<void>;
     startNewPerson: () => void;
+    startSelfPerson: (name: string) => void;
     resetApp: () => void;
     refreshState: () => void; // Force update if needed
 
@@ -224,6 +225,9 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             setTheme(storedTheme);
         }
 
+        const storedPhoto = window.localStorage.getItem("vms_user_photo");
+        if (storedPhoto) setUserPhoto(storedPhoto);
+
         // Load notifications
         try {
             const storedNotes = window.localStorage.getItem("vms_notifications");
@@ -248,9 +252,10 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         saveString(LS.lang, lang);
         saveString("vms_onboarded", String(isOnboarded));
         saveString("vms_user_name", userName);
+        if (userPhoto) saveString("vms_user_photo", userPhoto);
         saveString("vms_notifications", JSON.stringify(notifications));
         saveString("vms_theme", theme);
-    }, [people, activePersonId, lang, isOnboarded, userName, notifications, theme, isHydrated]);
+    }, [people, activePersonId, lang, isOnboarded, userName, userPhoto, notifications, theme, isHydrated]);
 
     // --- theme sync (aggressive) ---
     useEffect(() => {
@@ -349,6 +354,29 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         setIsPhotoMode(false);
         setIsAudioMode(false);
         setIsAIMode(false);
+    }
+
+    function startSelfPerson(name: string) {
+        // Enforce one-only: if a self person already exists, just activate it
+        const existing = people.find(p => p.isSelf);
+        if (existing) {
+            setActivePersonId(existing.id);
+            return;
+        }
+        const selfPerson: Person = {
+            id: makeId(),
+            name: name || 'My Story',
+            memories: [],
+            createdAt: Date.now(),
+            isSelf: true,
+        };
+        setPeople(prev => [...prev, selfPerson]);
+        setActivePersonId(selfPerson.id);
+        suppressAutoSelectRef.current = true;
+        // NOTE: intentionally NOT clearing storyDraft or modes here.
+        // startSelfPerson is called from the home page's useLayoutEffect on mount
+        // (before the user can type), so there is nothing to clear. Clearing would
+        // wipe text the user typed if the effect fired late.
     }
 
     function deleteMemory(memoryId: string) {
@@ -523,7 +551,11 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
     // NOTE: saveStory logic is a bit tied to the "Question" state which is currently localized.
     // We might need to pass the "promptToSave" from component to here.
-    async function saveStory(promptToSave: string, questionId?: string): Promise<string | null> {
+    async function saveStory(promptToSave: string, questionId?: string, targetPersonId?: string): Promise<string | null> {
+        // Allow caller to override which person the story goes to (e.g. self-story mode)
+        const effectivePerson = targetPersonId
+            ? people.find(p => p.id === targetPersonId) ?? activePerson
+            : activePerson;
         const text = normalize(storyDraft);
         // For new memories only — require some content. Edits can be title-only.
         if (!editingId && !text && !imageDraft && !audioDraft) return null;
@@ -535,7 +567,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                 // It's a base64 string, so we need to upload it
                 const blob = base64ToBlob(imageDraft);
                 const uid = user?.uid || "guest";
-                const path = `users/${uid}/people/${activePersonId || "new"}/stories`;
+                const path = `users/${uid}/people/${effectivePerson?.id || activePersonId || "new"}/stories`;
                 finalImageUrl = await uploadImage(blob, path);
             } catch (err) {
                 console.error("Failed to upload image:", err);
@@ -557,7 +589,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                 // For now, let's use dynamic import to avoid breaking if I missed the top import.
                 const { uploadAudio } = await import("../utils/storage");
                 const uid = user?.uid || "guest";
-                const path = `users/${uid}/people/${activePersonId || "new"}/audio`;
+                const path = `users/${uid}/people/${effectivePerson?.id || activePersonId || "new"}/audio`;
                 finalAudioUrl = await uploadAudio(audioDraft, path);
             } catch (err) {
                 console.error("Failed to upload audio:", err);
@@ -569,23 +601,23 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
         // We removed the artificial delay here; components can handle UI loading state if they want
 
-        if (editingId && activePerson) {
-            setPeople((prev) => prev.map((p) => (p.id !== activePerson.id ? p : {
+        if (editingId && effectivePerson) {
+            setPeople((prev) => prev.map((p) => (p.id !== effectivePerson.id ? p : {
                 ...p,
                 memories: p.memories.map((m) => m.id === editingId ? { ...m, prompt: promptToSave, text: text, imageUrl: finalImageUrl } : m)
             })));
-            const id = activePerson.id;
+            const id = effectivePerson.id;
             setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setAudioDraft(null);
             return id;
         }
 
-        if (activePerson) {
+        if (effectivePerson) {
             // Note: "markCurrentQuestionUsed" logic relies on specific question index which might be local to the Home page.
             // However, we can handle the data update here.
             // The calling component should handle the "Question Index" advancement.
 
             setPeople((prev) => prev.map((p) => {
-                if (p.id !== activePerson.id) return p;
+                if (p.id !== effectivePerson.id) return p;
                 const newMemories = addMemory(p.memories, promptToSave, storyDraft, undefined, finalImageUrl, questionId, isAudioMode, finalAudioUrl);
                 const count = newMemories.length;
 
@@ -627,8 +659,8 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
                 return { ...p, memories: newMemories };
             }));
 
-            removeKey(`${LS.draftPrefix}${activePerson.id}_${draftKey}`);
-            const id = activePerson.id;
+            removeKey(`${LS.draftPrefix}${effectivePerson.id}_${draftKey}`);
+            const id = effectivePerson.id;
             setStoryDraft(""); setImageDraft(""); setAudioDraft(null); setInspiration(null);
             return id;
         }
@@ -702,6 +734,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             updatePersonPhoto,
             generateAIQuestions,
             startNewPerson,
+            startSelfPerson,
 
             resetApp,
             refreshState,

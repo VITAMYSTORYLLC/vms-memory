@@ -28,12 +28,13 @@ export default function PendingAnswers({ lang }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    const uid = user?.uid;
+    if (!uid) return;
 
     // Watch all questions owned by this user
     const q = query(
       collection(db, 'asked_questions'),
-      where('ownerId', '==', user.uid)
+      where('ownerId', '==', uid)
     );
 
     const unsubscribe = onSnapshot(q, async (snap) => {
@@ -64,7 +65,7 @@ export default function PendingAnswers({ lang }: Props) {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user?.uid]);
 
   if (answers.length === 0) return null;
 

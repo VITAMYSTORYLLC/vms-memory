@@ -21,13 +21,14 @@ export function useSync(
 
     // 1. Guest migration + download data
     useEffect(() => {
-        if (!user) return;
+        const uid = user?.uid;
+        if (!uid) return;
 
-        const docRef = doc(db, "users", user.uid);
+        const docRef = doc(db, "users", uid);
 
         // Run migration check + stamp lastActiveAt once per user session
-        if (migrationDoneRef.current !== user.uid) {
-            migrationDoneRef.current = user.uid;
+        if (migrationDoneRef.current !== uid) {
+            migrationDoneRef.current = uid;
 
             (async () => {
                 try {
@@ -65,30 +66,33 @@ export function useSync(
             if (docSnap.exists()) {
                 const data = docSnap.data();
 
+                isReceivingUpdate.current = true;
+                
                 // Only overwrite local state if cloud actually has people
                 if (data.people && Array.isArray(data.people) && data.people.length > 0) {
-                    isReceivingUpdate.current = true;
                     setPeople(data.people);
-                    setTimeout(() => { isReceivingUpdate.current = false; }, 500);
                 }
 
                 if (data.displayName) setUserName(data.displayName);
                 if (data.photoURL) setUserPhoto(data.photoURL);
+
+                setTimeout(() => { isReceivingUpdate.current = false; }, 500);
             }
         });
 
         return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user]);
+    }, [user?.uid]);
 
     // 2. Upload local state changes to cloud
     useEffect(() => {
-        if (!user) return;
+        const uid = user?.uid;
+        if (!uid) return;
         if (isReceivingUpdate.current) return;
 
         const timeoutId = setTimeout(async () => {
             try {
-                const docRef = doc(db, "users", user.uid);
+                const docRef = doc(db, "users", uid);
                 await setDoc(docRef, {
                     people,
                     displayName: userName,
@@ -101,7 +105,7 @@ export function useSync(
         }, 2000);
 
         return () => clearTimeout(timeoutId);
-    }, [people, userName, userPhoto, user]);
+    }, [people, userName, userPhoto, user?.uid]);
 
     return null;
 }
