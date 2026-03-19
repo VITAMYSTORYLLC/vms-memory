@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, memoryLocalCache, getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -20,8 +20,15 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 // Initialize Auth
 const auth = getAuth(app);
 
-// Initialize Firestore
-const db = getFirestore(app);
+// Initialize Firestore — use memoryLocalCache to avoid the IndexedDB-based
+// persistence layer that triggers the Firestore SDK internal assertion bug
+// (ID: ca9) in Firebase 12.x during rapid reconnects / hot-reloads.
+// Real-time sync via onSnapshot still works normally; we just don't persist
+// the query cache to IndexedDB between page loads (the app already uses its
+// own localStorage for offline storage, so there is no regression).
+const db = getApps().length === 1
+  ? initializeFirestore(app, { localCache: memoryLocalCache() })
+  : getFirestore(app);
 
 // Initialize Storage
 const storage = getStorage(app);

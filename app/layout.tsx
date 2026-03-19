@@ -5,6 +5,7 @@ import { GuestBanner } from "./components/GuestBanner";
 import { MemoryFlash } from "./components/MemoryFlash";
 import MilestoneWrapper from "./components/MilestoneWrapper";
 import SplashScreen from "./components/SplashScreen";
+import { FirebaseErrorGuard } from "./components/FirebaseErrorGuard";
 
 export const metadata = {
   title: "VitaMyStory — Preserve Family Stories Forever",
@@ -14,9 +15,6 @@ export const metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "VMS",
-  },
-  icons: {
-    apple: "/icon-192x192.png",
   },
   openGraph: {
     type: "website",
@@ -58,6 +56,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="pb-16 mobile-safe-area">
         <MemoryProvider>
+          <FirebaseErrorGuard />
           <SplashScreen />
           <GuestBanner />
           <MemoryFlash />

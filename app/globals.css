@@ -10,3 +10,18 @@
     padding-top: env(safe-area-inset-top);
   }
 }
+
+@keyframes ringFill {
+  from { stroke-dashoffset: 339.3; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes ringFillLg {
+  from { stroke-dashoffset: 402.1; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes ringFillRect {
+  from { stroke-dashoffset: 732; }
+  to   { stroke-dashoffset: 0; }
+}

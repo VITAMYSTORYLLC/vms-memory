@@ -34,28 +34,19 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
     // Milestones Logic
     const storiesCount = activeMemories.length;
     const has5Stories = storiesCount >= 5;
-    const hasPhotoStory = activeMemories.some(m => m.imageUrl);
-    const hasAudioStory = activeMemories.some(m => m.audioUrl || m.isAudioStory);
-    const hasProfilePhoto = !!activePerson?.photoUrl;
-
-    const aiMilestones = {
-        stories: has5Stories,
-        photoStory: hasPhotoStory,
-        audioStory: hasAudioStory,
-        profilePhoto: hasProfilePhoto
-    };
-
-    const aiMilestonesCompleted = Object.values(aiMilestones).filter(Boolean).length;
-    const aiMilestonesTotal = 4;
-    const aiQuestionsUnlocked = aiMilestonesCompleted === aiMilestonesTotal;
-
-    const isLocked = activeMemories.length < 5;
+    const aiQuestionsUnlocked = has5Stories;
 
     const cards = [
-        { id: "story", icon: <FiPlus size={32} />, title: t.newStoryTitle, subtitle: t.newStorySubtitle, mode: "story" as const, disabled: false },
-        { id: "photo", icon: <FiCamera size={32} />, title: t.newPhoto, subtitle: isLocked ? `${t.lockedSubtitle || "Unlock at 5 stories"}` : t.newPhotoSubtitle, mode: "photo" as const, disabled: isLocked },
-        { id: "audio", icon: <FiMic size={32} />, title: t.newAudio, subtitle: isLocked ? `${t.lockedSubtitle || "Unlock at 5 stories"}` : t.newAudioSubtitle, mode: "audio" as const, disabled: isLocked },
-        { id: "ai", icon: <FiZap size={32} />, title: t.aiQuestions, subtitle: !aiQuestionsUnlocked ? "Complete all milestones to unlock" : t.aiQuestionsSubtitle, mode: "ai" as const, disabled: !aiQuestionsUnlocked },
+        { id: "story",  icon: <FiPlus size={32} />,   title: t.newStoryTitle,  subtitle: t.newStorySubtitle,  mode: "story" as const, disabled: false },
+        { id: "photo",  icon: <FiCamera size={32} />, title: t.newPhoto,       subtitle: t.newPhotoSubtitle,  mode: "photo" as const, disabled: false },
+        { id: "audio",  icon: <FiMic size={32} />,    title: t.newAudio,       subtitle: t.newAudioSubtitle,  mode: "audio" as const, disabled: false },
+        { id: "ai",     icon: <FiZap size={32} />,    title: t.aiQuestions,
+            subtitle: !aiQuestionsUnlocked
+                ? (lang === "es"
+                    ? `Escribe 5 recuerdos para desbloquear preguntas personalizadas para ${activePerson?.name || "esta persona"}.`
+                    : `Write 5 memories to unlock personalized questions for ${activePerson?.name || "them"}.`)
+                : t.aiQuestionsSubtitle,
+            mode: "ai" as const, disabled: !aiQuestionsUnlocked },
     ];
 
     const handleOption = async (mode: "story" | "photo" | "audio" | "ai") => {

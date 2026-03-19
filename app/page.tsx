@@ -104,6 +104,7 @@ export default function Page() {
   const [usedVersion, setUsedVersion] = useState(0);
   const [badgeVersion, setBadgeVersion] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveReady, setSaveReady] = useState(false); // gates buttons until 2-s ring completes
   const [showRefineModal, setShowRefineModal] = useState(false);
   const [showNudge, setShowNudge] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
@@ -112,6 +113,17 @@ export default function Page() {
   const [showFriendPicker, setShowFriendPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { friends } = useFriends(user?.uid);
+  const savedHasMedia = useRef(false); // true when the last save included a photo or audio
+  // Dynamic upload guard: 5s for photo/audio saves, 2s for text-only.
+  useEffect(() => {
+    if (step === "SAVED" || step === "BADGE") {
+      setSaveReady(false);
+      const delay = savedHasMedia.current ? 5000 : 2000;
+      const id = setTimeout(() => setSaveReady(true), delay);
+      return () => clearTimeout(id);
+    }
+  }, [step]);
+
   const lastActivity = useRef(Date.now());
 
   // Audio Recorder
@@ -243,11 +255,11 @@ export default function Page() {
     if (isAudioMode) return { type: "audio" as const, text: t.qAudio(displayName) };
     if (allStarterUsed) return { type: "free" as const, text: t.qFree };
     const q = currentQuestion; const name = displayName;
-    if (q.includes("known for") || q.includes("conocidos")) return { type: "knownFor" as const, text: t.qKnownFor(name) };
+    if (q.includes("known for") || q.includes("recordado") || q.includes("conocidos")) return { type: "knownFor" as const, text: t.qKnownFor(name) };
     if (q.includes("describe") || q.includes("describirías")) return { type: "describe" as const, text: t.qDescribe(name) };
     if (q.includes("first memory") || q.includes("primer recuerdo")) return { type: "firstMemory" as const, text: t.qFirstMemory(name) };
     if (q.includes("everyone to know") || q.includes("todos sepan")) return { type: "everyoneKnow" as const, text: t.qEveryoneKnow(name) };
-    if (q.includes("mattered most") || q.includes("más les importaba")) return { type: "matteredMost" as const, text: t.qMatteredMost(name) };
+    if (q.includes("mattered most") || q.includes("importaba")) return { type: "matteredMost" as const, text: t.qMatteredMost(name) };
     return { type: "plain" as const, text: q };
   }, [allStarterUsed, currentQuestion, displayName, t, editingId, editingPrompt, isPhotoMode, isAudioMode, isCustomMode, isAIMode, activePerson, aiCurrentQuestionIndex]);
 
@@ -364,6 +376,8 @@ export default function Page() {
 
   async function handleSave() {
     setIsSaving(true);
+    // Capture media presence BEFORE mode flags are reset
+    savedHasMedia.current = isPhotoMode || isAudioMode || !!audioDraft || !!imageDraft;
     await new Promise(r => setTimeout(r, 800));
     const questionIdToSave = (allStarterUsed || isCustomMode) ? "free" : `q_${wrapIndex(questionIndex, QUESTIONS.length)}`;
     // When in self-story mode, ALWAYS pass the self person's ID explicitly so saveStory
@@ -797,7 +811,18 @@ export default function Page() {
               </div>
               <div className="space-y-4 pt-4 px-2">
                 <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
-                <SecondaryButton onClick={() => router.push("/stories")}>{t.viewStories}</SecondaryButton>
+                <SecondaryButton
+                  disabled={!saveReady}
+                  onClick={() => router.push("/stories")}
+                >
+                  {saveReady ? (
+                    t.viewStories
+                  ) : (
+                    <span className="animate-pulse">
+                      {lang === 'es' ? 'Guardando memoria…' : 'Uploading memory…'}
+                    </span>
+                  )}
+                </SecondaryButton>
               </div>
             </div>
           )}
@@ -809,7 +834,18 @@ export default function Page() {
               <p className="text-stone-500 dark:text-stone-400 font-serif italic text-lg mt-4 px-6">{renderWithBoldName(t.storyKeeperBody(displayName))}</p>
               <div className="space-y-3 pt-6">
                 <PrimaryButton onClick={() => setStep("WRITE")}>{t.addAnother}</PrimaryButton>
-                <SecondaryButton onClick={() => router.push("/stories")}>{t.viewStories}</SecondaryButton>
+                <SecondaryButton
+                  disabled={!saveReady}
+                  onClick={() => router.push("/stories")}
+                >
+                  {saveReady ? (
+                    t.viewStories
+                  ) : (
+                    <span className="animate-pulse">
+                      {lang === 'es' ? 'Guardando memoria…' : 'Uploading memory…'}
+                    </span>
+                  )}
+                </SecondaryButton>
               </div>
             </div>
           )}

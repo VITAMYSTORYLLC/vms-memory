@@ -466,35 +466,44 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
                         {formatWhen(item.createdAt, lang)}
                       </div>
 
-                      {/* Title/Prompt */}
-                      {(() => {
-                        // Detect photo-only cards with no custom title
-                        const isPhotoOnly = !!item.imageUrl && !item.text;
-                        const isGenericPhotoTitle = item.prompt === "New Photo" || item.prompt === "Nueva Foto" || item.prompt === "";
-                        // Detect AI-question cards: they have a question-like prompt AND text content
-                        const isAICard = !!item.text && item.prompt && item.prompt.endsWith("?");
+                      {/* Title/Prompt & New Status Group */}
+                      <div className="w-full flex flex-col items-center gap-5">
+                        {(() => {
+                          // Detect photo-only cards with no custom title
+                          const isPhotoOnly = !!item.imageUrl && !item.text;
+                          const isGenericPhotoTitle = item.prompt === "New Photo" || item.prompt === "Nueva Foto" || item.prompt === "";
+                          // Detect AI-question cards: they have a question-like prompt AND text content
+                          const isAICard = !!item.text && item.prompt && item.prompt.endsWith("?");
 
-                        if (isPhotoOnly && isGenericPhotoTitle) {
+                          if (isPhotoOnly && isGenericPhotoTitle) {
+                            return (
+                              <h3 className="font-serif italic text-2xl text-stone-300 dark:text-stone-700 leading-snug w-full px-4">
+                                {lang === "es" ? "Un momento" : "A moment"}
+                              </h3>
+                            );
+                          }
+
                           return (
-                            <h3 className="font-serif italic text-2xl text-stone-300 dark:text-stone-700 leading-snug w-full px-4">
-                              {lang === "es" ? "Un momento" : "A moment"}
-                            </h3>
+                            <div className="w-full px-4 space-y-2">
+                              {isAICard && (
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700">
+                                  {lang === "es" ? "En respuesta a" : "In response to"}
+                                </p>
+                              )}
+                              <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-200 leading-snug">
+                                {renderWithBoldName(item.prompt)}
+                              </h3>
+                            </div>
                           );
-                        }
+                        })()}
 
-                        return (
-                          <div className="w-full px-4 space-y-2">
-                            {isAICard && (
-                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700">
-                                {lang === "es" ? "En respuesta a" : "In response to"}
-                              </p>
-                            )}
-                            <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-200 leading-snug">
-                              {renderWithBoldName(item.prompt)}
-                            </h3>
+                        {/* New Status (Underneath title) */}
+                        {item.createdAt > Date.now() - 24 * 60 * 60 * 1000 && (
+                          <div className="text-amber-500 dark:text-amber-400 text-xs font-bold uppercase tracking-[0.2em] animate-in fade-in duration-500">
+                            {lang === 'es' ? 'NUEVO' : 'NEW'}
                           </div>
-                        );
-                      })()}
+                        )}
+                      </div>
 
                     </div>
 

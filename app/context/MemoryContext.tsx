@@ -289,8 +289,13 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             if (isHydrated && activePersonId) setActivePersonId("");
             return;
         }
+        // While in new-person entry mode (activePersonId deliberately cleared
+        // by startNewPerson), do NOT snap back to an existing person.
+        // suppressAutoSelectRef stays true until we explicitly set a real ID.
         if (suppressAutoSelectRef.current) {
-            suppressAutoSelectRef.current = false;
+            // Only release the suppression once we actually have a real person
+            // selected (saveStory will call setActivePersonId with the new id).
+            if (activePersonId) suppressAutoSelectRef.current = false;
             return;
         }
         if (!activePersonId || !people.some((p) => p.id === activePersonId)) {
@@ -604,7 +609,7 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         if (editingId && effectivePerson) {
             setPeople((prev) => prev.map((p) => (p.id !== effectivePerson.id ? p : {
                 ...p,
-                memories: p.memories.map((m) => m.id === editingId ? { ...m, prompt: promptToSave, text: text, imageUrl: finalImageUrl } : m)
+                memories: p.memories.map((m) => m.id === editingId ? { ...m, prompt: promptToSave, text: text, imageUrl: finalImageUrl || m.imageUrl, audioUrl: finalAudioUrl || m.audioUrl } : m)
             })));
             const id = effectivePerson.id;
             setEditingId(null); setEditingPrompt(""); setStoryDraft(""); setImageDraft(""); setAudioDraft(null);

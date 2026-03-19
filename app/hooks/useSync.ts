@@ -15,7 +15,8 @@ export function useSync(
     setUserPhoto: (u: string) => void
 ) {
     const { user } = useAuth();
-    const isReceivingUpdate = useRef(false);
+    // When true, incoming Firestore snapshots are echo-backs of our own write — skip them.
+    const suppressSnapshotRef = useRef(false);
     // Tracks whether migration check has been done for the current user session
     const migrationDoneRef = useRef<string | null>(null);
 
@@ -61,13 +62,15 @@ export function useSync(
             })();
         }
 
-        // Subscribe to real-time updates
+        // Subscribe to real-time updates from OTHER devices / sessions.
+        // We skip snapshots that are echo-backs of our own local writes.
         const unsubscribe = onSnapshot(docRef, (docSnap) => {
+            // If we're suppressing (we just wrote), skip this snapshot entirely
+            if (suppressSnapshotRef.current) return;
+
             if (docSnap.exists()) {
                 const data = docSnap.data();
 
-                isReceivingUpdate.current = true;
-                
                 // Only overwrite local state if cloud actually has people
                 if (data.people && Array.isArray(data.people) && data.people.length > 0) {
                     setPeople(data.people);
@@ -75,8 +78,6 @@ export function useSync(
 
                 if (data.displayName) setUserName(data.displayName);
                 if (data.photoURL) setUserPhoto(data.photoURL);
-
-                setTimeout(() => { isReceivingUpdate.current = false; }, 500);
             }
         });
 
@@ -88,10 +89,14 @@ export function useSync(
     useEffect(() => {
         const uid = user?.uid;
         if (!uid) return;
-        if (isReceivingUpdate.current) return;
 
         const timeoutId = setTimeout(async () => {
             try {
+                // Raise the suppress flag BEFORE writing so the echo-back snapshot
+                // that Firestore sends to us is ignored and doesn't overwrite the
+                // just-saved local state with stale cloud data.
+                suppressSnapshotRef.current = true;
+
                 const docRef = doc(db, "users", uid);
                 await setDoc(docRef, {
                     people,
@@ -99,7 +104,11 @@ export function useSync(
                     photoURL: userPhoto,
                     updatedAt: Date.now(),
                 }, { merge: true });
+
+                // Lower the flag after 5 seconds — enough time for the echo to arrive
+                setTimeout(() => { suppressSnapshotRef.current = false; }, 5000);
             } catch (e) {
+                suppressSnapshotRef.current = false;
                 console.error("[useSync] Error saving to cloud:", e);
             }
         }, 2000);
