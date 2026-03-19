@@ -1,6 +1,6 @@
 {
     "name": "VitaMyStory",
-    "short_name": "VitaMyStory",
+    "short_name": "VMS",
     "description": "Preserve your family stories forever.",
     "start_url": "/",
     "display": "standalone",

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { PrimaryButton } from "./PrimaryButton";
 import { SecondaryButton } from "./SecondaryButton";
 import { useMemory } from "../context/MemoryContext";
-import { AuthModal } from "./AuthModal";
 import { AuthForm } from "./AuthForm";
 import { useAuth } from "../hooks/useAuth";
 
@@ -13,24 +12,62 @@ export default function LandingScreen() {
     const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>("login");
     const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+    
+    // Tutorial state
+    const [tutorialStep, setTutorialStep] = useState<0 | 1 | 2>(0);
 
     // Enforce Light Mode on Landing Screen
     React.useEffect(() => {
         setTheme("light");
     }, []);
 
+    // Render tutorial images if we are in step 0 or 1
+    if (tutorialStep < 2) {
+        return (
+            <div className="fixed inset-0 z-50 bg-[#F9F8F6] flex flex-col items-center justify-between p-6 overflow-hidden">
+                <div className="w-full flex justify-end mb-4">
+                    <button 
+                        onClick={() => setTutorialStep(2)} 
+                        className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 font-sans"
+                    >
+                        {lang === 'es' ? 'Saltar' : 'Skip'}
+                    </button>
+                </div>
+
+                <div className="flex-1 w-full flex items-center justify-center -mt-6">
+                    <img 
+                        src={`/tutorial-${tutorialStep + 1}.png`} 
+                        alt="Tutorial Step" 
+                        className="max-h-full w-auto object-contain rounded-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500"
+                    />
+                </div>
+
+                <div className="w-full mt-8 max-w-sm space-y-6">
+                    <div className="flex justify-center gap-2">
+                        <div className={`w-2 h-2 rounded-full transition-colors ${tutorialStep === 0 ? 'bg-stone-900' : 'bg-stone-300'}`} />
+                        <div className={`w-2 h-2 rounded-full transition-colors ${tutorialStep === 1 ? 'bg-stone-900' : 'bg-stone-300'}`} />
+                    </div>
+                    
+                    <PrimaryButton onClick={() => setTutorialStep(prev => (prev + 1) as 0|1|2)}>
+                        {tutorialStep === 0 ? (lang === 'es' ? 'Siguiente' : 'Next') : (lang === 'es' ? 'Comenzar' : 'Get Started')}
+                    </PrimaryButton>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="fixed inset-0 z-50 bg-[#F9F8F6] dark:bg-stone-950 flex flex-col overflow-y-auto transition-colors duration-500">
+        <div className="fixed inset-0 z-50 bg-[#F9F8F6] flex flex-col overflow-y-auto transition-colors duration-500 animate-in fade-in duration-500">
             {/* Logo - Top Left */}
             <div className="absolute top-6 left-6 z-20">
-                <img src="/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 mix-blend-multiply dark:mix-blend-normal" />
+                <img src="/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 mix-blend-multiply" />
             </div>
 
             {/* Lang Switch - Top Right, aligned with bottom of logo */}
             <div className="absolute top-[52px] right-6 z-20 font-sans">
                 <button
                     onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                    className="flex items-center gap-2 text-sm font-black tracking-[0.2em] text-stone-900 dark:text-stone-100 hover:text-stone-600 dark:hover:text-stone-300 transition-colors uppercase bg-transparent p-2 rounded-lg"
+                    className="flex items-center gap-2 text-sm font-black tracking-[0.2em] text-stone-900 hover:text-stone-600 transition-colors uppercase bg-transparent p-2 rounded-lg"
                 >
                     {lang === 'es' ? 'ESPAÑOL' : 'ENGLISH'}
                     <svg
@@ -46,20 +83,20 @@ export default function LandingScreen() {
                 </button>
 
                 {isLangMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-stone-900 rounded-xl shadow-xl border border-stone-100 dark:border-stone-800 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-200">
                         <button
                             onClick={() => { setLang("en"); setIsLangMenuOpen(false); }}
-                            className={`w-full text-left px-4 py-3 text-sm font-bold tracking-[0.1em] hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors flex items-center justify-between ${lang === 'en' ? 'text-stone-900 dark:text-stone-100 bg-stone-50 dark:bg-stone-800/50' : 'text-stone-500 dark:text-stone-500'}`}
+                            className={`w-full text-left px-4 py-3 text-sm font-bold tracking-[0.1em] hover:bg-stone-50 transition-colors flex items-center justify-between ${lang === 'en' ? 'text-stone-900 bg-stone-50' : 'text-stone-500'}`}
                         >
                             ENGLISH
-                            {lang === 'en' && <div className="w-1.5 h-1.5 rounded-full bg-stone-900 dark:bg-stone-100" />}
+                            {lang === 'en' && <div className="w-1.5 h-1.5 rounded-full bg-stone-900" />}
                         </button>
                         <button
                             onClick={() => { setLang("es"); setIsLangMenuOpen(false); }}
-                            className={`w-full text-left px-4 py-3 text-sm font-bold tracking-[0.1em] hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors flex items-center justify-between ${lang === 'es' ? 'text-stone-900 dark:text-stone-100 bg-stone-50 dark:bg-stone-800/50' : 'text-stone-500 dark:text-stone-500'}`}
+                            className={`w-full text-left px-4 py-3 text-sm font-bold tracking-[0.1em] hover:bg-stone-50 transition-colors flex items-center justify-between ${lang === 'es' ? 'text-stone-900 bg-stone-50' : 'text-stone-500'}`}
                         >
                             ESPAÑOL
-                            {lang === 'es' && <div className="w-1.5 h-1.5 rounded-full bg-stone-900 dark:bg-stone-100" />}
+                            {lang === 'es' && <div className="w-1.5 h-1.5 rounded-full bg-stone-900" />}
                         </button>
                     </div>
                 )}
@@ -67,13 +104,13 @@ export default function LandingScreen() {
 
             <div className="flex-1 flex flex-col justify-center items-center p-6 pt-24 text-center max-w-lg mx-auto w-full animate-in fade-in zoom-in-95 duration-700">
 
-                <p className="text-stone-600 dark:text-stone-400 font-serif text-lg leading-relaxed mb-10 max-w-xs mt-24">
+                <p className="text-stone-600 font-serif text-lg leading-relaxed mb-10 max-w-xs mt-24">
                     {t.heroTagline} <br />
                     {t.heroSubtagline}
                 </p>
 
                 <div className="w-full space-y-8">
-                    <div className="p-6 bg-white dark:bg-midnight-900 rounded-2xl border border-stone-100 dark:border-stone-800 shadow-sm">
+                    <div className="p-6 bg-white rounded-2xl border border-stone-100 shadow-sm">
                         {authMode && (
                             <AuthForm
                                 mode={authMode}
@@ -88,7 +125,7 @@ export default function LandingScreen() {
                                 }}
                                 onReset={resetPassword}
                                 onToggleMode={(mode) => setAuthMode(mode)}
-                                onClearError={clearError} // This isn't required by AuthForm, but good to have if props match
+                                onClearError={clearError}
                                 onGoogleSignIn={async () => {
                                     const success = await signInWithGoogle();
                                     if (success) {
@@ -100,7 +137,7 @@ export default function LandingScreen() {
                     </div>
 
                     <div className="p-2 bg-transparent space-y-4 font-sans text-center">
-                        <p className="text-stone-400 dark:text-stone-600 text-xs max-w-xs mx-auto">
+                        <p className="text-stone-400 text-xs max-w-xs mx-auto">
                             {t.guestNote || "Guest mode is for trial only. Log in is recommended to save your stories forever."}
                         </p>
                         <SecondaryButton onClick={completeOnboarding}>
@@ -109,13 +146,11 @@ export default function LandingScreen() {
                     </div>
                 </div>
 
-                <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-300 dark:text-stone-700 mt-auto py-6 font-sans opacity-60 text-center">
+                <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-stone-300 mt-auto py-6 font-sans opacity-60 text-center">
                     <div>Established 2024</div>
                     <div>Last updated Feb 12</div>
                 </div>
             </div>
-
-            {/* Modal removed as it is now embedded */}
         </div>
     );
 }

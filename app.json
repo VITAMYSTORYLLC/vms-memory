@@ -1,3 +1,21 @@
 {
-  "expo": {}
+  "expo": {
+    "name": "VMS",
+    "slug": "vms-memory",
+    "version": "1.0.0",
+    "icon": "./public/logo-transparent.png",
+    "android": {
+      "package": "com.vms.memory",
+      "adaptiveIcon": {
+        "foregroundImage": "./public/logo-transparent.png",
+        "backgroundColor": "#F9F8F6"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.vms.memory"
+    },
+    "web": {
+      "favicon": "./public/logo-transparent.png"
+    }
+  }
 }
