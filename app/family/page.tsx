@@ -42,12 +42,16 @@ export default function FamilyPage() {
     const [uploadingForId, setUploadingForId] = useState<string | null>(null);
     const personFileInputRef = React.useRef<HTMLInputElement>(null);
 
+    const selfPerson = people.find(p => p.isSelf) ?? null;
+    const regularPeople = people.filter(p => !p.isSelf);
+    const [selfCreationMode, setSelfCreationMode] = useState(false);
+
     const [mode, setMode] = React.useState<"LIST" | "WELCOME" | "INTRO" | "login" | "register" | "reset">(
         people.length === 0 ? "WELCOME" : "LIST"
     );
 
     React.useEffect(() => {
-        if (people.length === 0 && mode === "LIST") {
+        if (people.filter(p => !p.isSelf).length === 0 && !people.some(p => p.isSelf) && mode === "LIST") {
             setMode("WELCOME");
         }
     }, [people.length]);
@@ -68,6 +72,17 @@ export default function FamilyPage() {
     }
 
     function handleStartCreating() {
+        setSelfCreationMode(false);
+        startNewPerson();
+        setMode("WELCOME");
+    }
+
+    function handleStartMyStory() {
+        // Route through the WELCOME name-entry so user can type a custom name/alias.
+        // We MUST call startNewPerson() to clear activePersonId, otherwise when they
+        // type their name, the background auto-rename effect will overwrite the
+        // previously selected family member's name!
+        setSelfCreationMode(true);
         startNewPerson();
         setMode("WELCOME");
     }
@@ -128,8 +143,8 @@ export default function FamilyPage() {
         e.stopPropagation();
         setActionMenuOpen(null);
         setUploadingForId(p.id);
-        // Small timeout to allow state to settle before clicking input
-        setTimeout(() => personFileInputRef.current?.click(), 100);
+        // Must be synchronous within the user gesture — setTimeout breaks mobile file pickers
+        personFileInputRef.current?.click();
     }
 
     async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -172,8 +187,93 @@ export default function FamilyPage() {
                     <div className="p-6 pt-12 pb-48">
                         <h1 className="text-3xl font-serif font-bold text-stone-900 dark:text-stone-100 mb-8">{t.familyTitle}</h1>
 
+                        {/* ── My Story pinned card ── */}
+                        <div className="mb-6">
+                            {selfPerson ? (
+                                // Already created — show as active selectable card
+                                <div className="relative group">
+                                    <div
+                                        onClick={() => handleSelect(selfPerson.id)}
+                                        className={`w-full text-left p-5 pr-14 rounded-2xl transition-all border cursor-pointer relative z-10 ${
+                                            selfPerson.id === activePersonId
+                                                ? "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-lg scale-[1.02]"
+                                                : "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 text-stone-700 dark:text-stone-300 border-amber-200 dark:border-amber-700/50 hover:border-amber-300 dark:hover:border-amber-600"
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center text-3xl bg-white dark:bg-midnight-900 shadow-sm border border-amber-100 dark:border-amber-800">
+                                                {selfPerson.photoUrl
+                                                    ? <img src={selfPerson.photoUrl} alt={selfPerson.name} className="w-full h-full object-cover" />
+                                                    : '✍️'
+                                                }
+                                            </div>
+                                            <div>
+                                                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-500 dark:text-amber-400 font-sans mb-0.5">
+                                                    {lang === 'es' ? 'MI HISTORIA' : 'MY STORY'}
+                                                </div>
+                                                <div className="text-2xl font-serif leading-none font-bold">{selfPerson.name}</div>
+                                                <div className={`text-xs uppercase tracking-wider font-sans font-bold mt-1 ${
+                                                    selfPerson.id === activePersonId ? "text-stone-400 dark:text-stone-500" : "text-stone-400 dark:text-stone-500"
+                                                }`}>
+                                                    {selfPerson.memories.length} {plural(selfPerson.memories.length, lang === "es" ? "historia" : "story")}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Options - only Edit Name and Change Photo (no delete) */}
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 z-20">
+                                        <button
+                                            onClick={(e) => toggleMenu(e, selfPerson.id)}
+                                            className="p-3 rounded-full hover:bg-amber-100/50 dark:hover:bg-amber-900/20 text-stone-400 dark:text-stone-600 transition-colors"
+                                        >
+                                            <FiMoreVertical size={20} />
+                                        </button>
+                                    </div>
+                                    {actionMenuOpen === selfPerson.id && (
+                                        <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-midnight-900 rounded-xl shadow-xl border border-stone-100 dark:border-stone-800 p-1 z-30 animate-in fade-in zoom-in-95 duration-200">
+                                            <button
+                                                onClick={(e) => handleEditClick(e, selfPerson)}
+                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
+                                            >
+                                                <FiEdit2 size={16} /> {t.editName}
+                                            </button>
+                                            <button
+                                                onClick={(e) => handlePhotoClick(e, selfPerson)}
+                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
+                                            >
+                                                <FiCamera size={16} /> {lang === "es" ? "Cambiar foto" : "Change Photo"}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                // Not created yet — show CTA
+                                <button
+                                    onClick={handleStartMyStory}
+                                    className="w-full p-5 rounded-2xl border-2 border-dashed border-amber-200 dark:border-amber-800/50 bg-amber-50/50 dark:bg-amber-900/10 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all group text-left"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-3xl bg-white dark:bg-midnight-900 shadow-sm border border-amber-100 dark:border-amber-800">
+                                            ✍️
+                                        </div>
+                                        <div>
+                                            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 dark:text-amber-500 font-sans mb-0.5">
+                                                {lang === 'es' ? 'NUEVO' : 'NEW'}
+                                            </div>
+                                            <div className="text-xl font-serif font-bold text-stone-700 dark:text-stone-300 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors">
+                                                {lang === 'es' ? 'Escribe mi historia' : 'Write My Story'}
+                                            </div>
+                                            <div className="text-xs text-stone-400 dark:text-stone-600 font-sans mt-0.5">
+                                                {lang === 'es' ? 'Tu propia historia, en tus palabras' : 'Your own story, in your words'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            )}
+                        </div>
+
                         <div className="space-y-4">
-                            {people.map((p) => (
+                            {regularPeople.map((p) => (
                                 <div key={p.id} className="relative group">
                                     <div
                                         onClick={() => handleSelect(p.id)}
@@ -338,8 +438,13 @@ export default function FamilyPage() {
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-stone-300 dark:text-stone-700 font-sans">{t.whoFor}</label>
-                                    <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 dark:border-stone-800 p-2 text-center text-3xl font-serif text-stone-800 dark:text-stone-200 placeholder:text-stone-200 dark:placeholder:text-stone-600 focus:outline-none focus:border-stone-400 dark:focus:border-stone-600 transition-colors" autoFocus />
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-stone-300 dark:text-stone-700 font-sans">
+                                                {selfCreationMode
+                                                    ? (lang === 'es' ? '¿Cuál es tu nombre o alias?' : 'What\'s your name or alias?')
+                                                    : t.whoFor
+                                                }
+                                            </label>
+                                    <input value={nameDraft} onChange={(e) => setNameDraft(e.target.value)} placeholder={selfCreationMode ? (lang === 'es' ? 'Tu nombre o apodo...' : 'Your name or nickname...') : t.placeholder} className="w-full bg-transparent border-b-2 border-stone-100 dark:border-stone-800 p-2 text-center text-3xl font-serif text-stone-800 dark:text-stone-200 placeholder:text-stone-200 dark:placeholder:text-stone-600 focus:outline-none focus:border-stone-400 dark:focus:border-stone-600 transition-colors" autoFocus />
                                 </div>
                             </div>
                             <div className="pt-4 space-y-3">
@@ -366,7 +471,17 @@ export default function FamilyPage() {
                                 </div>
                             </div>
                             <div className="pt-6 px-4">
-                                <PrimaryButton onClick={() => router.push("/")}>{t.startWriting}</PrimaryButton>
+                                <PrimaryButton onClick={() => {
+                                    if (selfCreationMode) {
+                                        // Pass the name in the URL; the home page creates the
+                                        // self person on mount — zero race condition
+                                        router.push(`/?self=1&name=${encodeURIComponent(nameDraft)}`);
+                                    } else {
+                                        router.push("/");
+                                    }
+                                }}>
+                                    {t.startWriting}
+                                </PrimaryButton>
                             </div>
                         </div>
                     )}

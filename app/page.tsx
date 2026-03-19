@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Step } from "./types";
 import {
   currentWeekNumber,
@@ -14,7 +14,7 @@ import {
   normalize,
 } from "./utils";
 import { renderWithBoldName } from "./utils/text";
-import { QUESTION_EXAMPLES } from "./constants";
+import { QUESTION_EXAMPLES, SELF_QUESTIONS } from "./constants";
 import { useSwipe } from "./hooks/useSwipe";
 import { PrimaryButton } from "./components/PrimaryButton";
 import { SecondaryButton } from "./components/SecondaryButton";
@@ -22,18 +22,23 @@ import { ArrowButton } from "./components/ArrowButton";
 import { useDictation } from "./hooks/useDictation";
 import { useAudioRecorder } from "./hooks/useAudioRecorder";
 import { useMemory } from "./context/MemoryContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Haptics } from "./utils/haptics";
 import { RefineModal } from "./components/RefineModal";
 import { useAuth } from "./hooks/useAuth";
 import { shareBlankQuestion, getBlankQuestionsForPerson } from "./utils/engagement";
+import { useFriends } from "./hooks/useFriends";
+import FriendPicker from "./components/FriendPicker";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "./lib/firebase";
+import { Friend } from "./types";
 
 
 export default function Page() {
   const {
     people,
-    activePerson,
-    activePersonId,
+    activePerson: _contextActivePerson,
+    activePersonId, setActivePersonId,
     lang,
     isHydrated,
     t,
@@ -46,6 +51,7 @@ export default function Page() {
     saveStory,
     setDraftKey,
     startNewPerson,
+    startSelfPerson,
     addNotification,
     isPhotoMode, setIsPhotoMode,
     isAudioMode, setIsAudioMode,
@@ -58,8 +64,40 @@ export default function Page() {
   } = useMemory();
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromSelf = searchParams.get('self') === '1';
+  const nameParam = searchParams.get('name') || '';
   const { user } = useAuth();
-  const QUESTIONS = useMemo(() => [t.q1, t.q2, t.q3, t.q4, t.q5], [t]);
+
+  // When navigating from My Story creation (?self=1), use the isSelf person
+  // synchronously on the first render — no timing race to worry about.
+  // The correction useEffect below still syncs global activePersonId so saving works.
+  const activePerson = useMemo(() => {
+    if (fromSelf) return people.find(p => p.isSelf) ?? _contextActivePerson;
+    return _contextActivePerson;
+  }, [fromSelf, people, _contextActivePerson]);
+
+  const isSelfMode = activePerson?.isSelf === true || fromSelf;
+
+  // Single authoritative correction: create the self person (or activate existing one)
+  // using useLayoutEffect so it fires synchronously before browser paint.
+  // The user CANNOT type between layout and paint, so activePersonId is always
+  // correct before storyDraft is ever populated.
+  useLayoutEffect(() => {
+    if (!fromSelf || !isHydrated) return;
+    const existing = people.find(p => p.isSelf);
+    if (existing) {
+      if (activePersonId !== existing.id) setActivePersonId(existing.id);
+    } else if (nameParam) {
+      startSelfPerson(nameParam);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated, fromSelf, nameParam]);
+
+  const QUESTIONS = useMemo(
+    () => isSelfMode ? SELF_QUESTIONS[lang] : [t.q1, t.q2, t.q3, t.q4, t.q5],
+    [isSelfMode, lang, t]
+  );
 
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [step, setStep] = useState<Step>("WELCOME");
@@ -71,7 +109,9 @@ export default function Page() {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [isSharingBlank, setIsSharingBlank] = useState(false);
   const [blankSharedLink, setBlankSharedLink] = useState<string | null>(null);
+  const [showFriendPicker, setShowFriendPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { friends } = useFriends(user?.uid);
   const lastActivity = useRef(Date.now());
 
   // Audio Recorder
@@ -84,12 +124,29 @@ export default function Page() {
     resetRecording
   } = useAudioRecorder();
 
+  // Smart landing redirect: returning users with stories go straight to /stories
+  // Only on fresh mount (no draft, no edit, no special mode)
+  useEffect(() => {
+    if (!isHydrated) return;
+    const hasDraft = normalize(storyDraft).length > 0 || !!editingId;
+    const inSpecialMode = isPhotoMode || isAudioMode || isCustomMode || isAIMode;
+    const hasStories = (activePerson?.memories.length ?? 0) > 0;
+    // Never redirect for the self-story profile — user intentionally opened it
+    if (hasStories && !hasDraft && !inSpecialMode && !isSelfMode && !fromSelf) {
+      router.replace('/stories');
+    }
+  // Run only once after hydration — deps intentionally limited
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated]);
+
+
   // Sync audioBlob with context when recording stops
   useEffect(() => {
     if (audioBlob) {
       setAudioDraft(audioBlob);
     }
   }, [audioBlob, setAudioDraft]);
+
 
   // Update activity timestamp on interaction
   useEffect(() => {
@@ -132,13 +189,13 @@ export default function Page() {
     setStoryDraft((prev) => prev + text);
   });
 
-  const displayName = activePerson?.name || normalize(nameDraft);
+  const displayName = activePerson?.name || normalize(nameDraft) || (fromSelf ? decodeURIComponent(nameParam) : '');
   const usedSet = useMemo(() => new Set<number>(loadUsedQuestionIndexes(activePersonId || "")), [activePersonId, usedVersion]);
   const allStarterUsed = usedSet.size >= QUESTIONS.length && QUESTIONS.length > 0;
 
   useEffect(() => {
     if (isHydrated) {
-      if (!activePerson && !normalize(nameDraft)) {
+      if (!activePerson && !normalize(nameDraft) && !fromSelf) {
         router.replace("/family");
       } else {
         if (step === "WELCOME") setStep("WRITE");
@@ -241,6 +298,33 @@ export default function Page() {
     }).catch(() => { });
   }, [activePersonId, user?.uid, allStarterUsed]);
 
+  async function handleSendToFriend(friend: Friend) {
+    if (!user || !activePerson) return;
+    const qIdx = wrapIndex(questionIndex, QUESTIONS.length);
+    const rawPrompt = displayQuestion.text.replace(/\|\|\|[^|]+\|\|\|/g, activePerson.name);
+    // Write an asked_questions doc targeted at this friend
+    const docRef = await addDoc(collection(db, 'asked_questions'), {
+      ownerId: user.uid,
+      ownerName: user.displayName || user.email?.split('@')[0] || 'Someone',
+      personId: activePerson.id,
+      personName: activePerson.name,
+      prompt: rawPrompt,
+      recipientUid: friend.uid,
+      createdAt: Date.now(),
+    });
+    // Also send a push notification to the friend
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ownerUid: friend.uid,
+        title: `💬 ${user.displayName || 'Someone'} is asking you`,
+        body: `"${rawPrompt}" — about ${activePerson.name}`,
+        url: `${window.location.origin}/asked/${docRef.id}`,
+      }),
+    }).catch(() => {});
+  }
+
   async function handleShareBlank() {
     if (!user || !activePerson) return;
     setIsSharingBlank(true);
@@ -282,7 +366,11 @@ export default function Page() {
     setIsSaving(true);
     await new Promise(r => setTimeout(r, 800));
     const questionIdToSave = (allStarterUsed || isCustomMode) ? "free" : `q_${wrapIndex(questionIndex, QUESTIONS.length)}`;
-    const savedPersonId = await saveStory(promptToSave, questionIdToSave);
+    // When in self-story mode, ALWAYS pass the self person's ID explicitly so saveStory
+    // targets the correct person. This covers both initial creation (?self=1) AND
+    // returning to write more stories via the My Story card on the Family page.
+    const selfPersonId = isSelfMode ? (people.find(p => p.isSelf)?.id) : undefined;
+    const savedPersonId = await saveStory(promptToSave, questionIdToSave, selfPersonId);
     if (!savedPersonId) {
       setIsSaving(false);
       return;
@@ -628,7 +716,7 @@ export default function Page() {
                       </div>
                     ) : (
                       <button
-                        onClick={handleShareBlank}
+                        onClick={() => friends.length > 0 ? setShowFriendPicker(true) : handleShareBlank()}
                         disabled={isSharingBlank}
                         className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-[#8B7355] dark:hover:text-[#C49A6C] transition-colors flex items-center gap-2 mx-auto disabled:opacity-50"
                       >
@@ -660,7 +748,7 @@ export default function Page() {
                       </div>
                     ) : (
                       <button
-                        onClick={handleShareBlank}
+                        onClick={() => friends.length > 0 ? setShowFriendPicker(true) : handleShareBlank()}
                         disabled={isSharingBlank}
                         className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-[#8B7355] dark:hover:text-[#C49A6C] transition-colors flex items-center gap-2 mx-auto disabled:opacity-50"
                       >
@@ -735,6 +823,15 @@ export default function Page() {
             t={t}
             onAccept={(refined) => setStoryDraft(refined)}
           />
+
+          {showFriendPicker && (
+            <FriendPicker
+              lang={lang}
+              onSendToFriend={handleSendToFriend}
+              onShareLink={handleShareBlank}
+              onClose={() => setShowFriendPicker(false)}
+            />
+          )}
 
 
 
