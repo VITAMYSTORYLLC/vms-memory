@@ -15,7 +15,10 @@ import {
     User,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
+import { db } from "../lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { AuthUser } from "../types";
+
 
 // Helper function to detect mobile devices
 function isMobileDevice(): boolean {
@@ -46,12 +49,22 @@ export function useAuth() {
 
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
             if (firebaseUser) {
-                setUser({
+                const authUser: AuthUser = {
                     uid: firebaseUser.uid,
                     email: firebaseUser.email,
                     displayName: firebaseUser.displayName,
                     photoURL: firebaseUser.photoURL,
-                });
+                };
+                setUser(authUser);
+
+                // Upsert minimal public profile so contacts can discover this user
+                setDoc(doc(db, 'users', firebaseUser.uid), {
+                    uid: firebaseUser.uid,
+                    displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'VitaMyStory User',
+                    photoUrl: firebaseUser.photoURL || null,
+                    email: firebaseUser.email || null,
+                    createdAt: Date.now(),
+                }, { merge: true }).catch(() => {}); // fire-and-forget, non-blocking
             } else {
                 setUser(null);
             }

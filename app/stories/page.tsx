@@ -12,7 +12,7 @@ import PendingAnswers from "../components/PendingAnswers";
 const SEARCH_THRESHOLD = 10;
 
 export default function StoriesPage() {
-    const { activeMemories, activePerson, lang, deleteMemory, toggleMemoryPrivacy, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode, setIsCustomMode } = useMemory();
+    const { activeMemories, activePerson, lang, deleteMemory, toggleMemoryPrivacy, setEditingId, setEditingPrompt, setStoryDraft, setImageDraft, t, setIsPhotoMode, setIsAudioMode, setIsCustomMode, setIsAskMode } = useMemory();
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -23,6 +23,7 @@ export default function StoriesPage() {
         setIsAudioMode(false);
         setIsPhotoMode(false);
         setIsCustomMode(false);
+        setIsAskMode(false);
     }, []);
 
     // Stable items array (newest first)

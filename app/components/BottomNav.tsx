@@ -11,15 +11,24 @@ import { AddMenu } from './AddMenu';
 
 export default function BottomNav() {
     const pathname = usePathname();
-    const { notifications, t, pendingMemories } = useMemory();
+    const { notifications, t, pendingMemories, activePerson } = useMemory();
     const unreadCount = notifications.filter(n => !n.read).length;
     const pendingCount = pendingMemories.length;
     const [isAddMenuOpen, setIsAddMenuOpen] = React.useState(false);
 
+    // Show active person's photo in the Stories tab when available
+    const storiesIcon = activePerson?.photoUrl ? (
+        <div className="w-6 h-6 rounded-full overflow-hidden ring-2 ring-amber-400/80 dark:ring-amber-500/60">
+            <img src={activePerson.photoUrl} alt={activePerson.name} className="w-full h-full object-cover" />
+        </div>
+    ) : (
+        <FiBook size={24} />
+    );
+
     // Navigation items with the central "Add" placeholder
     const navItems = [
         { href: '/profile', label: t.navProfile, icon: <FiUser size={24} /> },
-        { href: '/stories', label: t.navStories, icon: <FiBook size={24} /> },
+        { href: '/stories', label: t.navStories, icon: storiesIcon },
         { href: '#add', label: '', icon: <FiPlus size={32} />, isAdd: true }, // Central Add Button
         { href: '/family', label: t.navFamily, icon: <FiUsers size={24} /> },
         { href: '/notifications', label: t.navNotifications, icon: <FiBell size={24} /> },

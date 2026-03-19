@@ -9,9 +9,10 @@ import { uploadImage } from "../utils/storage";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { SecondaryButton } from "../components/SecondaryButton";
 import { useRouter } from "next/navigation";
-import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail } from "react-icons/fi";
+import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail, FiUsers } from "react-icons/fi";
 import ExportModal from "../components/ExportModal";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { useFriends } from "../hooks/useFriends";
 
 export default function ProfilePage() {
     const { user, handleLogout, resetApp, lang, setLang, theme, setTheme, t, people, userName, setUserName, isHydrated, userPhoto, setUserPhoto, addNotification } = useMemory();
@@ -23,6 +24,8 @@ export default function ProfilePage() {
     const [isEditingName, setIsEditingName] = useState(false);
     const [showExportModal, setShowExportModal] = useState(false);
     const [hasPurchasedBook, setHasPurchasedBook] = useState(false);
+    const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
+    const { friends } = useFriends(user?.uid);
 
     const activePerson = people.find((p) => p.id) ?? people[0] ?? null;
 
@@ -146,6 +149,21 @@ export default function ProfilePage() {
         }
     }
 
+    async function handleShareInviteLink() {
+        if (!user) return;
+        const link = `${window.location.origin}/connect/${user.uid}`;
+        const text = lang === 'es'
+            ? `Hola 👋 Únete a mí en VitaMyStory para preservar memorias en familia: ${link}`
+            : `Hey 👋 Join me on VitaMyStory to preserve family memories together: ${link}`;
+        if (navigator.share) {
+            await navigator.share({ title: 'VitaMyStory', text, url: link }).catch(() => {});
+        } else {
+            await navigator.clipboard.writeText(link);
+            setInviteLinkCopied(true);
+            setTimeout(() => setInviteLinkCopied(false), 3000);
+        }
+    }
+
     if (!isHydrated) return null;
 
     return (
@@ -208,7 +226,10 @@ export default function ProfilePage() {
 
                             <div className="mt-2 space-y-1">
                                 <p className="text-stone-500 dark:text-stone-400 text-sm font-medium tracking-wide font-sans">
-                                    {user ? user.email : t.guestMode}
+                                    {authLoading
+                                        ? <span className="inline-block w-36 h-3.5 bg-stone-200 dark:bg-stone-700 rounded-full animate-pulse" />
+                                        : user ? user.email : t.guestMode
+                                    }
                                 </p>
                                 <p className="text-xs text-stone-400 dark:text-stone-600 font-sans italic">
                                     {t.displayNameHint}
@@ -257,6 +278,51 @@ export default function ProfilePage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Contacts Card — only for signed-in users */}
+                    {user && (
+                        <div className="bg-white dark:bg-midnight-900 rounded-[2rem] shadow-sm border border-stone-100/50 dark:border-stone-800 p-8 space-y-5">
+                            <label className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 pl-1">
+                                {lang === 'es' ? 'Contactos' : 'Contacts'}
+                            </label>
+
+                            {/* Invite button */}
+                            <button
+                                onClick={handleShareInviteLink}
+                                className="w-full py-4 px-6 rounded-2xl border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-bold text-sm hover:bg-stone-50 dark:hover:bg-midnight-800 transition-all flex items-center justify-center gap-3 group"
+                            >
+                                <FiUsers size={18} className="text-stone-400 dark:text-stone-500 group-hover:text-stone-900 dark:group-hover:text-stone-100 transition-colors" />
+                                <span>
+                                    {inviteLinkCopied
+                                        ? (lang === 'es' ? '✓ ¡Enlace copiado!' : '✓ Link copied!')
+                                        : (lang === 'es' ? 'Compartir mi enlace de contacto' : 'Share my invite link')}
+                                </span>
+                            </button>
+
+                            {/* Friends list */}
+                            {friends.length > 0 ? (
+                                <div className="space-y-2">
+                                    {friends.map(friend => (
+                                        <div key={friend.uid} className="flex items-center gap-3 bg-stone-50 dark:bg-midnight-950 rounded-2xl p-3">
+                                            {friend.photoUrl ? (
+                                                <img src={friend.photoUrl} alt={friend.displayName} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-full bg-stone-200 dark:bg-stone-700 flex items-center justify-center text-stone-500 font-bold text-sm flex-shrink-0">
+                                                    {friend.displayName?.[0]?.toUpperCase() ?? '?'}
+                                                </div>
+                                            )}
+                                            <span className="flex-1 font-serif text-stone-900 dark:text-stone-100 text-sm truncate">{friend.displayName}</span>
+                                            <span className="text-emerald-500 text-[10px] font-bold uppercase tracking-wider">✓ {lang === 'es' ? 'Conectado' : 'Connected'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-stone-400 dark:text-stone-600 font-serif italic text-center py-1">
+                                    {lang === 'es' ? 'Comparte el enlace para conectar con alguien.' : 'Share the link above to connect with someone.'}
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     {/* Data & Collection Card */}
                     <div className="bg-white dark:bg-midnight-900 rounded-[2rem] shadow-sm border border-stone-100/50 dark:border-stone-800 p-8 space-y-6">
@@ -308,7 +374,10 @@ export default function ProfilePage() {
 
                     {/* Auth & Exit */}
                     <div className="pt-4">
-                        {user ? (
+                        {authLoading ? (
+                            // While auth resolves, show nothing to avoid guest-mode flash
+                            <div className="w-full py-5 rounded-2xl bg-stone-100 dark:bg-midnight-900 animate-pulse" />
+                        ) : user ? (
                             <button
                                 onClick={() => { handleLogout(); router.push("/"); }}
                                 className="w-full py-5 rounded-2xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold uppercase tracking-[0.2em] text-sm shadow-xl shadow-stone-200/50 dark:shadow-none hover:bg-stone-800 dark:hover:bg-white transition-all flex items-center justify-center gap-3 active:scale-[0.98]"

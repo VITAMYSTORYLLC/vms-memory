@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useMemory } from "../context/MemoryContext";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiEdit3, FiCamera, FiMic, FiZap, FiPlus, FiMessageCircle } from "react-icons/fi";
+import { FiEdit3, FiCamera, FiMic, FiZap, FiPlus } from "react-icons/fi";
 import { TEXT } from "../constants";
 import { useSwipe } from "../hooks/useSwipe";
 import { Haptics } from "../utils/haptics";

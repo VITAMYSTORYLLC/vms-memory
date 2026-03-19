@@ -10,13 +10,14 @@ import { useAuth } from "../hooks/useAuth";
  * Renders only for unauthenticated users who have at least 1 story saved.
  */
 export function GuestBanner() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { people, lang, t } = useMemory();
   const [dismissed, setDismissed] = useState(false);
 
   // Only show for guests who have written at least 1 story
+  // Wait for auth to resolve before showing — avoids Flash of Guest Mode on refresh
   const totalStories = people.reduce((acc, p) => acc + p.memories.length, 0);
-  if (user || dismissed || totalStories === 0) return null;
+  if (loading || user || dismissed || totalStories === 0) return null;
 
   return (
     <div className="fixed top-0 inset-x-0 z-40 px-4 pt-3 pointer-events-none">

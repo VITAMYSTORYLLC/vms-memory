@@ -13,7 +13,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "VitaMyStory",
+    title: "VMS",
   },
   icons: {
     apple: "/icon-192x192.png",

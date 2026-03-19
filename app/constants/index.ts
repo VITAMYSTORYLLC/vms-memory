@@ -484,3 +484,96 @@ export const LS = {
   badgesPrefix: "vms_badges_v0_",
   lang: "vms_lang_v0",
 };
+
+// First-person questions for "My Story" self-profile mode
+export const SELF_QUESTIONS: Record<"en" | "es", string[]> = {
+  en: [
+    // Childhood & Roots
+    "What's your earliest childhood memory?",
+    "Where did you grow up, and what did it feel and smell like?",
+    "What did a typical day look like when you were a child?",
+    "What games or activities did you love as a kid?",
+    "Who was your biggest childhood hero — real or fictional?",
+    // Family & People
+    "Who in your family shaped who you are the most, and how?",
+    "What's a story about your parents that you often think about?",
+    "What's something you wish you had told someone in your family while you had the chance?",
+    "What's a tradition from your childhood that you've tried to keep alive?",
+    "Who was your first best friend, and what do you remember about them?",
+    // Identity & Turning Points
+    "What's a decision you made that changed the course of your life?",
+    "What did you believe at 20 that you no longer believe today?",
+    "When did you first feel like an adult? What happened?",
+    "What's something you outgrew — a version of yourself you've left behind?",
+    "What's a risk you took that you're glad you did?",
+    // Work & Purpose
+    "What's the work or project in your life you're most proud of?",
+    "What were you doing when you felt most alive?",
+    "What job or responsibility surprised you the most — felt nothing like you expected?",
+    "What did you want to be when you grew up? How close did you get?",
+    "What does a good day look like to you?",
+    // Love & Relationships
+    "How did you meet the people who matter most to you in your life?",
+    "What's your definition of a good friendship, and who in your life fits it?",
+    "What's the kindest thing someone has ever done for you without being asked?",
+    "What's a love story in your life — romantic or otherwise?",
+    "What's something you do for others that almost no one knows about?",
+    // Wisdom & Reflection
+    "What do you know now that you wish you had known at 30?",
+    "What's a piece of advice you've carried with you for years?",
+    "What's a mistake you made that turned into something valuable?",
+    "What's the best thing about the decade of life you're in right now?",
+    "What question do you most wish someone would ask you?",
+    // Legacy & Looking Forward
+    "What do you want the next generation to remember about you?",
+    "What's something about your life you hope your family never forgets?",
+    "What's a story from your life that only you can tell?",
+    "If you could write a letter to yourself 20 years ago, what's the first thing you'd say?",
+    "What does a life well-lived mean to you?",
+  ],
+  es: [
+    // Infancia y Raíces
+    "¿Cuál es tu primer recuerdo de la infancia?",
+    "¿Dónde creciste y cómo era ese lugar — qué se sentía, qué olores había?",
+    "¿Cómo era un día típico cuando eras niño o niña?",
+    "¿Qué juegos o actividades te encantaban de pequeño/a?",
+    "¿Quién fue tu mayor héroe o heroína de la infancia — real o ficticio/a?",
+    // Familia y Personas
+    "¿Quién en tu familia formó más tu manera de ser y por qué?",
+    "¿Cuál es una historia de tus padres en la que piensas seguido?",
+    "¿Qué le hubieras dicho a alguien de tu familia que ya no puedes decirle?",
+    "¿Qué tradición de tu infancia has intentado mantener viva?",
+    "¿Quién fue tu primer mejor amigo o amiga y qué recuerdas de esa amistad?",
+    // Identidad y Momentos Clave
+    "¿Qué decisión tomaste que cambió el rumbo de tu vida?",
+    "¿Qué creías a los 20 años que ya no crees hoy?",
+    "¿Cuándo sentiste por primera vez que eras adulto/a? ¿Qué pasó?",
+    "¿Qué versión de ti mismo/a has dejado atrás — algo que superaste?",
+    "¿Qué riesgo tomaste del que te alegras haber tomado?",
+    // Trabajo y Propósito
+    "¿Cuál es el trabajo o proyecto del que te sientes más orgulloso/a?",
+    "¿Qué estabas haciendo cuando te sentiste más vivo/a?",
+    "¿Qué trabajo o responsabilidad te sorprendió más — fue muy distinto a lo que esperabas?",
+    "¿Qué querías ser de grande? ¿Qué tan cerca llegaste?",
+    "¿Cómo es para ti un buen día?",
+    // Amor y Relaciones
+    "¿Cómo conociste a las personas más importantes de tu vida?",
+    "¿Qué es para ti una buena amistad, y quién en tu vida la representa?",
+    "¿Cuál es la cosa más amable que alguien hizo por ti sin que se lo pidieras?",
+    "¿Cuál es una historia de amor en tu vida — romántica o de otro tipo?",
+    "¿Qué haces por los demás que casi nadie sabe?",
+    // Sabiduría y Reflexión
+    "¿Qué sabes hoy que ojalá hubieras sabido a los 30?",
+    "¿Cuál es un consejo que llevas contigo desde hace muchos años?",
+    "¿Qué error cometiste que se convirtió en algo valioso?",
+    "¿Qué es lo mejor de la etapa de vida en la que estás ahora?",
+    "¿Qué pregunta desearías que alguien te hiciera?",
+    // Legado y Futuro
+    "¿Qué quieres que la próxima generación recuerde de ti?",
+    "¿Qué de tu vida esperas que tu familia nunca olvide?",
+    "¿Cuál es una historia de tu vida que solo tú puedes contar?",
+    "Si pudieras escribirle una carta a tu yo de hace 20 años, ¿qué le dirías primero?",
+    "¿Qué significa para ti haber vivido bien?",
+  ],
+};
+
