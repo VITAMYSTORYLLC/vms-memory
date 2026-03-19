@@ -43,6 +43,7 @@ export type Person = {
   photoUrl?: string;
   aiQuestions?: string[];
   aiQuestionsUnlockedAt?: number;
+  isSelf?: boolean;
 };
 
 export type AuthUser = {
@@ -156,3 +157,18 @@ export interface BlankQuestion {
   createdAt: number;
   answers: FamilyAnswer[];
 }
+
+// Friends / Contacts
+export interface UserProfile {
+  uid: string;
+  displayName: string;
+  photoUrl?: string;
+  email?: string;
+  createdAt: number;
+}
+
+export interface Friend extends UserProfile {
+  friendshipId: string;
+  status: 'pending' | 'accepted';
+}
+
