@@ -11,15 +11,15 @@ import { Haptics } from "../utils/haptics";
 
 function getTextSizeClass(item: MemoryItem) {
   const len = item.text ? item.text.length : 0;
-  
+
   // If there is an image, or a long prompt, we have significantly less vertical space.
   const hasImage = !!item.imageUrl;
   const isGenericTitle = item.prompt === "New Story" || item.prompt === "Nueva Historia" || item.prompt === "New Photo" || item.prompt === "Nueva Foto" || !item.prompt;
   const hasCustomTitle = !isGenericTitle;
-  
+
   // The user stated the first image (which was text-xl lengths) should be the smallest we go if possible.
   // We'll use text-xl as our baseline minimum, but maybe text-lg for extremely long text.
-  
+
   if (hasImage) {
     if (len < 100) return "text-xl";
     return "text-lg";
@@ -28,9 +28,9 @@ function getTextSizeClass(item: MemoryItem) {
   // If there's a custom title/prompt, it takes up 2-3 lines plus the NEW badge.
   if (hasCustomTitle) {
     if (len < 60) return "text-3xl"; // very short quote
-    if (len < 120) return "text-2xl"; 
+    if (len < 120) return "text-2xl";
     if (len < 250) return "text-xl";
-    return "text-lg"; 
+    return "text-lg";
   }
 
   // No image, generic title (lots of space)
@@ -470,11 +470,10 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
                           {onTogglePrivacy && (
                             <button
                               onClick={(e) => { e.stopPropagation(); onTogglePrivacy(item.id); }}
-                              className={`transition-colors p-1 ${
-                                item.isPrivate
+                              className={`transition-colors p-1 ${item.isPrivate
                                   ? 'text-amber-500 dark:text-amber-400'
                                   : 'hover:text-stone-600 dark:hover:text-stone-400'
-                              }`}
+                                }`}
                               title={item.isPrivate
                                 ? (lang === 'es' ? 'Solo tú puedes ver esto — toca para hacer público' : 'Only you can see this — tap to make visible')
                                 : (lang === 'es' ? 'Visible — toca para hacer privado' : 'Visible — tap to make private')
@@ -560,11 +559,10 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
                                 src={item.imageUrl}
                                 alt="Memory"
                                 onLoad={(e) => handleImageLoad(item.id, e)}
-                                className={`w-full ${
-                                  isPortrait
+                                className={`w-full ${isPortrait
                                     ? 'object-contain max-h-[480px]'
                                     : `object-cover ${isPhotoOnly ? 'max-h-[380px]' : 'max-h-[220px]'}`
-                                }`}
+                                  }`}
                               />
                             );
                           })()}

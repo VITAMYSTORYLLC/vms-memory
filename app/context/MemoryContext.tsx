@@ -578,10 +578,19 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
     // NOTE: saveStory logic is a bit tied to the "Question" state which is currently localized.
     // We might need to pass the "promptToSave" from component to here.
     async function saveStory(promptToSave: string, questionId?: string, targetPersonId?: string): Promise<string | null> {
-        // Allow caller to override which person the story goes to (e.g. self-story mode)
-        const effectivePerson = targetPersonId
-            ? people.find(p => p.id === targetPersonId) ?? activePerson
-            : activePerson;
+        // Allow caller to override which person the story goes to (e.g. self-story mode).
+        // IMPORTANT: When targetPersonId is provided we must NEVER fall through to the
+        // "New Person" branch below, because that creates a duplicate non-isSelf person.
+        // If the exact id isn't found (stale closure race), try isSelf as last resort.
+        // Accepts special sentinel "__self__" to always resolve to the isSelf person.
+        const resolveTarget = targetPersonId === '__self__'
+            ? people.find(p => p.isSelf) ?? null
+            : targetPersonId
+                ? (people.find(p => p.id === targetPersonId)
+                    ?? people.find(p => p.isSelf)  // stale-closure fallback
+                    ?? null)
+                : null;
+        let effectivePerson = resolveTarget ?? activePerson;
         const text = normalize(storyDraft);
         // For new memories only — require some content. Edits can be title-only.
         if (!editingId && !text && !imageDraft && !audioDraft) return null;
@@ -691,7 +700,14 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
             return id;
         }
 
-        // New Person
+        // New Person — only reached when NO targetPersonId was given (writing for a new person
+        // from scratch on the home screen). If targetPersonId WAS given but effectivePerson is
+        // still null after all fallbacks, refuse to create a duplicate non-isSelf person.
+        if (targetPersonId && !effectivePerson) {
+            console.error("[saveStory] Could not resolve self person — aborting to prevent duplicate.", targetPersonId);
+            return null;
+        }
+
         const normalizedName = normalize(nameDraft);
         if (!normalizedName) return null;
 

@@ -232,6 +232,12 @@ export default function FamilyPage() {
                                     {actionMenuOpen === selfPerson.id && (
                                         <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-midnight-900 rounded-xl shadow-xl border border-stone-100 dark:border-stone-800 p-1 z-30 animate-in fade-in zoom-in-95 duration-200">
                                             <button
+                                                onClick={(e) => handleShare(e, selfPerson)}
+                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
+                                            >
+                                                <FiShare2 size={16} /> {t.shareProfile}
+                                            </button>
+                                            <button
                                                 onClick={(e) => handleEditClick(e, selfPerson)}
                                                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
                                             >
@@ -242,6 +248,12 @@ export default function FamilyPage() {
                                                 className="w-full text-left px-4 py-3 rounded-lg hover:bg-stone-50 dark:hover:bg-midnight-800 text-stone-700 dark:text-stone-300 text-sm font-bold flex items-center gap-3"
                                             >
                                                 <FiCamera size={16} /> {lang === "es" ? "Cambiar foto" : "Change Photo"}
+                                            </button>
+                                            <button
+                                                onClick={(e) => handleDeleteClick(e, selfPerson.id)}
+                                                className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 text-sm font-bold flex items-center gap-3"
+                                            >
+                                                <FiTrash2 size={16} /> {t.deleteProfile}
                                             </button>
                                         </div>
                                     )}

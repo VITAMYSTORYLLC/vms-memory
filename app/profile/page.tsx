@@ -15,6 +15,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { useFriends } from "../hooks/useFriends";
+import { useActivityFeed } from '../hooks/useEngagement';
 
 // All possible badges in order
 const ALL_BADGES = [
@@ -135,6 +136,7 @@ export default function ProfilePage() {
     const [deleteConfirmText, setDeleteConfirmText] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
     const { friends } = useFriends(user?.uid);
+    const { activities } = useActivityFeed(user?.uid || null);
     const [selectedBadge, setSelectedBadge] = useState<typeof ALL_BADGES[0] & { earned: boolean } | null>(null);
 
     const activePerson = people.find((p) => p.id) ?? people[0] ?? null;
@@ -318,6 +320,14 @@ export default function ProfilePage() {
     // Compute earned badges dynamically from actual memory data across ALL people.
     // This ensures badges show up even if the milestone event was never triggered.
     const allMemories = people.flatMap(p => p.memories?.filter(m => m.status !== 'pending') ?? []);
+
+    // Social insights — derived from activity feed (already fetched, no extra reads)
+    const totalLikes    = activities.filter((a: any) => a.type === 'like').length;
+    const totalViews    = activities.filter((a: any) => a.type === 'view').length;
+    const totalComments = activities.filter((a: any) => a.type === 'comment').length;
+    const totalAnswers  = activities.filter((a: any) => a.type === 'answer').length;
+    const totalShared   = allMemories.filter(m => !!m.shareId).length;
+    const hasInsights   = user && (totalLikes + totalViews + totalComments + totalAnswers + totalShared) > 0;
     const storedBadgeIds = new Set(people.flatMap(p => loadBadges(p.id)));
     const earnedBadgeIds = new Set<string>([
         ...storedBadgeIds,
@@ -438,6 +448,33 @@ export default function ProfilePage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* ── Social Insights ── */}
+                    {hasInsights && (
+                        <div className="bg-white dark:bg-midnight-900 rounded-[2rem] shadow-sm border border-stone-100/50 dark:border-stone-800 p-8">
+                            <label className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-600 pl-1">
+                                {lang === 'es' ? 'Tu impacto' : 'Your Impact'}
+                            </label>
+                            <div className="mt-5 grid grid-cols-2 gap-3">
+                                {[
+                                    { icon: '👁', value: totalViews,    label: lang === 'es' ? 'Vistas'       : 'Story Views'      },
+                                    { icon: '❤️', value: totalLikes,    label: lang === 'es' ? 'Me gusta'     : 'Likes Received'   },
+                                    { icon: '💬', value: totalComments, label: lang === 'es' ? 'Comentarios'  : 'Comments'         },
+                                    { icon: '✍️', value: totalAnswers,  label: lang === 'es' ? 'Respuestas'   : 'Family Answers'   },
+                                    { icon: '🌐', value: totalShared,   label: lang === 'es' ? 'Compartidas'  : 'Stories Shared'   },
+                                    { icon: '🤝', value: friends.length, label: lang === 'es' ? 'Conectados'  : 'Connected'        },
+                                ].filter(s => s.value > 0).map(stat => (
+                                    <div key={stat.label} className="flex items-center gap-3 bg-stone-50 dark:bg-midnight-950 rounded-2xl px-4 py-4">
+                                        <span className="text-2xl leading-none">{stat.icon}</span>
+                                        <div>
+                                            <p className="text-2xl font-serif font-bold text-stone-900 dark:text-stone-100 leading-none">{stat.value}</p>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 mt-0.5">{stat.label}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* ── Achievements / Badges ── */}
                     <div className="bg-white dark:bg-midnight-900 rounded-[2rem] shadow-sm border border-stone-100/50 dark:border-stone-800 py-8 pl-8 pr-0 overflow-hidden">

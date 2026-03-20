@@ -410,16 +410,25 @@ export default function Page() {
     savedHasMedia.current = isPhotoMode || isAudioMode || !!audioDraft || !!imageDraft;
     await new Promise(r => setTimeout(r, 800));
     const questionIdToSave = (allStarterUsed || isCustomMode) ? "free" : `q_${wrapIndex(questionIndex, QUESTIONS.length)}`;
-    // When in self-story mode, ALWAYS pass the self person's ID explicitly so saveStory
-    // targets the correct person. This covers both initial creation (?self=1) AND
-    // returning to write more stories via the My Story card on the Family page.
-    const selfPersonId = isSelfMode ? (people.find(p => p.isSelf)?.id) : undefined;
+    // When in self-story mode, pass the '__self__' sentinel so saveStory resolves
+    // the isSelf person from the CONTEXT's own fresh people array — not this
+    // component's potentially-stale closure copy of people.
+    const selfPersonId = isSelfMode ? '__self__' : undefined;
     const savedPersonId = await saveStory(promptToSave, questionIdToSave, selfPersonId);
     if (!savedPersonId) {
       setIsSaving(false);
       return;
     }
     Haptics.success();
+
+    // CRITICAL: In self-story mode, explicitly lock the active person to the saved
+    // self person BEFORE changing step or navigating. Without this, when the user
+    // navigates away the ?self=1 URL param disappears and MemoryContext's auto-select
+    // effect snaps activePersonId back to the first non-self person (e.g. grandma).
+    if (isSelfMode) {
+      setActivePersonId(savedPersonId);
+    }
+
     // Only count text-based question answers toward the 5 starter chapters.
     // Photo and audio uploads are separate and should not consume a question slot
     // or trigger the "5 chapters complete" unlock milestone.
@@ -441,6 +450,7 @@ export default function Page() {
     setIsAudioMode(false);
     setIsCustomMode(false);
   }
+
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
