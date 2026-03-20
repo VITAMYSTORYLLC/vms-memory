@@ -9,13 +9,36 @@ import { ShareCard } from "./ShareCard";
 import { useMemory } from "../context/MemoryContext";
 import { Haptics } from "../utils/haptics";
 
-function getTextSizeClass(text: string) {
-  const len = text.length;
-  if (len < 60) return "text-4xl"; // Very short/impactful
-  if (len < 120) return "text-3xl"; // Standard short
-  if (len < 200) return "text-2xl"; // Medium
-  if (len < 350) return "text-xl";  // Long
-  return "text-lg";                 // Very long (scrolls less)
+function getTextSizeClass(item: MemoryItem) {
+  const len = item.text ? item.text.length : 0;
+  
+  // If there is an image, or a long prompt, we have significantly less vertical space.
+  const hasImage = !!item.imageUrl;
+  const isGenericTitle = item.prompt === "New Story" || item.prompt === "Nueva Historia" || item.prompt === "New Photo" || item.prompt === "Nueva Foto" || !item.prompt;
+  const hasCustomTitle = !isGenericTitle;
+  
+  // The user stated the first image (which was text-xl lengths) should be the smallest we go if possible.
+  // We'll use text-xl as our baseline minimum, but maybe text-lg for extremely long text.
+  
+  if (hasImage) {
+    if (len < 100) return "text-xl";
+    return "text-lg";
+  }
+
+  // If there's a custom title/prompt, it takes up 2-3 lines plus the NEW badge.
+  if (hasCustomTitle) {
+    if (len < 60) return "text-3xl"; // very short quote
+    if (len < 120) return "text-2xl"; 
+    if (len < 250) return "text-xl";
+    return "text-lg"; 
+  }
+
+  // No image, generic title (lots of space)
+  if (len < 60) return "text-4xl";
+  if (len < 120) return "text-3xl";
+  if (len < 200) return "text-2xl";
+  if (len < 350) return "text-xl";
+  return "text-lg";
 }
 
 interface StoryCarouselProps {
@@ -33,6 +56,14 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
   const { userName, addNotification, activePerson } = useMemory();
   const [index, setIndex] = useState(initialIndex);
   const [skipTransition, setSkipTransition] = useState(false);
+  // Track portrait vs landscape per image ID
+  const [imageOrientations, setImageOrientations] = useState<Record<string, 'portrait' | 'landscape'>>({});
+
+  function handleImageLoad(id: string, e: React.SyntheticEvent<HTMLImageElement>) {
+    const img = e.currentTarget;
+    const orientation = img.naturalHeight > img.naturalWidth ? 'portrait' : 'landscape';
+    setImageOrientations(prev => prev[id] === orientation ? prev : { ...prev, [id]: orientation });
+  }
 
   useEffect(() => {
     setIndex(initialIndex);
@@ -42,6 +73,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const prevItemsLengthRef = useRef(items.length);
   const t = TEXT[lang];
 
   // Stop audio when swiping to a different card
@@ -261,8 +293,19 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
   const swipeHandlers = useSwipe(next, prev);
 
   useEffect(() => {
-    if (items.length <= 0) return;
-    setIndex((i) => Math.max(0, Math.min(i, items.length - 1)));
+    const prev = prevItemsLengthRef.current;
+    const curr = items.length;
+    prevItemsLengthRef.current = curr;
+
+    if (curr <= 0) return;
+
+    if (curr < prev) {
+      // A story was deleted — navigate to the previous card for clear visual feedback
+      setIndex((i) => Math.max(0, i - 1));
+    } else {
+      // Items added or initialized — just clamp
+      setIndex((i) => Math.max(0, Math.min(i, curr - 1)));
+    }
   }, [items.length]);
 
   useEffect(() => {
@@ -305,7 +348,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
           const isActionCard = isLockedCard; // We removed other action cards
 
           const isActive = i === index;
-          const textSizeClass = !isActionCard ? getTextSizeClass(item.text) : "";
+          const textSizeClass = !isActionCard ? getTextSizeClass(item as MemoryItem) : "";
 
           return (
             <div
@@ -357,7 +400,10 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
 
                     {/* Big CTA button */}
                     <button
-                      onClick={onUnlockClick}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onUnlockClick) onUnlockClick();
+                      }}
                       className="w-full py-4 rounded-2xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold uppercase tracking-[0.18em] text-sm flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-stone-800 dark:hover:bg-white shadow-lg shadow-stone-200/60 dark:shadow-none"
                     >
                       <span>{t.continueJourney}</span>
@@ -472,8 +518,7 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
                           // Detect photo-only cards with no custom title
                           const isPhotoOnly = !!item.imageUrl && !item.text;
                           const isGenericPhotoTitle = item.prompt === "New Photo" || item.prompt === "Nueva Foto" || item.prompt === "";
-                          // Detect AI-question cards: they have a question-like prompt AND text content
-                          const isAICard = !!item.text && item.prompt && item.prompt.endsWith("?");
+
 
                           if (isPhotoOnly && isGenericPhotoTitle) {
                             return (
@@ -485,11 +530,6 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
 
                           return (
                             <div className="w-full px-4 space-y-2">
-                              {isAICard && (
-                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700">
-                                  {lang === "es" ? "En respuesta a" : "In response to"}
-                                </p>
-                              )}
                               <h3 className="font-serif italic text-2xl text-stone-800 dark:text-stone-200 leading-snug">
                                 {renderWithBoldName(item.prompt)}
                               </h3>
@@ -512,7 +552,22 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
                     <div className="flex-1 overflow-y-auto px-8 py-8 w-full story-scroll text-center flex flex-col items-center justify-center">
                       {item.imageUrl && (
                         <div className={`rounded-2xl overflow-hidden shadow-sm border border-stone-100 dark:border-stone-800 ${!item.text && !item.audioUrl ? 'w-full' : 'mb-8 w-full'}`}>
-                          <img src={item.imageUrl} alt="Memory" className={`w-full object-cover ${!item.text && !item.audioUrl ? 'max-h-[380px]' : 'max-h-[220px]'}`} />
+                          {(() => {
+                            const isPortrait = imageOrientations[item.id] === 'portrait';
+                            const isPhotoOnly = !item.text && !item.audioUrl;
+                            return (
+                              <img
+                                src={item.imageUrl}
+                                alt="Memory"
+                                onLoad={(e) => handleImageLoad(item.id, e)}
+                                className={`w-full ${
+                                  isPortrait
+                                    ? 'object-contain max-h-[480px]'
+                                    : `object-cover ${isPhotoOnly ? 'max-h-[380px]' : 'max-h-[220px]'}`
+                                }`}
+                              />
+                            );
+                          })()}
                         </div>
                       )}
 

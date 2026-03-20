@@ -18,15 +18,106 @@ import { useFriends } from "../hooks/useFriends";
 
 // All possible badges in order
 const ALL_BADGES = [
-    { id: 'first_memory',        icon: '✨', name: 'First Memory',     nameEs: 'Primer Recuerdo' },
-    { id: 'story_keeper',        icon: '📗', name: 'Story Keeper',     nameEs: 'Guardián' },
-    { id: 'memory_maker',        icon: '🕯️', name: 'Memory Maker',     nameEs: 'Creador' },
-    { id: 'voice_of_memory',     icon: '🎙️', name: 'Voice of Memory',  nameEs: 'Voz del Recuerdo' },
-    { id: 'moment_in_time',      icon: '📷', name: 'Moment in Time',   nameEs: 'Momento Captado' },
-    { id: 'first_smart_question',icon: '🤖', name: 'Deep Thinker',     nameEs: 'Pensador Profundo' },
-    { id: 'family_narrator',     icon: '🖊️', name: 'Family Narrator',  nameEs: 'Narrador Familiar' },
-    { id: 'chronicler',          icon: '📚', name: 'Chronicler',        nameEs: 'Cronista' },
-    { id: 'legacy_guardian',     icon: '🏛️', name: 'Legacy Guardian',  nameEs: 'Guardián del Legado' },
+    {
+        id: 'first_memory',
+        icon: '✨',
+        name: 'First Memory',
+        nameEs: 'Primer Recuerdo',
+        earnedDesc: 'You saved your very first memory. Every legacy starts with a single story.',
+        earnedDescEs: 'Guardaste tu primer recuerdo. Todo legado comienza con una historia.',
+        lockedDesc: 'Save your first memory to unlock this badge.',
+        lockedDescEs: 'Guarda tu primer recuerdo para desbloquear este logro.',
+    },
+    {
+        id: 'story_keeper',
+        icon: '📗',
+        name: 'Story Keeper',
+        nameEs: 'Guardián',
+        earnedDesc: 'You\'ve saved 5 memories. You are now a keeper of stories.',
+        earnedDescEs: 'Guardaste 5 recuerdos. Eres un guardián de historias.',
+        lockedDesc: 'Save 5 memories in total to unlock this badge.',
+        lockedDescEs: 'Guarda 5 recuerdos en total para desbloquear este logro.',
+    },
+    {
+        id: 'memory_maker',
+        icon: '🕯️',
+        name: 'Memory Maker',
+        nameEs: 'Creador',
+        earnedDesc: 'You\'ve captured 10 stories — a shining light of family memory.',
+        earnedDescEs: 'Has capturado 10 historias — una luz brillante de memoria familiar.',
+        lockedDesc: 'Save 10 memories in total to unlock this badge.',
+        lockedDescEs: 'Guarda 10 recuerdos en total para desbloquear este logro.',
+    },
+    {
+        id: 'voice_of_memory',
+        icon: '🎙️',
+        name: 'Voice of Memory',
+        nameEs: 'Voz del Recuerdo',
+        earnedDesc: 'You recorded your first audio story. Your voice is now part of the family legacy.',
+        earnedDescEs: 'Grabaste tu primera historia de voz. Tu voz es parte del legado familiar.',
+        lockedDesc: 'Record an audio story to unlock this badge. Tap the 🎙 button when writing.',
+        lockedDescEs: 'Graba una historia de voz para desbloquear este logro. Toca el botón 🎙 al escribir.',
+    },
+    {
+        id: 'moment_in_time',
+        icon: '📷',
+        name: 'Moment in Time',
+        nameEs: 'Momento Captado',
+        earnedDesc: 'You saved your first photo memory. A picture is worth a thousand words.',
+        earnedDescEs: 'Guardaste tu primer recuerdo con foto. Una imagen vale mil palabras.',
+        lockedDesc: 'Add a photo to a memory to unlock this badge. Tap the 📷 button when writing.',
+        lockedDescEs: 'Agrega una foto a un recuerdo para desbloquear este logro. Toca el botón 📷 al escribir.',
+    },
+    {
+        id: 'first_smart_question',
+        icon: '🤖',
+        name: 'Deep Thinker',
+        nameEs: 'Pensador Profundo',
+        earnedDesc: 'You answered a smart AI question. Your reflection goes beyond the surface.',
+        earnedDescEs: 'Respondiste una pregunta inteligente de IA. Tu reflexión va más allá.',
+        lockedDesc: 'Answer a Smart Question to unlock this badge. Generate Smart Questions from the writing page.',
+        lockedDescEs: 'Responde una Pregunta Inteligente para desbloquear este logro.',
+    },
+    {
+        id: 'my_story',
+        icon: '🖋️',
+        name: 'My Chapter',
+        nameEs: 'Mi Capítulo',
+        earnedDesc: 'You started writing your own story. Your voice and your memories deserve to be preserved too.',
+        earnedDescEs: 'Comenzaste a escribir tu propia historia. Tu voz y tus recuerdos también merecen ser preservados.',
+        lockedDesc: 'Your story matters too. Start writing about yourself — your memories, your voice, your chapter.',
+        lockedDescEs: 'Tu historia también importa. Empieza a escribir sobre ti — tus recuerdos, tu voz, tu capítulo.',
+    },
+    {
+        id: 'family_narrator',
+        icon: '🗣️',
+        name: 'Family Narrator',
+        nameEs: 'Narrador Familiar',
+        earnedDesc: '25 memories saved — you are your family\'s true narrator.',
+        earnedDescEs: '25 recuerdos guardados — eres el verdadero narrador de tu familia.',
+        lockedDesc: 'Save 25 memories in total to unlock this badge.',
+        lockedDescEs: 'Guarda 25 recuerdos en total para desbloquear este logro.',
+    },
+    {
+        id: 'chronicler',
+        icon: '📚',
+        name: 'Chronicler',
+        nameEs: 'Cronista',
+        earnedDesc: '50 memories — you have built a library of life.',
+        earnedDescEs: '50 recuerdos — has construido una biblioteca de vida.',
+        lockedDesc: 'Save 50 memories in total to unlock this badge.',
+        lockedDescEs: 'Guarda 50 recuerdos en total para desbloquear este logro.',
+    },
+    {
+        id: 'legacy_guardian',
+        icon: '🏛️',
+        name: 'Legacy Guardian',
+        nameEs: 'Guardián del Legado',
+        earnedDesc: '100 memories preserved — a true guardian of family legacy.',
+        earnedDescEs: '100 recuerdos preservados — un verdadero guardián del legado familiar.',
+        lockedDesc: 'Save 100 memories in total to unlock this badge.',
+        lockedDescEs: 'Guarda 100 recuerdos en total para desbloquear este logro.',
+    },
 ];
 
 export default function ProfilePage() {
@@ -44,6 +135,7 @@ export default function ProfilePage() {
     const [deleteConfirmText, setDeleteConfirmText] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
     const { friends } = useFriends(user?.uid);
+    const [selectedBadge, setSelectedBadge] = useState<typeof ALL_BADGES[0] & { earned: boolean } | null>(null);
 
     const activePerson = people.find((p) => p.id) ?? people[0] ?? null;
 
@@ -238,6 +330,7 @@ export default function ProfilePage() {
         ...(allMemories.some(m => !!m.audioUrl) ? ['voice_of_memory']      : []),
         ...(allMemories.some(m => !!m.imageUrl) ? ['moment_in_time']       : []),
         ...(allMemories.some(m => !!m.questionId) ? ['first_smart_question'] : []),
+        ...(people.some(p => p.isSelf) ? ['my_story'] : []),
     ]);
 
     return (
@@ -306,8 +399,10 @@ export default function ProfilePage() {
                                 <p className="text-sm text-stone-400 dark:text-stone-500 mt-1 truncate">
                                     {authLoading
                                         ? <span className="inline-block w-32 h-3 bg-stone-200 dark:bg-stone-800 rounded-full animate-pulse" />
-                                        : totalPeople > 0
-                                            ? (lang === 'es' ? `Miembro desde ${memberSinceYear}` : `Member since ${memberSinceYear}`)
+                                        : user
+                                            ? (totalPeople > 0
+                                                ? (lang === 'es' ? `Miembro desde ${memberSinceYear}` : `Member since ${memberSinceYear}`)
+                                                : (user.email || ''))
                                             : <span className="font-bold uppercase tracking-wider text-xs">{t.guestMode}</span>
                                     }
                                 </p>
@@ -354,11 +449,12 @@ export default function ProfilePage() {
                             {ALL_BADGES.map(badge => {
                                 const earned = earnedBadgeIds.has(badge.id);
                                 return (
-                                    <div
+                                    <button
                                         key={badge.id}
-                                        className={`relative flex-shrink-0 w-28 flex flex-col items-center justify-center gap-3 rounded-2xl py-5 px-2 text-center snap-start transition-all ${
+                                        onClick={() => setSelectedBadge({ ...badge, earned })}
+                                        className={`relative flex-shrink-0 w-28 flex flex-col items-center justify-center gap-3 rounded-2xl py-5 px-2 text-center snap-start transition-opacity ${
                                             earned
-                                                ? 'bg-stone-50 dark:bg-midnight-800 active:ring-2 active:ring-stone-300 dark:active:ring-stone-600'
+                                                ? 'bg-stone-50 dark:bg-midnight-800'
                                                 : 'bg-stone-50/50 dark:bg-midnight-950/50 opacity-40'
                                         }`}
                                     >
@@ -373,8 +469,7 @@ export default function ProfilePage() {
                                         <p className="text-[10px] font-bold uppercase tracking-wide text-stone-600 dark:text-stone-400 leading-tight">
                                             {lang === 'es' ? badge.nameEs : badge.name}
                                         </p>
-
-                                    </div>
+                                    </button>
                                 );
                             })}
                         </div>
@@ -385,6 +480,54 @@ export default function ProfilePage() {
                             }
                         </p>
                     </div>
+
+                    {/* Badge Detail Modal */}
+                    {selectedBadge && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6" style={{ top: 0, left: 0, right: 0, bottom: 0 }} onClick={() => setSelectedBadge(null)}>
+                            <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" style={{ top: 0, left: 0, right: 0, bottom: 0 }} />
+                            <div
+                                className="relative bg-white dark:bg-midnight-900 rounded-[2rem] w-full max-w-sm p-8 pb-10 space-y-5 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+                                onClick={e => e.stopPropagation()}
+                            >
+
+                                <div className="flex flex-col items-center text-center gap-3">
+                                    <span className={`text-6xl ${!selectedBadge.earned ? 'grayscale opacity-60' : ''}`}>{selectedBadge.icon}</span>
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 mb-1">
+                                            {selectedBadge.earned
+                                                ? (lang === 'es' ? '✓ Logro desbloqueado' : '✓ Achievement unlocked')
+                                                : (lang === 'es' ? '🔒 Bloqueado' : '🔒 Locked')}
+                                        </p>
+                                        <h3 className="text-2xl font-serif font-bold text-stone-900 dark:text-stone-100">
+                                            {lang === 'es' ? selectedBadge.nameEs : selectedBadge.name}
+                                        </h3>
+                                    </div>
+                                    <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed max-w-xs">
+                                        {selectedBadge.earned
+                                            ? (lang === 'es' ? selectedBadge.earnedDescEs : selectedBadge.earnedDesc)
+                                            : (lang === 'es' ? selectedBadge.lockedDescEs : selectedBadge.lockedDesc)}
+                                    </p>
+                                </div>
+
+                                {!selectedBadge.earned && (
+                                    <button
+                                        onClick={() => { setSelectedBadge(null); router.push(selectedBadge.id === 'my_story' ? '/?self=1' : '/'); }}
+                                        className="w-full py-4 rounded-2xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold text-sm uppercase tracking-[0.15em] hover:bg-stone-800 transition-all active:scale-[0.98]"
+                                    >
+                                        {selectedBadge.id === 'my_story'
+                                            ? (lang === 'es' ? 'Escribir mi historia →' : 'Write My Story →')
+                                            : (lang === 'es' ? 'Empezar a escribir →' : 'Start writing →')}
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => setSelectedBadge(null)}
+                                    className="w-full py-3 text-stone-400 dark:text-stone-500 text-xs font-bold uppercase tracking-widest hover:text-stone-600 transition-colors"
+                                >
+                                    {lang === 'es' ? 'Cerrar' : 'Close'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Contacts Card — only for signed-in users */}
                     {user && (

@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getSharedStory } from '../../utils/engagement';
+import { getSharedStory, reportSharedStory } from '../../utils/engagement';
 import { useEngagement } from '../../hooks/useEngagement';
 import { useAuth } from '../../hooks/useAuth';
 import { useMemory } from '../../context/MemoryContext';
 import EngagementBar from '../../components/EngagementBar';
 import StoryComments from '../../components/StoryComments';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiFlag } from 'react-icons/fi';
 import { FaPlay } from 'react-icons/fa';
 
 interface SharedStory {
@@ -39,6 +39,7 @@ export default function SharedStoryPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showComments, setShowComments] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
 
     const userId = user?.uid || null;
     const userName = user?.displayName || user?.email?.split('@')[0] || (lang === 'es' ? 'Invitado' : 'Guest');
@@ -145,6 +146,34 @@ export default function SharedStoryPage() {
         } catch (err) {
             console.error('Error adding comment:', err);
             throw err;
+        }
+    };
+
+    const handleReport = async () => {
+        if (!story) return;
+        const confirmMsg = lang === 'es' 
+            ? '¿Estás seguro de que quieres reportar esta historia por contenido inapropiado? Nuestro equipo la revisará de inmediato.' 
+            : 'Are you sure you want to report this story for inappropriate content? Our team will review it immediately.';
+        
+        if (window.confirm(confirmMsg)) {
+            setIsReporting(true);
+            try {
+                await reportSharedStory(shareId, userId || 'anonymous');
+                addNotification(
+                    lang === 'es' ? 'Historia reportada' : 'Story Reported',
+                    lang === 'es' ? 'Gracias. Revisaremos esta historia.' : 'Thank you. We will review this story.',
+                    'success'
+                );
+            } catch (err) {
+                console.error("Failed to report story:", err);
+                addNotification(
+                    lang === 'es' ? 'Error' : 'Error',
+                    lang === 'es' ? 'No se pudo reportar la historia' : 'Failed to report story',
+                    'error'
+                );
+            } finally {
+                setIsReporting(false);
+            }
         }
     };
 
@@ -299,7 +328,7 @@ export default function SharedStoryPage() {
                 )}
 
                 {/* Footer branding */}
-                <div className="text-center mt-12 mb-8">
+                <div className="text-center mt-12 mb-8 flex flex-col items-center">
                     {!user && (
                         <button
                             onClick={() => router.push('/')}
@@ -311,6 +340,20 @@ export default function SharedStoryPage() {
                     <h1 className="font-serif font-bold text-2xl tracking-tight text-stone-900 dark:text-white flex items-center justify-center opacity-30 mt-4 pointer-events-none select-none">
                         Vita<span className="text-sm font-sans mt-3 -ml-0.5 tracking-normal">MyStory</span>
                     </h1>
+                    
+                    {/* Report Button */}
+                    {!isOwner && (
+                        <button
+                            onClick={handleReport}
+                            disabled={isReporting}
+                            className="mt-16 flex items-center gap-2 text-[10px] font-sans uppercase tracking-widest font-bold text-stone-400 hover:text-red-500 transition-colors opacity-60 hover:opacity-100 p-2"
+                        >
+                            <FiFlag size={12} />
+                            {isReporting 
+                                ? (lang === 'es' ? 'Reportando...' : 'Reporting...')
+                                : (lang === 'es' ? 'Reportar esta historia' : 'Report this story')}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

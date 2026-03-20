@@ -12,49 +12,11 @@ export default function LandingScreen() {
     const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>("login");
     const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-    
-    // Tutorial state
-    const [tutorialStep, setTutorialStep] = useState<0 | 1 | 2>(0);
 
     // Enforce Light Mode on Landing Screen
     React.useEffect(() => {
         setTheme("light");
     }, []);
-
-    // Render tutorial images if we are in step 0 or 1
-    if (tutorialStep < 2) {
-        return (
-            <div className="fixed inset-0 z-50 bg-[#F9F8F6] flex flex-col items-center justify-between p-6 overflow-hidden">
-                <div className="w-full flex justify-end mb-4">
-                    <button 
-                        onClick={() => setTutorialStep(2)} 
-                        className="text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 font-sans"
-                    >
-                        {lang === 'es' ? 'Saltar' : 'Skip'}
-                    </button>
-                </div>
-
-                <div className="flex-1 w-full flex items-center justify-center -mt-6">
-                    <img 
-                        src={`/tutorial-${tutorialStep + 1}.png`} 
-                        alt="Tutorial Step" 
-                        className="max-h-full w-auto object-contain rounded-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500"
-                    />
-                </div>
-
-                <div className="w-full mt-8 max-w-sm space-y-6">
-                    <div className="flex justify-center gap-2">
-                        <div className={`w-2 h-2 rounded-full transition-colors ${tutorialStep === 0 ? 'bg-stone-900' : 'bg-stone-300'}`} />
-                        <div className={`w-2 h-2 rounded-full transition-colors ${tutorialStep === 1 ? 'bg-stone-900' : 'bg-stone-300'}`} />
-                    </div>
-                    
-                    <PrimaryButton onClick={() => setTutorialStep(prev => (prev + 1) as 0|1|2)}>
-                        {tutorialStep === 0 ? (lang === 'es' ? 'Siguiente' : 'Next') : (lang === 'es' ? 'Comenzar' : 'Get Started')}
-                    </PrimaryButton>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] flex flex-col overflow-y-auto transition-colors duration-500 animate-in fade-in duration-500">

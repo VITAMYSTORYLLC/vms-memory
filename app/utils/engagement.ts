@@ -528,3 +528,21 @@ export async function submitFamilyAnswer(
     }
 }
 
+// ==================== REPORT STORY ====================
+export async function reportSharedStory(
+    shareId: string,
+    reporterId?: string,
+    reason?: string
+): Promise<void> {
+    const reportId = makeId();
+    const reportRef = doc(db, 'reports', reportId);
+    
+    await setDoc(reportRef, {
+        shareId,
+        reporterId: reporterId || 'anonymous',
+        reason: reason || 'Inappropriate content',
+        reportedAt: Date.now(),
+        status: 'pending'
+    });
+}
+

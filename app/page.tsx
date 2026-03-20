@@ -99,7 +99,23 @@ export default function Page() {
     [isSelfMode, lang, t]
   );
 
-  const [questionIndex, setQuestionIndex] = useState<number>(0);
+  // Compute the correct starting question index synchronously on first render
+  // so we never show a used slot or the free prompt by mistake.
+  const [questionIndex, setQuestionIndex] = useState<number>(() => {
+    // Use activePersonId from search params if available
+    const pid = typeof window !== 'undefined'
+      ? (new URLSearchParams(window.location.search).get('person') || '')
+      : '';
+    const used = new Set<number>(loadUsedQuestionIndexes(pid));
+    const total = 5; // QUESTIONS always has 5 entries on load
+    if (used.size === 0) return 0; // Brand new profile — always start at Q1
+    if (used.size >= total) return 0; // All questions used, doesn't matter
+    // For returning users, start at the next unused slot from the first unused index
+    for (let i = 0; i < total; i++) {
+      if (!used.has(i)) return i;
+    }
+    return 0;
+  });
   const [step, setStep] = useState<Step>("WELCOME");
   const [usedVersion, setUsedVersion] = useState(0);
   const [badgeVersion, setBadgeVersion] = useState(0);
@@ -144,7 +160,8 @@ export default function Page() {
     const inSpecialMode = isPhotoMode || isAudioMode || isCustomMode || isAIMode;
     const hasStories = (activePerson?.memories.length ?? 0) > 0;
     // Never redirect for the self-story profile — user intentionally opened it
-    if (hasStories && !hasDraft && !inSpecialMode && !isSelfMode && !fromSelf) {
+    const isContinue = searchParams.get('continue') === 'true';
+    if (hasStories && !hasDraft && !inSpecialMode && !isSelfMode && !fromSelf && !isContinue) {
       router.replace('/stories');
     }
   // Run only once after hydration — deps intentionally limited
@@ -188,14 +205,6 @@ export default function Page() {
     return () => clearInterval(checkInterval);
   }, [step, editingId, storyDraft]);
 
-  // Auto-open file picker in Photo Mode
-  useEffect(() => {
-    if (isPhotoMode && !imageDraft) {
-      setTimeout(() => {
-        fileInputRef.current?.click();
-      }, 600);
-    }
-  }, [isPhotoMode, imageDraft]);
 
   const { isListening, isSupported, toggleListening } = useDictation(lang, (text) => {
     setStoryDraft((prev) => prev + text);
@@ -215,12 +224,20 @@ export default function Page() {
     }
   }, [isHydrated, activePerson, nameDraft, router, step]);
 
+  // If person changes or usedSet changes, jump to the first unused question
   useEffect(() => {
-    const week = currentWeekNumber();
-    setQuestionIndex(week % QUESTIONS.length);
-  }, [QUESTIONS.length]);
+    if (usedSet.size >= QUESTIONS.length) return; // all used — let displayQuestion handle it
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      if (!usedSet.has(i)) {
+        setQuestionIndex(i);
+        return;
+      }
+    }
+  // Re-run when person changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePersonId, usedVersion, QUESTIONS.length]);
 
-  // Ensure we don't stay on a used question
+  // Ensure we don't stay on a used question (fallback guard)
   useEffect(() => {
     if (usedSet.size >= QUESTIONS.length) return;
     const current = wrapIndex(questionIndex, QUESTIONS.length);
@@ -253,7 +270,7 @@ export default function Page() {
     if (editingId && editingPrompt) return { type: "plain" as const, text: editingPrompt };
     if (isPhotoMode) return { type: "photo" as const, text: t.qPhoto(displayName) };
     if (isAudioMode) return { type: "audio" as const, text: t.qAudio(displayName) };
-    if (allStarterUsed) return { type: "free" as const, text: t.qFree };
+    // Always show one of the 5 pre-made questions — even after all have been answered
     const q = currentQuestion; const name = displayName;
     if (q.includes("known for") || q.includes("recordado") || q.includes("conocidos")) return { type: "knownFor" as const, text: t.qKnownFor(name) };
     if (q.includes("describe") || q.includes("describirías")) return { type: "describe" as const, text: t.qDescribe(name) };
@@ -269,14 +286,22 @@ export default function Page() {
       return isPhotoMode ? t.newPhotoTitle : t.newStoryTitle;
     }
     if (editingId && editingPrompt) return editingPrompt;
-    // AI mode is active after allStarterUsed — always save the AI question as the prompt
-    if (isAIMode) return displayQuestion.text;
-    return allStarterUsed ? "" : displayQuestion.text;
+    // Always save the displayed question as the prompt (AI or pre-made)
+    return displayQuestion.text;
   }, [allStarterUsed, displayQuestion.text, editingId, editingPrompt, isCustomMode, isPhotoMode, isAIMode, t]);
   const usedCount = usedSet.size; const starterTotal = QUESTIONS.length;
   const starterProgressIndex = useMemo(() => Math.min(starterTotal, Math.max(1, usedCount + 1)), [starterTotal, usedCount]);
 
-  function goPrevQuestion() { if (allStarterUsed) return; setQuestionIndex((i) => nextUnusedIndex(i, -1, QUESTIONS.length, usedSet)); setInspiration(null); }
+  function goPrevQuestion() {
+    if (allStarterUsed) {
+      // Cycle through the 5 questions freely when all have been answered
+      setQuestionIndex((i) => (i - 1 + QUESTIONS.length) % QUESTIONS.length);
+      setInspiration(null);
+      return;
+    }
+    setQuestionIndex((i) => nextUnusedIndex(i, -1, QUESTIONS.length, usedSet));
+    setInspiration(null);
+  }
   function goNextQuestion() {
     if (isAIMode && activePerson?.aiQuestions) {
       const nextIndex = (aiCurrentQuestionIndex + 1) % activePerson.aiQuestions.length;
@@ -284,7 +309,12 @@ export default function Page() {
       setInspiration(null);
       return;
     }
-    if (allStarterUsed) return;
+    if (allStarterUsed) {
+      // Cycle through the 5 questions freely when all have been answered
+      setQuestionIndex((i) => (i + 1) % QUESTIONS.length);
+      setInspiration(null);
+      return;
+    }
     setQuestionIndex((i) => nextUnusedIndex(i, 1, QUESTIONS.length, usedSet));
     setInspiration(null);
   }
@@ -390,12 +420,19 @@ export default function Page() {
       return;
     }
     Haptics.success();
-    const willCompleteStarter = !allStarterUsed && usedSet.size === QUESTIONS.length - 1;
-    markCurrentQuestionUsed(savedPersonId);
-    advanceToNextUnused(savedPersonId);
-    if (willCompleteStarter) {
-      addNotification(t.unlockedModesTitle, t.unlockedModesBody);
-      setStep("BADGE");
+    // Only count text-based question answers toward the 5 starter chapters.
+    // Photo and audio uploads are separate and should not consume a question slot
+    // or trigger the "5 chapters complete" unlock milestone.
+    if (!isPhotoMode && !isAudioMode) {
+      const willCompleteStarter = !allStarterUsed && usedSet.size === QUESTIONS.length - 1;
+      markCurrentQuestionUsed(savedPersonId);
+      advanceToNextUnused(savedPersonId);
+      if (willCompleteStarter) {
+        addNotification(t.unlockedModesTitle, t.unlockedModesBody);
+        setStep("BADGE");
+      } else {
+        setStep("SAVED");
+      }
     } else {
       setStep("SAVED");
     }
@@ -449,14 +486,16 @@ export default function Page() {
           {/* MAIN WRITE FLOW */}
           {step === "WRITE" && (
             <div {...questionSwipeHandlers} className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-500 touch-pan-y overflow-hidden pt-4 sm:pt-0">
-              <div className="text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 h-[260px] flex flex-col justify-end pb-2 relative group">
+              <div className={`text-center space-y-2 mb-4 sm:mb-6 flex-shrink-0 flex flex-col pb-2 relative group ${
+                (isPhotoMode || isAudioMode || isCustomMode)
+                  ? 'h-auto justify-start pt-2'
+                  : 'h-[260px] justify-end'
+              }`}>
                 {!(isCustomMode || isPhotoMode || isAudioMode || isAIMode) && (
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700 font-sans">
                     {editingId
                       ? (lang === "es" ? "EDITANDO" : "EDITING")
-                      : allStarterUsed
-                      ? t.freeChapter
-                      : `${t.chapter} ${starterProgressIndex} ${t.of} ${starterTotal}`}
+                      : `${t.chapter} ${wrapIndex(questionIndex, QUESTIONS.length) + 1} ${t.of} ${starterTotal}`}
                   </div>
                 )}
                 <h2 className="text-2xl sm:text-3xl font-serif leading-[1.15] sm:leading-snug text-stone-900 dark:text-stone-100 px-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -504,7 +543,7 @@ export default function Page() {
                       </span>
                     </button>
                   ) : (
-                    (!allStarterUsed || isAIMode) && !editingId && !isPhotoMode && !isAudioMode && !isCustomMode && (
+                    !editingId && !isPhotoMode && !isAudioMode && !isCustomMode && !isAIMode && (
                       <>
                         <button
                           onClick={() => {
@@ -650,7 +689,7 @@ export default function Page() {
                   </div>
                   )
                 ) : isPhotoMode ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-6 animate-in fade-in duration-500 z-20">
+                  <div className="absolute inset-0 flex flex-col items-center justify-start pt-8 p-6 text-center space-y-6 animate-in fade-in duration-500 z-20">
                     {imageDraft ? (
                       <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-sm group">
                         <img src={imageDraft} className="w-full h-full object-cover" />
@@ -713,7 +752,7 @@ export default function Page() {
                 </PrimaryButton>
 
                 {/* Share with family — shown at bottom for all modes when no content yet */}
-                {user && !editingId && !allStarterUsed && !imageDraft && !audioDraft && normalize(storyDraft).length === 0 && !isPhotoMode && !isAudioMode && (
+                {user && !editingId && !imageDraft && !audioDraft && normalize(storyDraft).length === 0 && !isPhotoMode && !isAudioMode && !isAIMode && (
                   <div className="text-center">
                     {blankSharedLink ? (
                       <div className="flex flex-col items-center gap-1 animate-in fade-in duration-300">

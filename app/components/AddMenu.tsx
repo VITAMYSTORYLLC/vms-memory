@@ -103,7 +103,8 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[90]"
+                        style={{ top: 0, left: 0, right: 0, bottom: 0 }}
                     />
 
                     {/* Menu Content - Full Screen Carousel */}
@@ -113,7 +114,8 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
                         onClick={onClose}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 pb-32"
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 pb-32"
+                        style={{ top: 0, left: 0, right: 0, bottom: 0 }}
                     >
                         <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-lg h-[580px] overflow-hidden">
                             {/* Carousel */}
@@ -140,7 +142,7 @@ export function AddMenu({ isOpen, onClose }: AddMenuProps) {
                                             className={`flex-shrink-0 w-[90%] px-2 h-full transition-all duration-500 ease-out cursor-pointer ${isActive ? "scale-100 opacity-100 cursor-default" : "scale-[0.92] opacity-60 hover:opacity-80"}`}
                                             style={{ flex: "0 0 90%" }}
                                         >
-                                            <div className={`bg-white dark:bg-midnight-900 border border-stone-200 dark:border-stone-800 shadow-xl rounded-[2rem] h-full flex flex-col items-center justify-center p-8 space-y-6 text-center transition-colors animate-in fade-in duration-500 group ${card.disabled ? 'grayscale opacity-60 cursor-not-allowed' : ''}`}>
+                                            <div className={`bg-white dark:bg-midnight-900 border border-stone-200 dark:border-stone-800 shadow-xl rounded-[2rem] h-full flex flex-col items-center justify-center p-8 space-y-6 text-center transition-colors animate-in fade-in duration-500 group ${card.disabled ? 'grayscale cursor-not-allowed' : ''}`}>
                                                 {/* Icon Circle */}
                                                 <div className={`w-20 h-20 rounded-full bg-stone-50 dark:bg-midnight-950 border-2 border-dashed border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-400 dark:text-stone-600 transition-transform duration-500 ${!card.disabled && 'group-hover:scale-110'} 
                                                     ${!card.disabled && card.id === 'photo' ? 'group-hover:text-blue-400 group-hover:border-blue-200' :

@@ -386,10 +386,31 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
 
     function deleteMemory(memoryId: string) {
         if (!activePersonId) return;
+
+        // Find the memory being deleted so we can check its questionId
+        const person = people.find(p => p.id === activePersonId);
+        const deletedMemory = person?.memories.find(m => m.id === memoryId);
+
         setPeople((prev) => prev.map((p) => {
             if (p.id !== activePersonId) return p;
             return { ...p, memories: p.memories.filter((m) => m.id !== memoryId) };
         }));
+
+        // If the deleted story used a starter question slot (q_0 … q_4),
+        // un-mark it so the question becomes available again — but only if
+        // no other story for this person also occupies that slot.
+        if (deletedMemory?.questionId && /^q_[0-4]$/.test(deletedMemory.questionId)) {
+            const slotIndex = parseInt(deletedMemory.questionId.split('_')[1], 10);
+            const remainingUsesSlot = (person?.memories ?? [])
+                .filter(m => m.id !== memoryId)
+                .some(m => m.questionId === deletedMemory.questionId);
+
+            if (!remainingUsesSlot) {
+                const used = loadUsedQuestionIndexes(activePersonId);
+                const updated = used.filter(i => i !== slotIndex);
+                saveUsedQuestionIndexes(activePersonId, updated);
+            }
+        }
     }
 
     function toggleMemoryPrivacy(memoryId: string) {

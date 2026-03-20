@@ -174,7 +174,7 @@ export default function StoriesPage() {
                                 onEdit={startEditing}
                                 onTogglePrivacy={toggleMemoryPrivacy}
                                 lockedProgress={isSearching ? undefined : lockedProgress}
-                                onUnlockClick={() => router.push("/")}
+                                onUnlockClick={() => router.push("/?continue=true")}
                             />
                         ) : null}
                 </div>
