@@ -419,8 +419,8 @@ export function StoryCarousel({ items, lang, onDelete, onEdit, onTogglePrivacy, 
                         <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">{t.confirmDeleteTitle}</h3>
                         <p className="text-sm text-stone-500 dark:text-stone-400 mb-6 text-center">{t.confirmDeleteBody}</p>
                         <div className="flex gap-3 w-full">
-                          <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-3 bg-stone-100 dark:bg-midnight-800 rounded-lg text-stone-600 dark:text-stone-300 font-medium hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors">{t.cancel}</button>
-                          <button onClick={() => { onDelete(item.id); setShowDeleteConfirm(false); }} className="flex-1 py-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">{t.confirm}</button>
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDeleteConfirm(false); }} className="flex-1 py-3 bg-stone-100 dark:bg-midnight-800 rounded-lg text-stone-600 dark:text-stone-300 font-medium hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors">{t.cancel}</button>
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(item.id); setShowDeleteConfirm(false); }} className="flex-1 py-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600 dark:text-red-400 font-medium hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">{t.confirm}</button>
                         </div>
                       </div>
                     )}

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "https://vms-memory.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL 
+  || (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://vms-memory.vercel.app");
 
 export async function POST(req: NextRequest) {
   // Initialize inside handler so a missing env var doesn't crash the build
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    apiVersion: "2026-02-25.clover" as any,
+    apiVersion: "2024-04-10" as any,
   });
 
   try {
@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
               name: `Memory Book — ${personName}`,
               description:
                 "A beautifully formatted PDF book of all their stories, preserved forever.",
-              images: [`${APP_URL}/icon-512x512.png`],
             },
             unit_amount: 299, // $2.99
           },

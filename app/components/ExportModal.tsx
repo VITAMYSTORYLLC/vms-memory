@@ -108,9 +108,9 @@ export default function ExportModal({
       window.location.href = data.url;
     } catch (err: any) {
       setError(
-        lang === "es"
+        err.message || (lang === "es"
           ? "No se pudo iniciar el pago. Inténtalo de nuevo."
-          : "Couldn't start payment. Please try again."
+          : "Couldn't start payment. Please try again.")
       );
       setCheckoutLoading(false);
     }
