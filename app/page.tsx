@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Step } from "./types";
+import { Step } from "@/types";
 import {
   currentWeekNumber,
   wrapIndex,
@@ -12,26 +12,26 @@ import {
   addBadge,
   compressImage,
   normalize,
-} from "./utils";
-import { renderWithBoldName } from "./utils/text";
-import { QUESTION_EXAMPLES, SELF_QUESTIONS } from "./constants";
-import { useSwipe } from "./hooks/useSwipe";
-import { PrimaryButton } from "./components/PrimaryButton";
-import { SecondaryButton } from "./components/SecondaryButton";
-import { ArrowButton } from "./components/ArrowButton";
-import { useDictation } from "./hooks/useDictation";
-import { useAudioRecorder } from "./hooks/useAudioRecorder";
-import { useMemory } from "./context/MemoryContext";
+} from "@/utils";
+import { renderWithBoldName } from "@/utils/text";
+import { QUESTION_EXAMPLES, SELF_QUESTIONS } from "@/constants";
+import { useSwipe } from "@/hooks/useSwipe";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { SecondaryButton } from "@/components/ui/SecondaryButton";
+import { ArrowButton } from "@/components/ui/ArrowButton";
+import { useDictation } from "@/hooks/useDictation";
+import { useAudioRecorder } from "@/hooks/useAudioRecorder";
+import { useMemory } from "@/context/MemoryContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Haptics } from "./utils/haptics";
-import { RefineModal } from "./components/RefineModal";
-import { useAuth } from "./hooks/useAuth";
-import { shareBlankQuestion, getBlankQuestionsForPerson } from "./utils/engagement";
-import { useFriends } from "./hooks/useFriends";
-import FriendPicker from "./components/FriendPicker";
+import { Haptics } from "@/utils/haptics";
+import { RefineModal } from "@/features/stories/RefineModal";
+import { useAuth } from "@/hooks/useAuth";
+import { shareBlankQuestion, getBlankQuestionsForPerson } from "@/utils/engagement";
+import { useFriends } from "@/hooks/useFriends";
+import FriendPicker from "@/features/family/FriendPicker";
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "./lib/firebase";
-import { Friend } from "./types";
+import { db } from "@/lib/firebase";
+import { Friend } from "@/types";
 
 
 export default function Page() {

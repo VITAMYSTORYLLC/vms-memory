@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMemory } from "../context/MemoryContext";
-import { useAuth } from "../hooks/useAuth";
-import { AuthModal } from "../components/AuthModal";
-import { compressImage, loadBadges } from "../utils";
-import { uploadImage } from "../utils/storage";
-import { PrimaryButton } from "../components/PrimaryButton";
-import { SecondaryButton } from "../components/SecondaryButton";
+import { useMemory } from "@/context/MemoryContext";
+import { useAuth } from "@/hooks/useAuth";
+import { AuthModal } from "@/features/auth/AuthModal";
+import { compressImage, loadBadges } from "@/utils";
+import { uploadImage } from "@/utils/storage";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import { useRouter } from "next/navigation";
 import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail, FiUsers, FiLock } from "react-icons/fi";
-import ExportModal from "../components/ExportModal";
+import ExportModal from "@/features/stories/ExportModal";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
-import { auth } from "../lib/firebase";
-import { useFriends } from "../hooks/useFriends";
-import { useActivityFeed } from '../hooks/useEngagement';
+import { auth } from "@/lib/firebase";
+import { useFriends } from "@/hooks/useFriends";
+import { useActivityFeed } from '@/hooks/useEngagement';
 
 // All possible badges in order
 const ALL_BADGES = [
@@ -266,7 +266,7 @@ export default function ProfilePage() {
         setIsDeleting(true);
         try {
             const { doc: fsDoc, deleteDoc } = await import("firebase/firestore");
-            const { db } = await import("../lib/firebase");
+            const { db } = await import("@/lib/firebase");
             await deleteDoc(fsDoc(db, "users", auth.currentUser.uid)).catch(() => {});
             await deleteUser(auth.currentUser);
             resetApp();

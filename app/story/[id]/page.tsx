@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
-import { Person, Lang } from "../../types";
-import { StoryCarousel } from "../../components/StoryCarousel";
-import { PrimaryButton } from "../../components/PrimaryButton";
-import { CommentSection } from "../../components/CommentSection";
+import { db } from "@/lib/firebase";
+import { Person, Lang } from "@/types";
+import { StoryCarousel } from "@/features/stories/StoryCarousel";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { CommentSection } from "@/features/stories/CommentSection";
 import Link from "next/link";
 
 export default function StoryViewer() {

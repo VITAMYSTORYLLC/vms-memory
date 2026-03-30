@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getSharedStory, reportSharedStory } from '../../utils/engagement';
-import { useEngagement } from '../../hooks/useEngagement';
-import { useAuth } from '../../hooks/useAuth';
-import { useMemory } from '../../context/MemoryContext';
-import EngagementBar from '../../components/EngagementBar';
-import StoryComments from '../../components/StoryComments';
+import { getSharedStory, reportSharedStory } from '@/utils/engagement';
+import { useEngagement } from '@/hooks/useEngagement';
+import { useAuth } from '@/hooks/useAuth';
+import { useMemory } from '@/context/MemoryContext';
+import EngagementBar from '@/features/stories/EngagementBar';
+import StoryComments from '@/features/stories/StoryComments';
 import { FiArrowLeft, FiFlag } from 'react-icons/fi';
 import { FaPlay } from 'react-icons/fa';
 
