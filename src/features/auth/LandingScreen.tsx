@@ -8,18 +8,13 @@ import { AuthForm } from "./AuthForm";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function LandingScreen() {
-    const { completeOnboarding, lang, setLang, t, setTheme } = useMemory();
+    const { completeOnboarding, lang, setLang, t } = useMemory();
     const { loading: authLoading, error: authError, signUp, signIn, signInWithGoogle, resetPassword, clearError } = useAuth();
     const [authMode, setAuthMode] = useState<"login" | "register" | "reset" | null>("login");
     const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
 
-    // Enforce Light Mode on Landing Screen
-    React.useEffect(() => {
-        setTheme("light");
-    }, []);
-
     return (
-        <div className="fixed inset-0 z-50 bg-[#F9F8F6] flex flex-col overflow-y-auto transition-colors duration-500 animate-in fade-in duration-500">
+        <div className="fixed inset-0 z-50 bg-[#F9F8F6] dark:bg-midnight-950 flex flex-col overflow-y-auto transition-colors duration-500 animate-in fade-in duration-500">
             {/* Logo - Top Left */}
             <div className="absolute top-6 left-6 z-20">
                 <img src="/assets/images/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 mix-blend-multiply" />
