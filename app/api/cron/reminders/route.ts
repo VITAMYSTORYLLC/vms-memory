@@ -3,7 +3,7 @@
 // Scheduled in vercel.json: "0 14 * * *" (9am EST / 2pm UTC)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminMessaging, getAdminDb } from '../../../lib/firebaseAdmin';
+import { getAdminMessaging, getAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 

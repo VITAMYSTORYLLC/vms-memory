@@ -3,17 +3,17 @@
 import Image from "next/image";
 
 import React, { useState } from "react";
-import { useMemory } from "../context/MemoryContext";
-import { PrimaryButton } from "../components/PrimaryButton";
-import { SecondaryButton } from "../components/SecondaryButton";
+import { useMemory } from "@/context/MemoryContext";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import { useRouter } from "next/navigation";
-import { plural, normalize } from "../utils";
-import { renderWithBoldName } from "../utils/text";
-import { AuthModal } from "../components/AuthModal";
-import { useAuth } from "../hooks/useAuth";
+import { plural, normalize } from "@/utils";
+import { renderWithBoldName } from "@/utils/text";
+import { AuthModal } from "@/features/auth/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
 import { FiShare2, FiMoreVertical, FiEdit2, FiTrash2, FiX, FiCheck, FiCamera, FiUser } from "react-icons/fi";
-import { compressImage } from "../utils";
-import { uploadImage } from "../utils/storage";
+import { compressImage } from "@/utils";
+import { uploadImage } from "@/utils/storage";
 
 export default function FamilyPage() {
     const {
@@ -438,7 +438,7 @@ export default function FamilyPage() {
                             <div className="space-y-4">
                                 <div className="flex justify-center mb-2">
                                     <Image
-                                        src={theme === "dark" ? "/logo-dark.png" : "/logo-transparent.png"}
+                                        src={theme === "dark" ? "/assets/images/logo-dark.png" : "/assets/images/logo-transparent.png"}
                                         alt="VitaMyStory Logo"
                                         width={150}
                                         height={150}

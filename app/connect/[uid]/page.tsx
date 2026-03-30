@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
-import { useAuth } from '../../hooks/useAuth';
-import { UserProfile } from '../../types';
+import { db } from '@/lib/firebase';
+import { useAuth } from '@/hooks/useAuth';
+import { UserProfile } from '@/types';
 
 type Phase = 'loading' | 'invite' | 'success' | 'error' | 'self';
 

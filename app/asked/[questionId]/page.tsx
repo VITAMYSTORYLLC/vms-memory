@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { doc, getDoc, collection, addDoc } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { db } from '@/lib/firebase';
 
 interface QuestionData {
   prompt: string;
