@@ -61,7 +61,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="pb-16 mobile-safe-area">
+      <body className="pb-16 mobile-safe-area bg-[#F9F8F6] dark:bg-midnight-950">
         <MemoryProvider>
           <FirebaseErrorGuard />
           <SplashScreen />
