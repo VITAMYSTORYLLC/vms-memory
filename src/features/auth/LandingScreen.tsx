@@ -17,14 +17,15 @@ export default function LandingScreen() {
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] dark:bg-midnight-950 flex flex-col overflow-y-auto transition-colors duration-500 animate-in fade-in duration-500">
             {/* Logo - Top Left */}
             <div className="absolute top-6 left-6 z-20">
-                <img src="/assets/images/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 mix-blend-multiply" />
+                <img src="/assets/images/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 mix-blend-multiply dark:hidden" />
+                <img src="/assets/images/logo-dark.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 hidden dark:block mix-blend-screen" />
             </div>
 
             {/* Lang Switch - Top Right, aligned with bottom of logo */}
             <div className="absolute top-[52px] right-6 z-20 font-sans">
                 <button
                     onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-                    className="flex items-center gap-2 text-sm font-black tracking-[0.2em] text-stone-900 hover:text-stone-600 transition-colors uppercase bg-transparent p-2 rounded-lg"
+                    className="flex items-center gap-2 text-sm font-black tracking-[0.2em] text-stone-900 dark:text-stone-100 hover:text-stone-600 dark:hover:text-stone-300 transition-colors uppercase bg-transparent p-2 rounded-lg"
                 >
                     {lang === 'es' ? 'ESPAÑOL' : 'ENGLISH'}
                     <svg
@@ -61,13 +62,13 @@ export default function LandingScreen() {
 
             <div className="flex-1 flex flex-col justify-center items-center p-6 pt-24 text-center max-w-lg mx-auto w-full animate-in fade-in zoom-in-95 duration-700">
 
-                <p className="text-stone-600 font-serif text-lg leading-relaxed mb-10 max-w-xs mt-24">
+                <p className="text-stone-600 dark:text-stone-300 font-serif text-lg leading-relaxed mb-10 max-w-xs mt-24">
                     {t.heroTagline} <br />
                     {t.heroSubtagline}
                 </p>
 
                 <div className="w-full space-y-8">
-                    <div className="p-6 bg-white rounded-2xl border border-stone-100 shadow-sm">
+                    <div className="p-6 bg-white dark:bg-midnight-900 rounded-2xl border border-stone-100 dark:border-stone-800 shadow-sm">
                         {authMode && (
                             <AuthForm
                                 mode={authMode}
