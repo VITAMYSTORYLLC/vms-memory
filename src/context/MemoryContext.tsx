@@ -223,6 +223,11 @@ export function MemoryProvider({ children }: { children: React.ReactNode }) {
         const storedTheme = loadString("vms_theme");
         if (storedTheme === "light" || storedTheme === "dark") {
             setTheme(storedTheme);
+        } else {
+            const prefersDark =
+                typeof window !== "undefined" &&
+                window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setTheme(prefersDark ? "dark" : "light");
         }
 
         const storedPhoto = window.localStorage.getItem("vms_user_photo");

@@ -54,7 +54,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="pb-16 mobile-safe-area">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('vms_theme');if(s==='dark'){document.documentElement.classList.add('dark')}else if(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark')}}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className="pb-16 mobile-safe-area bg-[#F9F8F6] dark:bg-midnight-950">
         <MemoryProvider>
           <FirebaseErrorGuard />
           <SplashScreen />
