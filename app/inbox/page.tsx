@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { useMemory } from "../context/MemoryContext";
-import BottomNav from "../components/BottomNav";
-import { ArrowButton } from "../components/ArrowButton";
+import { useMemory } from "@/context/MemoryContext";
+import BottomNav from "@/components/layout/BottomNav";
+import { ArrowButton } from "@/components/ui/ArrowButton";
 import { useRouter } from "next/navigation";
-import { TEXT } from "../constants";
-import { Person, MemoryItem } from "../types";
+import { TEXT } from "@/constants";
+import { Person, MemoryItem } from "@/types";
 
 export default function InboxPage() {
     const { lang, pendingMemories, activePerson, setPeople, setActivePersonId, setIsCustomMode, setStoryDraft, t } = useMemory();

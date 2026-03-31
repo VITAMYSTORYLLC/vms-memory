@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { StoryCarousel } from "../components/StoryCarousel";
-import { useMemory } from "../context/MemoryContext";
+import { StoryCarousel } from "@/features/stories/StoryCarousel";
+import { useMemory } from "@/context/MemoryContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PrimaryButton } from "../components/PrimaryButton";
-import { plural } from "../utils";
-import PendingAnswers from "../components/PendingAnswers";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { plural } from "@/utils";
+import PendingAnswers from "@/features/family/PendingAnswers";
 
 // Search only reveals itself once the collection is large enough to need it
 const SEARCH_THRESHOLD = 10;

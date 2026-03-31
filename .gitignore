@@ -8,3 +8,7 @@ out
 .vercel
 
 .idea/
+
+# next-pwa generated files (auto-generated on every build)
+/public/sw.js
+/public/workbox-*.js

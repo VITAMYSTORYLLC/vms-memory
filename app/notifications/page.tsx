@@ -2,10 +2,10 @@
 
 import React from "react";
 import { FiBell, FiInfo, FiStar, FiCheckCircle, FiTrash2, FiHeart, FiMessageSquare, FiEye, FiEdit3, FiInbox } from "react-icons/fi";
-import { useMemory } from "../context/MemoryContext";
-import { useAuth } from "../hooks/useAuth";
-import { useActivityFeed } from "../hooks/useEngagement";
-import { NotificationType, Person, MemoryItem } from "../types";
+import { useMemory } from "@/context/MemoryContext";
+import { useAuth } from "@/hooks/useAuth";
+import { useActivityFeed } from "@/hooks/useEngagement";
+import { NotificationType, Person, MemoryItem } from "@/types";
 
 export default function NotificationsPage() {
     const { notifications, markAsRead, markAllAsRead, deleteNotification, isHydrated, t, pendingMemories, activePerson, setPeople, lang } = useMemory();

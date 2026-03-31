@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useMemory } from "../context/MemoryContext";
+import { useMemory } from "@/context/MemoryContext";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function BookSuccessPage() {
   const searchParams = useSearchParams();
@@ -45,7 +45,7 @@ export default function BookSuccessPage() {
 
       // Generate the PDF
       const { pdf } = await import("@react-pdf/renderer");
-      const { BookPdfDocument } = await import("../components/BookPdf");
+      const { BookPdfDocument } = await import("@/features/stories/BookPdf");
       const React = (await import("react")).default;
 
       const publicMemories = memories.filter((m) => !m.isPrivate && m.text?.trim());

@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getBlankQuestion, submitFamilyAnswer } from "../../utils/engagement";
-import { useAuth } from "../../hooks/useAuth";
-import { BlankQuestion, FamilyAnswer } from "../../types";
+import { getBlankQuestion, submitFamilyAnswer } from "@/utils/engagement";
+import { useAuth } from "@/hooks/useAuth";
+import { BlankQuestion, FamilyAnswer } from "@/types";
 import { FiArrowLeft, FiSend, FiLock, FiCheck } from "react-icons/fi";
 
 export default function BlankQuestionPage() {

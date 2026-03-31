@@ -20,6 +20,9 @@
       "node"
     ],
     "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "esModuleInterop": true,
     "plugins": [
       {

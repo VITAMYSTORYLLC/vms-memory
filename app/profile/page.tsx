@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useMemory } from "../context/MemoryContext";
-import { useAuth } from "../hooks/useAuth";
-import { AuthModal } from "../components/AuthModal";
-import { compressImage, loadBadges } from "../utils";
-import { uploadImage } from "../utils/storage";
-import { PrimaryButton } from "../components/PrimaryButton";
-import { SecondaryButton } from "../components/SecondaryButton";
+import { useMemory } from "@/context/MemoryContext";
+import { useAuth } from "@/hooks/useAuth";
+import { AuthModal } from "@/features/auth/AuthModal";
+import { compressImage, loadBadges } from "@/utils";
+import { uploadImage } from "@/utils/storage";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import { useRouter } from "next/navigation";
 import { FiCamera, FiEdit2, FiCheck, FiLogOut, FiDownload, FiTrash2, FiUser, FiMail, FiUsers, FiLock } from "react-icons/fi";
-import ExportModal from "../components/ExportModal";
+import ExportModal from "@/features/stories/ExportModal";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
-import { auth } from "../lib/firebase";
-import { useFriends } from "../hooks/useFriends";
-import { useActivityFeed } from '../hooks/useEngagement';
+import { auth } from "@/lib/firebase";
+import { useFriends } from "@/hooks/useFriends";
+import { useActivityFeed } from '@/hooks/useEngagement';
 
 // All possible badges in order
 const ALL_BADGES = [
@@ -266,7 +266,7 @@ export default function ProfilePage() {
         setIsDeleting(true);
         try {
             const { doc: fsDoc, deleteDoc } = await import("firebase/firestore");
-            const { db } = await import("../lib/firebase");
+            const { db } = await import("@/lib/firebase");
             await deleteDoc(fsDoc(db, "users", auth.currentUser.uid)).catch(() => {});
             await deleteUser(auth.currentUser);
             resetApp();
@@ -749,17 +749,17 @@ export default function ProfilePage() {
                                 </button>
                             </>
                         ) : (
-                            <div className="bg-stone-900 dark:bg-stone-100 rounded-[2rem] p-10 text-center space-y-8 shadow-xl shadow-stone-200/50 dark:shadow-none">
+                            <div className="bg-white dark:bg-midnight-900 rounded-[2rem] p-10 text-center space-y-8 shadow-sm border border-stone-100/50 dark:border-stone-800">
                                 <div className="space-y-3">
-                                    <div className="w-12 h-12 bg-white/10 dark:bg-black/10 rounded-full flex items-center justify-center mx-auto mb-6 text-white dark:text-stone-900">
+                                    <div className="w-12 h-12 bg-stone-200 dark:bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6 text-stone-600 dark:text-white">
                                         <FiUser size={24} />
                                     </div>
-                                    <h3 className="text-white dark:text-stone-900 text-2xl font-serif font-bold">{t.secureStoriesTitle}</h3>
-                                    <p className="text-stone-400 dark:text-stone-600 text-sm px-2 leading-relaxed">{t.secureStoriesBody}</p>
+                                    <h3 className="text-stone-900 dark:text-stone-100 text-2xl font-serif font-bold">{t.secureStoriesTitle}</h3>
+                                    <p className="text-stone-500 dark:text-stone-400 text-sm px-2 leading-relaxed">{t.secureStoriesBody}</p>
                                 </div>
                                 <button
                                     onClick={() => setAuthMode("login")}
-                                    className="w-full py-4 rounded-xl bg-white dark:bg-midnight-900 text-stone-900 dark:text-stone-100 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-100 dark:hover:bg-midnight-800 transition-all"
+                                    className="w-full py-4 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold uppercase tracking-[0.2em] text-xs hover:bg-stone-800 dark:hover:bg-white transition-all"
                                 >
                                     {t.loginBtn} / {t.registerBtn}
                                 </button>
