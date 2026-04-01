@@ -17,8 +17,8 @@ export default function LandingScreen() {
         <div className="fixed inset-0 z-50 bg-[#F9F8F6] dark:bg-midnight-950 flex flex-col overflow-y-auto transition-colors duration-500 animate-in fade-in duration-500">
             {/* Logo - Top Left */}
             <div className="absolute top-6 left-6 z-20">
-                <img src="/assets/images/logo-transparent.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 mix-blend-multiply dark:hidden" />
-                <img src="/assets/images/logo-dark.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 hidden dark:block mix-blend-screen" />
+                <img src="/assets/images/logo-black.webp" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 mix-blend-multiply dark:hidden" />
+                <img src="/assets/images/logo-white.png" alt="VitaMyStory Logo" className="w-32 h-auto object-contain animate-in fade-in slide-in-from-top-4 duration-700 hidden dark:block mix-blend-screen" />
             </div>
 
             {/* Lang Switch - Top Right, aligned with bottom of logo */}
