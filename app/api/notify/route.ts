@@ -2,7 +2,7 @@
 // POST /api/notify — sends a push notification to the story owner's devices.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminMessaging, getAdminDb } from '../../lib/firebaseAdmin';
+import { getAdminMessaging, getAdminDb } from '@/lib/firebaseAdmin';
 
 export const runtime = 'nodejs';
 

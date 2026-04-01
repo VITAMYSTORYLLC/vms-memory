@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
-import { BookPdfDocument } from "../components/BookPdf";
-import { useMemory } from "../context/MemoryContext";
+import { BookPdfDocument } from "@/features/stories/BookPdf";
+import { useMemory } from "@/context/MemoryContext";
 
 // Sample data for when there are no real stories
 const SAMPLE_PERSON = {

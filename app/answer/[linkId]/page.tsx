@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { TEXT } from "../../constants";
-import { PrimaryButton } from "../../components/PrimaryButton";
-import { base64ToBlob, compressImage } from "../../utils";
+import { TEXT } from "@/constants";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { base64ToBlob, compressImage } from "@/utils";
 
 export default function AnswerPage() {
     const params = useParams();
@@ -131,7 +131,7 @@ export default function AnswerPage() {
                 <p className="text-stone-500 font-sans max-w-sm">Your memory has been sent securely to {personName}'s collection.</p>
                 <div className="mt-8 pt-8 border-t border-stone-200">
                     <p className="text-xs text-stone-400 font-sans uppercase tracking-widest mb-4">Powered by</p>
-                    <img src="/logo-transparent.png" alt="Vita My Story" className="w-24 mx-auto mix-blend-multiply opacity-50" />
+                    <img src="/assets/images/logo-transparent.png" alt="Vita My Story" className="w-24 mx-auto mix-blend-multiply opacity-50" />
                 </div>
             </div>
         );
@@ -208,7 +208,7 @@ export default function AnswerPage() {
             </div>
             
             <div className="mt-8">
-                <img src="/logo-transparent.png" alt="Vita My Story" className="w-24 mix-blend-multiply opacity-40" />
+                <img src="/assets/images/logo-transparent.png" alt="Vita My Story" className="w-24 mix-blend-multiply opacity-40" />
             </div>
         </div>
     );

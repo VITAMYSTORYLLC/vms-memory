@@ -1,11 +1,11 @@
 import "./globals.css";
-import BottomNav from "./components/BottomNav";
-import { MemoryProvider } from "./context/MemoryContext";
-import { GuestBanner } from "./components/GuestBanner";
-import { MemoryFlash } from "./components/MemoryFlash";
-import MilestoneWrapper from "./components/MilestoneWrapper";
-import SplashScreen from "./components/SplashScreen";
-import { FirebaseErrorGuard } from "./components/FirebaseErrorGuard";
+import BottomNav from "@/components/layout/BottomNav";
+import { MemoryProvider } from "@/context/MemoryContext";
+import { GuestBanner } from "@/features/auth/GuestBanner";
+import { MemoryFlash } from "@/features/stories/MemoryFlash";
+import MilestoneWrapper from "@/features/milestones/MilestoneWrapper";
+import SplashScreen from "@/components/layout/SplashScreen";
+import { FirebaseErrorGuard } from "@/components/layout/FirebaseErrorGuard";
 
 export const metadata = {
   title: "VitaMyStory — Preserve Family Stories Forever",
@@ -24,7 +24,7 @@ export const metadata = {
     siteName: "VitaMyStory",
     images: [
       {
-        url: "https://vms-memory.vercel.app/og-image.png",
+        url: "https://vms-memory.vercel.app/assets/images/og-image.png",
         width: 1200,
         height: 630,
         alt: "VitaMyStory — Where family stories live forever",
@@ -35,7 +35,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "VitaMyStory — Preserve Family Stories Forever",
     description: "A beautiful app to capture and preserve your family's stories, memories, and legacy.",
-    images: ["https://vms-memory.vercel.app/og-image.png"],
+    images: ["https://vms-memory.vercel.app/assets/images/og-image.png"],
   },
 };
 
@@ -54,7 +54,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="pb-16 mobile-safe-area">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=localStorage.getItem('vms_theme');if(s==='dark'){document.documentElement.classList.add('dark')}else if(!s&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark')}}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className="pb-16 mobile-safe-area bg-[#F9F8F6] dark:bg-midnight-950">
         <MemoryProvider>
           <FirebaseErrorGuard />
           <SplashScreen />
