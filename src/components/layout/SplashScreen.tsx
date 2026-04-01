@@ -42,12 +42,12 @@ export default function SplashScreen() {
       }`}
     >
       <img
-        src="/assets/images/logo-transparent.png"
+        src="/assets/images/logo-black.webp"
         alt="Vita My Story"
         className="w-48 h-auto object-contain animate-in fade-in zoom-in duration-700 mix-blend-multiply dark:hidden"
       />
       <img
-        src="/assets/images/logo-dark.png"
+        src="/assets/images/logo-white.png"
         alt="Vita My Story"
         className="w-48 h-auto object-contain animate-in fade-in zoom-in duration-700 hidden dark:block mix-blend-screen"
       />
